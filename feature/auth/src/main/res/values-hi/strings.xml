@@ -17,4 +17,13 @@
     <string name="login_error_network">इंटरनेट नहीं है। कनेक्शन देखकर फिर कोशिश करें।</string>
     <string name="login_error_google">Google से साइन इन नहीं हुआ। ईमेल से कोशिश करें।</string>
     <string name="login_error_unknown">कुछ गड़बड़ हुई। फिर से कोशिश करें।</string>
+    <string name="onboarding_1_title">परिवार का खर्च एक जगह</string>
+    <string name="onboarding_1_body">पूरा परिवार एक ही जगह खर्च लिखता है, और सबको एक जैसा हिसाब दिखता है।</string>
+    <string name="onboarding_2_title">कोई EMI न छूटे</string>
+    <string name="onboarding_2_body">लोन और EMI एक साथ रखें और हर तारीख़ से पहले याद दिलाने वाला नोटिफ़िकेशन पाएँ।</string>
+    <string name="onboarding_3_title">समझदार सुझावों से बचत</string>
+    <string name="onboarding_3_body">Kinly आपका खर्च समझता है और हर महीने बचत के आसान तरीके बताता है।</string>
+    <string name="onboarding_skip">छोड़ें</string>
+    <string name="onboarding_next">आगे</string>
+    <string name="onboarding_start">शुरू करें</string>
 </resources>

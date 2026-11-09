@@ -17,4 +17,13 @@
     <string name="login_error_network">No internet. Check your connection and try again.</string>
     <string name="login_error_google">Google sign-in didn\'t work. Try email instead.</string>
     <string name="login_error_unknown">Something went wrong. Please try again.</string>
+    <string name="onboarding_1_title">Track family spend</string>
+    <string name="onboarding_1_body">The whole family adds expenses in one place, and everyone sees the same total.</string>
+    <string name="onboarding_2_title">Never miss an EMI</string>
+    <string name="onboarding_2_body">Keep your loans and EMIs together and get a reminder before each due date.</string>
+    <string name="onboarding_3_title">Save with smart tips</string>
+    <string name="onboarding_3_body">Kinly learns your spending and suggests simple ways to save every month.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
 </resources>
