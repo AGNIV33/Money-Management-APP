@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
+import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,8 +19,8 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Keep the splash up until the phone-only family exists, so Home never flashes empty.
-        installSplashScreen().setKeepOnScreenCondition { !viewModel.ready.value }
+        // Splash stays until we know whether a saved login exists, so Login never flashes for signed-in users.
+        installSplashScreen().setKeepOnScreenCondition { viewModel.screen.value == RootScreen.SPLASH }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         viewModel.start(
@@ -28,8 +29,12 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             HisaabTheme {
-                val ready by viewModel.ready.collectAsStateWithLifecycle()
-                if (ready) ExpensesHomeScreen(title = stringResource(R.string.app_name))
+                val screen by viewModel.screen.collectAsStateWithLifecycle()
+                when (screen) {
+                    RootScreen.SPLASH -> Unit
+                    RootScreen.LOGIN -> LoginScreen()
+                    RootScreen.HOME -> ExpensesHomeScreen(title = stringResource(R.string.app_name))
+                }
             }
         }
     }

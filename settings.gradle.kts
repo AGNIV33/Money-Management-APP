@@ -35,3 +35,4 @@ include(":core:data")
 include(":core:ml")
 // Feature modules are added when each feature is built.
 include(":feature:expenses")
+include(":feature:auth")

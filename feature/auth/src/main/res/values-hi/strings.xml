@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Hisaab AI में स्वागत है</string>
+    <string name="login_subtitle">परिवार के साथ खर्च साझा करने के लिए साइन इन करें। आपका डेटा सुरक्षित रहता है।</string>
+    <string name="login_email">ईमेल</string>
+    <string name="login_send_code">कोड भेजें</string>
+    <string name="login_sending">भेज रहे हैं…</string>
+    <string name="login_code_sent">हमने %1$s पर 6 अंकों का कोड भेजा है। इनबॉक्स (और स्पैम) देखें।</string>
+    <string name="login_code">6 अंकों का कोड</string>
+    <string name="login_verify">साइन इन करें</string>
+    <string name="login_resend">कोड फिर से भेजें</string>
+    <string name="login_change_email">दूसरा ईमेल डालें</string>
+    <string name="login_google">Google से जारी रखें</string>
+    <string name="login_error_email">सही ईमेल डालें</string>
+    <string name="login_error_code">कोड गलत है या पुराना हो गया। फिर से कोशिश करें या नया कोड मँगाएँ।</string>
+    <string name="login_error_too_many">बहुत बार कोशिश हुई। एक मिनट रुककर फिर कोशिश करें।</string>
+    <string name="login_error_network">इंटरनेट नहीं है। कनेक्शन देखकर फिर कोशिश करें।</string>
+    <string name="login_error_google">Google से साइन इन नहीं हुआ। ईमेल से कोशिश करें।</string>
+    <string name="login_error_unknown">कुछ गड़बड़ हुई। फिर से कोशिश करें।</string>
+</resources>
