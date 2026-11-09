@@ -13,13 +13,13 @@
 - [x] 0.4 Create modules (see `ARCHITECTURE.md` §3) with convention plugins (`build-logic/`).
 - [x] 0.5 Add ktlint + detekt; GitHub repo + `.gitignore` (exclude `local.properties`, keystores).
 - [x] 0.6 GitHub Actions CI: build + unit tests + lint on every push.
-- [ ] 0.7 Supabase: create `hisaab-dev` project; save URL + anon key in `local.properties` → `BuildConfig`.
+- [x] 0.7 Supabase: create `hisaab-dev` project; save URL + anon key in `local.properties` → `BuildConfig`.
 - [x] 0.8 `core:common`: `Money` (paise), `MoneyFormatter` (en-IN), `DispatcherProvider`, `Result` helpers + unit tests.
 - [x] 0.9 `core:designsystem`: theme (colors, type, shapes from `DESIGN.md`), light/dark, `HAmountText`, `HSummaryCard`.
 **✅ Exit:** app opens to a themed blank screen; CI green.
 
 ## Phase 1 — Core: Auth, Family, Expenses (Week 1–2)
-- [ ] 1.1 Supabase SQL migration: tables + RLS policies (`supabase/migrations/001_init.sql`).
+- [x] 1.1 Supabase SQL migration: tables + RLS policies (`supabase/migrations/001_init.sql`).
 - [ ] 1.2 `core:network`: supabase-kt client (Auth + Postgrest), DTOs.
 - [ ] 1.3 `feature:auth`: language pick, onboarding slides, phone OTP + Google sign-in, session restore.
 - [ ] 1.4 `feature:family`: create family (invite code), join by code, members list, roles.
@@ -94,3 +94,4 @@
 | 2026-11-09 | 0.1 | Android Studio + SDK installed (SDK at `F:\APPLICATIONS\INSTALLATIONS\Android\Sdk`). Low-end 2 GB API 26 emulator still to create. |
 | 2026-11-09 | 0.2–0.6, 0.8, 0.9 | Project, catalog, build-logic, core modules, ktlint/detekt, CI, `Money`/`MoneyFormatter`/dispatchers/Result (17 tests), theme + `HAmountText`/`HSummaryCard`. AGP 9.5.1, Kotlin 2.4.21, compileSdk 37. Feature modules created when each feature starts. Gradle daemon pinned to JDK 21 (detekt). |
 | 2026-11-09 | 0.7 | `BuildConfig.SUPABASE_URL/ANON_KEY` wired from `local.properties`. Supabase project itself not created yet. |
+| 2026-11-09 | 0.7, 1.1 | `hisaab-dev` created by Agniv (Singapore region). Migrations 001 (tables, RLS, create/join RPCs) + 002 (helpers in private schema) applied. Building 1.5–1.7 (offline) before 1.2–1.4 (auth) so screens can be seen sooner. |

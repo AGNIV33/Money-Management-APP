@@ -130,4 +130,5 @@ Severity: **S1** crash/data loss/security · **S2** wrong numbers/broken feature
 |------|-------|--------------------|
 | 2026-11-09 | Setup | Testing doc created |
 | 2026-11-09 | Test libs | Unit tests use JUnit 4 + Truth (+ Turbine, coroutines-test later), not JUnit 5: Android instrumented tests and Compose test rules still need JUnit 4, so one framework everywhere. |
+| 2026-11-09 | Supabase security | `hisaab-dev` advisors after 001+002: RLS helpers moved to `private` schema. Remaining warnings are expected: `create_family`/`join_family` are meant to be called by signed-in users; `rls_auto_enable()` is Supabase's own function, not ours. |
 | 2026-11-09 | Fonts | Phase 0 uses system font; bundled Noto Sans + Devanagari deferred to Phase 5 (DESIGN.md §3). |

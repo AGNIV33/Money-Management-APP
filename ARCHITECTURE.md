@@ -109,6 +109,8 @@ create policy "family read" on expenses for select using (
 ```
 Service-role key is **never** in the app.
 
+**Decision (2026-11-09, `001_init.sql`):** privacy uses `owner_user` (who *created* the row), not `paid_by_user`, because "paid by" can be another member. PRIVATE = only the creator sees it. Server sets `updated_at` via trigger. Create/join family go through `create_family()` / `join_family()` RPCs (max 4 members on free plan).
+
 ## 5. Sync engine
 - **Push:** WorkManager `SyncWorker` (constraint: network connected) reads `sync_queue` in order, upserts to Supabase, removes on success, exponential backoff on failure.
 - **Pull:** fetch rows where `updated_at > lastPulledAt` per table; upsert into Room.
