@@ -33,4 +33,5 @@ include(":core:database")
 include(":core:network")
 include(":core:data")
 include(":core:ml")
-// Feature modules (:feature:*) are added when each feature is built (Phase 1+).
+// Feature modules are added when each feature is built.
+include(":feature:expenses")

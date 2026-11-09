@@ -51,6 +51,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-hilt-lifecycle-viewmodel-compose = { module = "androidx.hilt:hilt-lifecycle-viewmodel-compose", version.ref = "hiltNavigationCompose" }
 javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }

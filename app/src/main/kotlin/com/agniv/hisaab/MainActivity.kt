@@ -4,66 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.agniv.hisaab.core.common.money.Money
-import com.agniv.hisaab.core.designsystem.component.HSummaryCard
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
-import com.agniv.hisaab.core.designsystem.theme.Spacing
+import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        // Keep the splash up until the phone-only family exists, so Home never flashes empty.
+        installSplashScreen().setKeepOnScreenCondition { !viewModel.ready.value }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        viewModel.start(
+            familyName = getString(R.string.local_family_name),
+            memberName = getString(R.string.local_member_name),
+        )
         setContent {
             HisaabTheme {
-                PlaceholderHome()
+                val ready by viewModel.ready.collectAsStateWithLifecycle()
+                if (ready) ExpensesHomeScreen(title = stringResource(R.string.app_name))
             }
         }
     }
-}
-
-// Phase 0 placeholder; replaced by the NavHost + real Home in Phase 1.
-@Composable
-private fun PlaceholderHome() {
-    Scaffold { padding ->
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(Spacing.screen),
-            verticalArrangement = Arrangement.spacedBy(Spacing.l),
-        ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            HSummaryCard(
-                title = stringResource(R.string.home_month_spent),
-                amount = Money.ZERO,
-                subtitle = stringResource(R.string.home_coming_soon),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PlaceholderHomePreview() {
-    HisaabTheme { PlaceholderHome() }
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_expense_title">खर्च जोड़ें</string>
+    <string name="add_expense_fab">जोड़ें</string>
+    <string name="add_expense_category">श्रेणी</string>
+    <string name="add_expense_note">नोट (ज़रूरी नहीं)</string>
+    <string name="add_expense_only_me">सिर्फ़ मैं</string>
+    <string name="add_expense_only_me_hint">परिवार यह खर्च नहीं देखेगा</string>
+    <string name="add_expense_save">सेव करें</string>
+    <string name="keypad_backspace">आख़िरी अंक मिटाएँ</string>
+    <string name="date_today">आज</string>
+    <string name="date_yesterday">कल</string>
+    <string name="date_pick">तारीख़ चुनें</string>
+    <string name="mode_cash">नकद</string>
+    <string name="mode_upi">UPI</string>
+    <string name="mode_card">कार्ड</string>
+    <string name="mode_other">अन्य</string>
+    <string name="error_amount">₹0 से ज़्यादा रकम डालें</string>
+    <string name="error_category">श्रेणी चुनें</string>
+    <string name="error_note">नोट बहुत लंबा है</string>
+    <string name="error_save">सेव नहीं हो पाया। फिर से कोशिश करें।</string>
+    <string name="ok">ठीक है</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="home_month_spent">इस महीने का खर्च</string>
+    <string name="home_this_month">इस महीने</string>
+    <string name="home_empty">अभी कोई खर्च नहीं। पहला खर्च लिखने के लिए जोड़ें दबाएँ।</string>
+    <string name="home_less_than_last">▼ पिछले महीने से %1$s कम</string>
+    <string name="home_more_than_last">▲ पिछले महीने से %1$s ज़्यादा</string>
+    <string name="home_same_as_last">पिछले महीने जितना</string>
+    <string name="delete_title">खर्च मिटाएँ?</string>
+    <string name="delete_body">%1$s पूरे परिवार के लिए हट जाएगा।</string>
+    <string name="delete_confirm">मिटाएँ</string>
+</resources>

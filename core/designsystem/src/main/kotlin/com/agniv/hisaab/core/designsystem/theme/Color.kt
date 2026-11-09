@@ -55,6 +55,14 @@ internal val LightColors =
         onSurfaceVariant = Palette.OnSurfaceVariantLight,
         outline = Palette.OutlineLight,
         outlineVariant = Palette.OutlineLight,
+        // Without these Material falls back to its purple baseline for chips, keypad and sheets.
+        secondaryContainer = Palette.PrimaryContainerLight,
+        onSecondaryContainer = Color(0xFF002116),
+        surfaceContainerLowest = Palette.SurfaceLight,
+        surfaceContainerLow = Palette.SurfaceLight,
+        surfaceContainer = Color(0xFFF1F4F2),
+        surfaceContainerHigh = Color(0xFFEBEFEC),
+        surfaceContainerHighest = Color(0xFFE5E9E6),
     )
 
 internal val DarkColors =
@@ -77,6 +85,13 @@ internal val DarkColors =
         onSurfaceVariant = Palette.OnSurfaceVariantDark,
         outline = Palette.OutlineDark,
         outlineVariant = Palette.OutlineDark,
+        secondaryContainer = Palette.PrimaryContainerDark,
+        onSecondaryContainer = Color(0xFFC9F2E0),
+        surfaceContainerLowest = Palette.BackgroundDark,
+        surfaceContainerLow = Palette.SurfaceDark,
+        surfaceContainer = Color(0xFF1D2321),
+        surfaceContainerHigh = Color(0xFF232A27),
+        surfaceContainerHighest = Color(0xFF2A322F),
     )
 
 /** Colors Material 3 has no slot for (DESIGN.md "custom" tokens). */

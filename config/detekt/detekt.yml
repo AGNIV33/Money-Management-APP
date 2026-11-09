@@ -4,6 +4,9 @@ naming:
     # Composables are PascalCase.
     ignoreAnnotated: ['Composable']
 complexity:
+  LongMethod:
+    # Compose screens read top-to-bottom; splitting them only to hit a line count hurts clarity.
+    ignoreAnnotated: ['Composable']
   LongParameterList:
     functionThreshold: 8
     ignoreDefaultParameters: true

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_expense_title">Add expense</string>
+    <string name="add_expense_fab">Add</string>
+    <string name="add_expense_category">Category</string>
+    <string name="add_expense_note">Note (optional)</string>
+    <string name="add_expense_only_me">Only me</string>
+    <string name="add_expense_only_me_hint">Family won\'t see this expense</string>
+    <string name="add_expense_save">Save</string>
+    <string name="keypad_backspace">Delete last digit</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="date_pick">Pick date</string>
+    <string name="mode_cash">Cash</string>
+    <string name="mode_upi">UPI</string>
+    <string name="mode_card">Card</string>
+    <string name="mode_other">Other</string>
+    <string name="error_amount">Enter an amount more than ₹0</string>
+    <string name="error_category">Pick a category</string>
+    <string name="error_note">Note is too long</string>
+    <string name="error_save">Could not save. Please try again.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="home_month_spent">This month spent</string>
+    <string name="home_this_month">This month</string>
+    <string name="home_empty">No expenses yet. Tap Add to note your first one.</string>
+    <string name="home_less_than_last">▼ %1$s less than last month</string>
+    <string name="home_more_than_last">▲ %1$s more than last month</string>
+    <string name="home_same_as_last">Same as last month</string>
+    <string name="delete_title">Delete expense?</string>
+    <string name="delete_body">%1$s will be removed for the whole family.</string>
+    <string name="delete_confirm">Delete</string>
+</resources>
