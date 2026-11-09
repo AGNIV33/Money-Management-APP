@@ -118,6 +118,10 @@ fun ExpensesHomeScreen(
             }
             item(key = "month") { MonthSwitcher(state, viewModel::onEvent) }
             item(key = "summary") { Summary(state) }
+            if (!state.filter.isActive) {
+                item(key = "top-categories") { TopCategoriesCard(state) }
+                item(key = "who-spent") { WhoSpentCard(state) }
+            }
             item(key = "filters") { Filters(state, viewModel::onEvent) }
             if (!state.loading && state.days.isEmpty()) {
                 item(key = "empty") {

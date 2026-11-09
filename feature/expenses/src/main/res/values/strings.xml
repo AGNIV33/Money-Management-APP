@@ -37,4 +37,8 @@
     <string name="search_hint">Search notes or categories</string>
     <string name="clear_filters">✕ Clear</string>
     <string name="no_match">Nothing matches. Try another search or filter.</string>
+    <string name="dash_top_categories">Top categories</string>
+    <string name="dash_rest">Everything else</string>
+    <string name="dash_who_spent">Who spent</string>
+    <string name="dash_unknown_member">Family member</string>
 </resources>

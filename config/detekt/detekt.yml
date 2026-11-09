@@ -1,5 +1,8 @@
 # Builds on detekt defaults (buildUponDefaultConfig = true). Only overrides live here.
 naming:
+  MatchingDeclarationName:
+    # Compose files hold one public composable plus its small model class; ktlint's filename rule covers the rest.
+    active: false
   FunctionNaming:
     # Composables are PascalCase.
     ignoreAnnotated: ['Composable']

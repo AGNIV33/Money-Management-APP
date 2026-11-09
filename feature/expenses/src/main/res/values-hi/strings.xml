@@ -37,4 +37,8 @@
     <string name="search_hint">नोट या श्रेणी खोजें</string>
     <string name="clear_filters">✕ हटाएँ</string>
     <string name="no_match">कुछ नहीं मिला। दूसरी खोज या फ़िल्टर आज़माएँ।</string>
+    <string name="dash_top_categories">सबसे ज़्यादा खर्च</string>
+    <string name="dash_rest">बाकी सब</string>
+    <string name="dash_who_spent">किसने कितना खर्च किया</string>
+    <string name="dash_unknown_member">परिवार का सदस्य</string>
 </resources>

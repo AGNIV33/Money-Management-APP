@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
+import com.agniv.hisaab.core.domain.model.Member
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
+import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
 import com.agniv.hisaab.core.domain.usecase.MonthSummary
@@ -40,6 +42,7 @@ data class ExpensesHomeUiState(
     val hasAnyThisMonth: Boolean = false,
     val filter: ExpenseFilter = ExpenseFilter(),
     val categories: Map<String, Category> = emptyMap(),
+    val members: Map<String, Member> = emptyMap(),
 )
 
 sealed interface HomeEvent {
@@ -76,6 +79,7 @@ class ExpensesHomeViewModel
     constructor(
         sessions: SessionRepository,
         categories: CategoryRepository,
+        members: MemberRepository,
         observeMonthExpenses: ObserveMonthExpenses,
         observeMonthSummary: ObserveMonthSummary,
         private val deleteExpense: DeleteExpense,
@@ -94,8 +98,9 @@ class ExpensesHomeViewModel
                         observeMonthSummary(session, m),
                         observeMonthExpenses(session, m),
                         categories.observeCategories(session.familyId),
+                        members.observeMembers(session.familyId),
                         filter,
-                    ) { summary, expenses, cats, f ->
+                    ) { summary, expenses, cats, people, f ->
                         val byId = cats.associateBy { it.id }
                         val shown = expenses.applyFilter(f, byId)
                         ExpensesHomeUiState(
@@ -108,6 +113,7 @@ class ExpensesHomeViewModel
                             hasAnyThisMonth = expenses.isNotEmpty(),
                             filter = f,
                             categories = byId,
+                            members = people.associateBy { it.id },
                         )
                     }
                 }.stateIn(
