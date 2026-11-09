@@ -67,6 +67,7 @@ import java.time.format.FormatStyle
 @Composable
 fun ExpensesHomeScreen(
     title: String,
+    headerAction: @Composable () -> Unit = {},
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -105,7 +106,15 @@ fun ExpensesHomeScreen(
             verticalArrangement = Arrangement.spacedBy(Spacing.s),
         ) {
             item(key = "title") {
-                Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f),
+                    )
+                    headerAction()
+                }
             }
             item(key = "month") { MonthSwitcher(state, viewModel::onEvent) }
             item(key = "summary") { Summary(state) }

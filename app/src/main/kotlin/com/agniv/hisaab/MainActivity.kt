@@ -5,14 +5,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
+import com.agniv.hisaab.feature.family.info.FamilySheet
+import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
 import dagger.hilt.android.AndroidEntryPoint
+import com.agniv.hisaab.feature.family.R as FamilyR
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,10 +38,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             HisaabTheme {
                 val screen by viewModel.screen.collectAsStateWithLifecycle()
+                var showFamily by rememberSaveable { mutableStateOf(false) }
                 when (screen) {
                     RootScreen.SPLASH -> Unit
                     RootScreen.LOGIN -> LoginScreen()
-                    RootScreen.HOME -> ExpensesHomeScreen(title = stringResource(R.string.app_name))
+                    RootScreen.FAMILY_SETUP -> FamilySetupScreen()
+                    RootScreen.HOME -> {
+                        ExpensesHomeScreen(
+                            title = stringResource(R.string.app_name),
+                            headerAction = {
+                                TextButton(onClick = { showFamily = true }) {
+                                    Text("👪 " + stringResource(FamilyR.string.family_button))
+                                }
+                            },
+                        )
+                        if (showFamily) FamilySheet(onDismiss = { showFamily = false })
+                    }
                 }
             }
         }

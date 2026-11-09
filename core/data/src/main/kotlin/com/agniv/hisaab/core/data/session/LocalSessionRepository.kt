@@ -97,6 +97,15 @@ class LocalSessionRepository
             return created
         }
 
+        /** Points the app at a different family/member, e.g. after linking to a signed-in account. */
+        suspend fun replace(session: Session) {
+            context.sessionStore.edit {
+                it[USER_ID] = session.userId
+                it[FAMILY_ID] = session.familyId
+                it[MEMBER_ID] = session.memberId
+            }
+        }
+
         private companion object {
             val USER_ID = stringPreferencesKey("user_id")
             val FAMILY_ID = stringPreferencesKey("family_id")

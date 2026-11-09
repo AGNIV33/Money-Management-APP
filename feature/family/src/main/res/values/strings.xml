@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_checking">Checking your account…</string>
+    <string name="setup_title">Set up your family</string>
+    <string name="setup_subtitle">Create a new family, or join one with the code a family member shared.</string>
+    <string name="setup_create">Create family</string>
+    <string name="setup_join">Join family</string>
+    <string name="setup_my_name">Your name</string>
+    <string name="setup_family_name">Family name</string>
+    <string name="setup_family_name_hint">e.g. Sarkar Family</string>
+    <string name="setup_code">Invite code</string>
+    <string name="setup_code_hint">6 letters/numbers, e.g. K7M2QX</string>
+    <string name="setup_create_button">Create family</string>
+    <string name="setup_join_button">Join family</string>
+    <string name="setup_working">Please wait…</string>
+    <string name="setup_retry">Try again</string>
+    <string name="setup_keeps_data">Expenses you already added on this phone are kept.</string>
+    <string name="setup_error_name">Please fill in the names</string>
+    <string name="setup_error_code_length">The code has 6 letters/numbers</string>
+    <string name="setup_error_code">No family has this code. Check it with your family member.</string>
+    <string name="setup_error_full">This family already has 4 members, the most allowed on the free plan.</string>
+    <string name="setup_error_network">This step needs internet once. Connect and try again.</string>
+    <string name="setup_error_unknown">Something went wrong. Please try again.</string>
+    <string name="family_invite_code">Invite code</string>
+    <string name="family_invite_hint">Family members enter this code after signing in</string>
+    <string name="family_share">Share code</string>
+    <string name="family_share_text">Join our family on Hisaab AI! After signing in, choose \"Join family\" and enter code: %1$s</string>
+    <string name="family_members">Members (%1$d)</string>
+    <string name="family_you">" (you)"</string>
+    <string name="family_admin">Admin</string>
+    <string name="family_button">Family</string>
+</resources>

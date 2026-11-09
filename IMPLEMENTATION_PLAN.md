@@ -20,7 +20,7 @@
 
 ## Phase 1 — Core: Auth, Family, Expenses (Week 1–2)
 - [x] 1.1 Supabase SQL migration: tables + RLS policies (`supabase/migrations/001_init.sql`).
-- [ ] 1.2 `core:network`: supabase-kt client (Auth + Postgrest), DTOs.
+- [x] 1.2 `core:network`: supabase-kt client (Auth + Postgrest), DTOs.
 - [ ] 1.3 `feature:auth`: language pick, onboarding slides, phone OTP + Google sign-in, session restore.
 - [ ] 1.4 `feature:family`: create family (invite code), join by code, members list, roles.
 - [x] 1.5 `core:database`: Room entities + DAOs (families, members, categories, expenses, sync_queue); seed default categories (en + hi names).
@@ -97,3 +97,4 @@
 | 2026-11-09 | 0.7, 1.1 | `hisaab-dev` created by Agniv (Singapore region). Migrations 001 (tables, RLS, create/join RPCs) + 002 (helpers in private schema) applied. Building 1.5–1.7 (offline) before 1.2–1.4 (auth) so screens can be seen sooner. |
 | 2026-11-09 | 1.9 (part) | `feature:expenses`: Add Expense sheet (keypad, categories, date, mode, note, Only me) + this month's total and list, long-press to delete. Runs as a phone-only family until login (1.3). Category icons are emoji for now. |
 | 2026-11-09 | 1.9 | Edit (tap row), swipe left to delete + Undo, month switcher, search (note / category en+hi), mode + category filters, grouped by day with day totals. Member filter waits for family (1.4). Login decision: Google + email code now, phone OTP before launch. |
+| 2026-11-09 | 1.2–1.4 | supabase-kt client; email-code login (needs custom SMTP so the template can show {{ .Token }}); Google button appears once GOOGLE_WEB_CLIENT_ID is in local.properties. Family setup after login: create (re-uses phone ids), join by code, or auto-link an existing membership; local expenses move into the family and are re-queued. Family sheet: invite code + share, members, admin badge. Sign-out deferred until sync (1.8) so no unsynced data is lost. Language-pick + onboarding slides of 1.3 still to do. |

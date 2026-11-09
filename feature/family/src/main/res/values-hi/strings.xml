@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_checking">आपका अकाउंट देख रहे हैं…</string>
+    <string name="setup_title">अपना परिवार बनाएँ</string>
+    <string name="setup_subtitle">नया परिवार बनाएँ, या परिवार के किसी सदस्य से मिले कोड से जुड़ें।</string>
+    <string name="setup_create">परिवार बनाएँ</string>
+    <string name="setup_join">परिवार से जुड़ें</string>
+    <string name="setup_my_name">आपका नाम</string>
+    <string name="setup_family_name">परिवार का नाम</string>
+    <string name="setup_family_name_hint">जैसे सरकार परिवार</string>
+    <string name="setup_code">आमंत्रण कोड</string>
+    <string name="setup_code_hint">6 अक्षर/अंक, जैसे K7M2QX</string>
+    <string name="setup_create_button">परिवार बनाएँ</string>
+    <string name="setup_join_button">परिवार से जुड़ें</string>
+    <string name="setup_working">कृपया रुकें…</string>
+    <string name="setup_retry">फिर कोशिश करें</string>
+    <string name="setup_keeps_data">इस फ़ोन पर पहले से जोड़े गए खर्च बने रहेंगे।</string>
+    <string name="setup_error_name">कृपया नाम भरें</string>
+    <string name="setup_error_code_length">कोड में 6 अक्षर/अंक होते हैं</string>
+    <string name="setup_error_code">इस कोड का कोई परिवार नहीं मिला। परिवार के सदस्य से कोड जाँचें।</string>
+    <string name="setup_error_full">इस परिवार में पहले से 4 सदस्य हैं, जो फ़्री प्लान में सबसे ज़्यादा है।</string>
+    <string name="setup_error_network">इस कदम के लिए एक बार इंटरनेट चाहिए। कनेक्ट करके फिर कोशिश करें।</string>
+    <string name="setup_error_unknown">कुछ गड़बड़ हुई। फिर से कोशिश करें।</string>
+    <string name="family_invite_code">आमंत्रण कोड</string>
+    <string name="family_invite_hint">परिवार के सदस्य साइन इन के बाद यह कोड डालें</string>
+    <string name="family_share">कोड भेजें</string>
+    <string name="family_share_text">Hisaab AI पर हमारे परिवार से जुड़ें! साइन इन के बाद \"परिवार से जुड़ें\" चुनें और यह कोड डालें: %1$s</string>
+    <string name="family_members">सदस्य (%1$d)</string>
+    <string name="family_you">" (आप)"</string>
+    <string name="family_admin">एडमिन</string>
+    <string name="family_button">परिवार</string>
+</resources>

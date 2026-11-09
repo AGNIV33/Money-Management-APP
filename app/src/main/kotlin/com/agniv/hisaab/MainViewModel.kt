@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** Which top-level screen to show. */
-enum class RootScreen { SPLASH, LOGIN, HOME }
+enum class RootScreen { SPLASH, LOGIN, FAMILY_SETUP, HOME }
 
 @HiltViewModel
 class MainViewModel
@@ -27,11 +27,13 @@ class MainViewModel
         private val localReady = MutableStateFlow(false)
 
         val screen: StateFlow<RootScreen> =
-            combine(localReady, auth.authState) { ready, authState ->
+            combine(localReady, auth.authState, localSession.session) { ready, authState, session ->
                 when {
                     !ready || authState == AuthState.Loading -> RootScreen.SPLASH
-                    authState is AuthState.SignedIn -> RootScreen.HOME
-                    else -> RootScreen.LOGIN
+                    authState !is AuthState.SignedIn -> RootScreen.LOGIN
+                    // Still the phone-only family from before login: link it to a real one first.
+                    session?.userId != authState.userId -> RootScreen.FAMILY_SETUP
+                    else -> RootScreen.HOME
                 }
             }.stateIn(viewModelScope, SharingStarted.Eagerly, RootScreen.SPLASH)
 

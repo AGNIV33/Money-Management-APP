@@ -38,6 +38,27 @@ interface ExpenseDao {
 
     @Upsert
     suspend fun upsert(expense: ExpenseEntity)
+
+    @Query("SELECT * FROM expenses WHERE family_id = :familyId")
+    suspend fun allForFamily(familyId: String): List<ExpenseEntity>
+
+    /** Moves phone-only expenses into a real family when the user signs in (see AccountLinker). */
+    @Query(
+        """
+        UPDATE expenses SET
+          family_id = :newFamilyId,
+          owner_user = :newOwner,
+          paid_by = CASE WHEN paid_by = :oldMemberId THEN :newMemberId ELSE paid_by END
+        WHERE family_id = :oldFamilyId
+        """,
+    )
+    suspend fun reassign(
+        oldFamilyId: String,
+        newFamilyId: String,
+        newOwner: String,
+        oldMemberId: String,
+        newMemberId: String,
+    )
 }
 
 @Dao
@@ -65,6 +86,9 @@ interface FamilyDao {
 
     @Upsert
     suspend fun upsert(family: FamilyEntity)
+
+    @Query("DELETE FROM families WHERE id = :id")
+    suspend fun delete(id: String)
 }
 
 @Dao
@@ -74,6 +98,12 @@ interface MemberDao {
 
     @Upsert
     suspend fun upsert(member: MemberEntity)
+
+    @Upsert
+    suspend fun upsertAll(members: List<MemberEntity>)
+
+    @Query("DELETE FROM members WHERE family_id = :familyId")
+    suspend fun deleteForFamily(familyId: String)
 }
 
 @Dao
@@ -89,6 +119,9 @@ interface SyncQueueDao {
 
     @Query("DELETE FROM sync_queue WHERE id = :id")
     suspend fun remove(id: Long)
+
+    @Query("DELETE FROM sync_queue")
+    suspend fun clear()
 
     @Query("UPDATE sync_queue SET attempts = attempts + 1 WHERE id = :id")
     suspend fun markAttempt(id: Long)
