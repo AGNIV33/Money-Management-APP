@@ -41,4 +41,15 @@
     <string name="dash_rest">Everything else</string>
     <string name="dash_who_spent">Who spent</string>
     <string name="dash_unknown_member">Family member</string>
+    <string name="budget_title">Monthly budget</string>
+    <string name="budget_none_hint">Set a monthly budget and we will tell you when you reach 80% and 100%.</string>
+    <string name="budget_set">Set budget</string>
+    <string name="budget_edit">Change</string>
+    <string name="budget_left">%1$s left • %2$d%% used</string>
+    <string name="budget_almost">Careful: only %1$s left • %2$d%% used</string>
+    <string name="budget_over_by">%1$s Over budget by %2$s • %3$d%% used</string>
+    <string name="budget_of">Budget %1$s</string>
+    <string name="budget_dialog_title">Monthly budget</string>
+    <string name="budget_amount">Amount</string>
+    <string name="budget_remove">Remove</string>
 </resources>

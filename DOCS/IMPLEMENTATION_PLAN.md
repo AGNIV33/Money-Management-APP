@@ -29,8 +29,8 @@
 - [x] 1.8 `SyncWorker` push/pull + last-write-wins + soft delete. Unit tests with fake server.
 - [x] 1.9 `feature:expenses`: Add Expense sheet (`HNumberPad`, chips, defaults), list grouped by date, edit, swipe delete + undo, filters, search.
 - [ ] 1.10 Visibility FAMILY/PRIVATE enforced in queries + RLS (test with 2 accounts).
-- [ ] 1.11 `feature:dashboard`: month switcher, total, vs last month, top categories donut (Vico), per-member bars, recent list.
-- [ ] 1.12 Budget: set monthly + per-category; 80%/100% notifications.
+- [x] 1.11 `feature:dashboard`: month switcher, total, vs last month, top categories donut (Vico), per-member bars, recent list.
+- [x] 1.12 Budget: set monthly + per-category; 80%/100% notifications.
 - [ ] 1.13 Hindi strings for all Phase 1 screens.
 **✅ Exit (v0.1 internal):** 2 phones in same family add expenses offline, sync works, dashboard correct.
 
@@ -100,4 +100,6 @@
 | 2026-11-09 | 1.2–1.4 | supabase-kt client; email-code login (needs custom SMTP so the template can show {{ .Token }}); Google button appears once GOOGLE_WEB_CLIENT_ID is in local.properties. Family setup after login: create (re-uses phone ids), join by code, or auto-link an existing membership; local expenses move into the family and are re-queued. Family sheet: invite code + share, members, admin badge. Sign-out deferred until sync (1.8) so no unsynced data is lost. Language-pick + onboarding slides of 1.3 still to do. |
 | 2026-11-09 | 1.8 | SyncEngine: push queue in batches (dedupe per row), pull changed rows by server updated_at (skips rows with a pending local edit), refresh members. WorkManager: debounced 5 s after writes, on app start, every 6 h, network-only, exponential backoff. 5 Robolectric tests with a fake server. Not yet: categories/budgets sync, pull-to-refresh. |
 | 2026-11-09 | 1.11 (part) | Home now has a top-categories donut (plain Canvas `HDonut`, not Vico: smaller and enough for a donut) and a who-spent bar card (hidden for 1-person families). Lives in feature:expenses for now to avoid feature→feature deps; budget bar comes with 1.12. |
-| 2026-11-09 | Brand | App renamed **Kinly** (display name, login, share text). Adaptive icon cut from the logo (white K+house+family on Kinly green gradient; monochrome layer reuses the glyph). Logo files in `DOCS/brand/`. Budget plumbing started (family budget synced via sync queue); budget UI + alerts still to do. All .md docs moved to `DOCS/` (CLAUDE.md, AGENTS.md, README.md stay at root: tools look for them there). |
+| 2026-11-09 | Brand | App renamed **Kinly** (display name, login, share text). Adaptive icon cut from the logo (white K+house+family on Kinly green gradient; monochrome layer reuses the glyph). Logo files in `DOCS/brand/`. Budget plumbing started (family budget synced via sync queue); budget UI + alerts done below. All .md docs moved to `DOCS/` (CLAUDE.md, AGENTS.md, README.md stay at root: tools look for them there). |
+
+| 2026-11-09 | 1.12 | Family monthly budget: card with progress bar (green / amber from 80% / red from 100%, words + ▲ as well as colour), admins set/change/remove it, syncs via the queue. `BudgetAlertMonitor` (runs while the app process lives, reads Room, so works offline) notifies once at 80% and once at 100% per month; remembers the last level so it never repeats, resets if spending drops. Android 13+ notification permission is asked right after a budget is set. Per-category limits not done yet (PRD F6 says optional). Background alert when the app process is dead still to do (EmiReminder-style worker in Phase 2). |

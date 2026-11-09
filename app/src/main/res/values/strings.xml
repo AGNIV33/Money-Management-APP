@@ -3,4 +3,9 @@
     <string name="app_name" translatable="false">Kinly</string>
     <string name="local_family_name">My Family</string>
     <string name="local_member_name">Me</string>
+    <string name="budget_channel">Budget alerts</string>
+    <string name="budget_warning_title">Budget almost used</string>
+    <string name="budget_warning_text">You have spent %1$s of your %2$s monthly budget.</string>
+    <string name="budget_over_title">Budget crossed</string>
+    <string name="budget_over_text">You have spent %1$s, more than your %2$s monthly budget.</string>
 </resources>

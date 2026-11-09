@@ -41,4 +41,15 @@
     <string name="dash_rest">बाकी सब</string>
     <string name="dash_who_spent">किसने कितना खर्च किया</string>
     <string name="dash_unknown_member">परिवार का सदस्य</string>
+    <string name="budget_title">मासिक बजट</string>
+    <string name="budget_none_hint">मासिक बजट तय करें, 80% और 100% पर हम आपको बता देंगे।</string>
+    <string name="budget_set">बजट तय करें</string>
+    <string name="budget_edit">बदलें</string>
+    <string name="budget_left">%1$s बचे • %2$d%% खर्च</string>
+    <string name="budget_almost">ध्यान दें: सिर्फ़ %1$s बचे • %2$d%% खर्च</string>
+    <string name="budget_over_by">%1$s बजट से %2$s ज़्यादा • %3$d%% खर्च</string>
+    <string name="budget_of">बजट %1$s</string>
+    <string name="budget_dialog_title">मासिक बजट</string>
+    <string name="budget_amount">रकम</string>
+    <string name="budget_remove">हटाएँ</string>
 </resources>
