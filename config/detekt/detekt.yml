@@ -1,0 +1,20 @@
+# Builds on detekt defaults (buildUponDefaultConfig = true). Only overrides live here.
+naming:
+  FunctionNaming:
+    # Composables are PascalCase.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9]*'
+complexity:
+  LongParameterList:
+    functionThreshold: 8
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+style:
+  MagicNumber:
+    ignoreAnnotated: ['Preview']
+    excludes: ['**/test/**', '**/designsystem/theme/**']
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
+  MaxLineLength:
+    maxLineLength: 140

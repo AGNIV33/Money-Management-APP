@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Hisaab AI</string>
+    <string name="home_month_spent">This month spent</string>
+    <string name="home_coming_soon">Your family\'s spending will show here</string>
+</resources>
