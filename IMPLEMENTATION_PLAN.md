@@ -27,7 +27,7 @@
 - [x] 1.6 `core:domain`: models + use cases `AddExpense`, `UpdateExpense`, `DeleteExpense`, `ObserveMonthExpenses`, `ObserveMonthSummary`.
 - [x] 1.7 `core:data`: `ExpenseRepository` (Room first + sync_queue).
 - [ ] 1.8 `SyncWorker` push/pull + last-write-wins + soft delete. Unit tests with fake server.
-- [ ] 1.9 `feature:expenses`: Add Expense sheet (`HNumberPad`, chips, defaults), list grouped by date, edit, swipe delete + undo, filters, search.
+- [x] 1.9 `feature:expenses`: Add Expense sheet (`HNumberPad`, chips, defaults), list grouped by date, edit, swipe delete + undo, filters, search.
 - [ ] 1.10 Visibility FAMILY/PRIVATE enforced in queries + RLS (test with 2 accounts).
 - [ ] 1.11 `feature:dashboard`: month switcher, total, vs last month, top categories donut (Vico), per-member bars, recent list.
 - [ ] 1.12 Budget: set monthly + per-category; 80%/100% notifications.
@@ -95,4 +95,5 @@
 | 2026-11-09 | 0.2–0.6, 0.8, 0.9 | Project, catalog, build-logic, core modules, ktlint/detekt, CI, `Money`/`MoneyFormatter`/dispatchers/Result (17 tests), theme + `HAmountText`/`HSummaryCard`. AGP 9.5.1, Kotlin 2.4.21, compileSdk 37. Feature modules created when each feature starts. Gradle daemon pinned to JDK 21 (detekt). |
 | 2026-11-09 | 0.7 | `BuildConfig.SUPABASE_URL/ANON_KEY` wired from `local.properties`. Supabase project itself not created yet. |
 | 2026-11-09 | 0.7, 1.1 | `hisaab-dev` created by Agniv (Singapore region). Migrations 001 (tables, RLS, create/join RPCs) + 002 (helpers in private schema) applied. Building 1.5–1.7 (offline) before 1.2–1.4 (auth) so screens can be seen sooner. |
-| 2026-11-09 | 1.9 (part) | `feature:expenses`: Add Expense sheet (keypad, categories, date, mode, note, Only me) + this month's total and list, long-press to delete. Runs as a phone-only family until login (1.3). Category icons are emoji for now. Still to do in 1.9: edit, swipe delete + undo, filters, search. |
+| 2026-11-09 | 1.9 (part) | `feature:expenses`: Add Expense sheet (keypad, categories, date, mode, note, Only me) + this month's total and list, long-press to delete. Runs as a phone-only family until login (1.3). Category icons are emoji for now. |
+| 2026-11-09 | 1.9 | Edit (tap row), swipe left to delete + Undo, month switcher, search (note / category en+hi), mode + category filters, grouped by day with day totals. Member filter waits for family (1.4). Login decision: Google + email code now, phone OTP before launch. |

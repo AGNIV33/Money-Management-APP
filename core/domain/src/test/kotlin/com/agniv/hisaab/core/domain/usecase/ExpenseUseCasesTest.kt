@@ -29,6 +29,7 @@ class ExpenseUseCasesTest {
     private val add = AddExpense(repo, ids, time)
     private val update = UpdateExpense(repo, time)
     private val delete = DeleteExpense(repo)
+    private val restore = RestoreExpense(repo, time)
     private val observeMonth = ObserveMonthExpenses(repo)
     private val summary = ObserveMonthSummary(observeMonth)
 
@@ -98,6 +99,17 @@ class ExpenseUseCasesTest {
             delete(saved.id).getOrThrow()
             observeMonth(me, YearMonth.of(2026, 11)).test {
                 assertThat(awaitItem()).isEmpty()
+            }
+        }
+
+    @Test
+    fun `restore brings a deleted expense back`() =
+        runTest {
+            val saved = add(me, draft(100)).getOrThrow()
+            delete(saved.id).getOrThrow()
+            restore(saved.id).getOrThrow()
+            observeMonth(me, YearMonth.of(2026, 11)).test {
+                assertThat(awaitItem().map { it.id }).containsExactly(saved.id)
             }
         }
 

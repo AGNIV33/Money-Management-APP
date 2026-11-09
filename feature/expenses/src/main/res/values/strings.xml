@@ -22,12 +22,19 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="home_month_spent">This month spent</string>
-    <string name="home_this_month">This month</string>
     <string name="home_empty">No expenses yet. Tap Add to note your first one.</string>
     <string name="home_less_than_last">▼ %1$s less than last month</string>
     <string name="home_more_than_last">▲ %1$s more than last month</string>
     <string name="home_same_as_last">Same as last month</string>
-    <string name="delete_title">Delete expense?</string>
-    <string name="delete_body">%1$s will be removed for the whole family.</string>
     <string name="delete_confirm">Delete</string>
+    <string name="edit_expense_title">Edit expense</string>
+    <string name="deleted">Expense deleted</string>
+    <string name="undo">Undo</string>
+    <string name="month_previous">Previous month</string>
+    <string name="month_next">Next month</string>
+    <string name="home_month_spent_past">Spent this month</string>
+    <string name="filtered_total">Shown: %1$s</string>
+    <string name="search_hint">Search notes or categories</string>
+    <string name="clear_filters">✕ Clear</string>
+    <string name="no_match">Nothing matches. Try another search or filter.</string>
 </resources>

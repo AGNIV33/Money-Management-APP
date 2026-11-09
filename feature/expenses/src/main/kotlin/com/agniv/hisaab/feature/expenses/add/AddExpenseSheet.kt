@@ -52,8 +52,10 @@ import java.time.ZoneOffset
 @Composable
 fun AddExpenseSheet(
     onDismiss: () -> Unit,
+    editId: String? = null,
     viewModel: AddExpenseViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(editId) { viewModel.start(editId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel) { viewModel.savedEvents.collect { onDismiss() } }
     ModalBottomSheet(
@@ -79,7 +81,10 @@ internal fun AddExpenseContent(
                 .navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
-        Text(stringResource(R.string.add_expense_title), style = MaterialTheme.typography.headlineSmall)
+        Text(
+            stringResource(if (state.editingId == null) R.string.add_expense_title else R.string.edit_expense_title),
+            style = MaterialTheme.typography.headlineSmall,
+        )
         Text(
             text = "₹" + state.amountText.ifEmpty { "0" },
             style = DisplayAmount,

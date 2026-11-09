@@ -9,6 +9,8 @@ complexity:
     ignoreAnnotated: ['Composable']
   LongParameterList:
     functionThreshold: 8
+    # Hilt @Inject constructors list their dependencies; that is not a smell here.
+    constructorThreshold: 10
     ignoreDefaultParameters: true
     ignoreAnnotated: ['Composable']
 style:

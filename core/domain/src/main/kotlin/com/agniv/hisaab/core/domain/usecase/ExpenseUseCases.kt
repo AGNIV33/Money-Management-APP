@@ -124,6 +124,19 @@ class DeleteExpense
         suspend operator fun invoke(id: String): Result<Unit> = repository.delete(id)
     }
 
+/** Undo for a delete: brings the soft-deleted row back with a fresh timestamp so sync sees it. */
+class RestoreExpense
+    @Inject
+    constructor(
+        private val repository: ExpenseRepository,
+        private val time: TimeProvider,
+    ) {
+        suspend operator fun invoke(id: String): Result<Unit> {
+            val existing = repository.getExpense(id) ?: return Result.failure(ExpenseError.NotFound)
+            return repository.upsert(existing.copy(deleted = false, updatedAt = time.now()))
+        }
+    }
+
 class ObserveMonthExpenses
     @Inject
     constructor(

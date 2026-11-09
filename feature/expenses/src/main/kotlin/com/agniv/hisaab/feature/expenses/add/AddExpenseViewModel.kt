@@ -9,10 +9,12 @@ import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
+import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.AddExpense
 import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ExpenseError
+import com.agniv.hisaab.core.domain.usecase.UpdateExpense
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +36,8 @@ enum class AddError { AMOUNT, CATEGORY, NOTE, SAVE_FAILED }
 
 @Immutable
 data class AddExpenseUiState(
+    /** Null = adding a new expense; otherwise the id being edited. */
+    val editingId: String? = null,
     val amountText: String = "",
     val categories: List<Category> = emptyList(),
     val categoryId: String? = null,
@@ -83,7 +87,9 @@ class AddExpenseViewModel
         private val sessions: SessionRepository,
         categories: CategoryRepository,
         private val addExpense: AddExpense,
-        time: TimeProvider,
+        private val updateExpense: UpdateExpense,
+        private val expenses: ExpenseRepository,
+        private val time: TimeProvider,
     ) : ViewModel() {
         private val _state = MutableStateFlow(AddExpenseUiState(date = time.today(), today = time.today()))
         val state: StateFlow<AddExpenseUiState> = _state.asStateFlow()
@@ -105,6 +111,32 @@ class AddExpenseViewModel
 
         init {
             observeCategories(categories)
+        }
+
+        /**
+         * Call each time the sheet opens. The ViewModel outlives one sheet, so this clears the last entry
+         * but keeps the last payment mode (DESIGN.md §7.4: "remembers last").
+         */
+        fun start(editId: String?) {
+            val today = time.today()
+            _state.update {
+                AddExpenseUiState(categories = it.categories, date = today, today = today, mode = it.mode)
+            }
+            if (editId == null) return
+            viewModelScope.launch {
+                val e = expenses.getExpense(editId) ?: return@launch
+                _state.update {
+                    it.copy(
+                        editingId = e.id,
+                        amountText = e.amount.toInputText(),
+                        categoryId = e.categoryId,
+                        date = e.date,
+                        mode = e.mode,
+                        note = e.note.orEmpty(),
+                        onlyMe = e.visibility == Visibility.PRIVATE,
+                    )
+                }
+            }
         }
 
         fun onEvent(event: AddExpenseEvent) {
@@ -141,7 +173,9 @@ class AddExpenseViewModel
                                 mode = current.mode,
                                 visibility = if (current.onlyMe) Visibility.PRIVATE else Visibility.FAMILY,
                             )
-                        addExpense(session, draft)
+                        val result =
+                            current.editingId?.let { updateExpense(it, draft) } ?: addExpense(session, draft)
+                        result
                             .onSuccess { saved.send(Unit) }
                             .onFailure { e ->
                                 val error = if (e == ExpenseError.NoteTooLong) AddError.NOTE else AddError.SAVE_FAILED
@@ -152,3 +186,10 @@ class AddExpenseViewModel
             }
         }
     }
+
+/** 12550 paise -> "125.5", 12500 -> "125": what the keypad would have produced. */
+internal fun Money.toInputText(): String {
+    val fraction = paisePart.toString().padStart(2, '0').trimEnd('0')
+    val sign = if (isNegative) "-" else ""
+    return sign + kotlin.math.abs(rupeesPart) + if (fraction.isEmpty()) "" else ".$fraction"
+}
