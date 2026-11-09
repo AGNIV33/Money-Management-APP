@@ -15,6 +15,7 @@ import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.ExpenseRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
+import com.agniv.hisaab.core.network.dto.FamilyDto
 import com.agniv.hisaab.core.network.dto.MemberDto
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
@@ -199,6 +200,17 @@ private class FakeRemote(
             .filter { it.familyId == familyId && (sinceIso == null || it.updatedAt.orEmpty() > sinceIso) }
             .sortedBy { it.updatedAt }
             .take(limit)
+
+    var budget: Long? = null
+
+    override suspend fun family(familyId: String): FamilyDto = FamilyDto(familyId, "Sarkar", "ABC234", budget)
+
+    override suspend fun setMonthlyBudget(
+        familyId: String,
+        paise: Long?,
+    ) {
+        budget = paise
+    }
 
     override suspend fun members(familyId: String): List<MemberDto> = listOf(MemberDto("m2", familyId, "u2", "Didi", "MEMBER"))
 }

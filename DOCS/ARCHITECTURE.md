@@ -185,6 +185,6 @@ More → Family | Budget | Goals | Categories | Settings | Privacy | About
 /app /core/* /feature/* /baselineprofile
 /supabase/migrations/*.sql  /supabase/functions/<name>/index.ts
 /ml/training/ (notebook, dataset.csv, export script)
-/docs → PRD.md ARCHITECTURE.md DESIGN.md IMPLEMENTATION_PLAN.md TESTING.md
-CLAUDE.md AGENTS.md README.md
+/DOCS → PRD.md ARCHITECTURE.md DESIGN.md IMPLEMENTATION_PLAN.md TESTING.md
+CLAUDE.md AGENTS.md README.md   (kept at the repo root: tools look for them there)
 ```

@@ -87,6 +87,9 @@ interface FamilyDao {
     @Upsert
     suspend fun upsert(family: FamilyEntity)
 
+    @Query("SELECT * FROM families WHERE id = :id")
+    suspend fun get(id: String): FamilyEntity?
+
     @Query("DELETE FROM families WHERE id = :id")
     suspend fun delete(id: String)
 }

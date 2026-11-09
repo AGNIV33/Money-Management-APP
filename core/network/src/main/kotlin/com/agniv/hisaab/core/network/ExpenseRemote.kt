@@ -1,6 +1,7 @@
 package com.agniv.hisaab.core.network
 
 import com.agniv.hisaab.core.network.dto.ExpenseDto
+import com.agniv.hisaab.core.network.dto.FamilyDto
 import com.agniv.hisaab.core.network.dto.MemberDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
@@ -24,6 +25,14 @@ interface ExpenseRemote {
 
     /** Everyone in the family, so names show for expenses added by others. */
     suspend fun members(familyId: String): List<MemberDto>
+
+    suspend fun family(familyId: String): FamilyDto?
+
+    /** Admins only (RLS); null clears the budget. */
+    suspend fun setMonthlyBudget(
+        familyId: String,
+        paise: Long?,
+    )
 }
 
 class SupabaseExpenseRemote
@@ -56,6 +65,25 @@ class SupabaseExpenseRemote
 
         override suspend fun members(familyId: String): List<MemberDto> =
             supabase.from("members").select { filter { eq("family_id", familyId) } }.decodeList()
+
+        override suspend fun family(familyId: String): FamilyDto? =
+            supabase
+                .from("families")
+                .select { filter { eq("id", familyId) } }
+                .decodeList<FamilyDto>()
+                .firstOrNull()
+
+        override suspend fun setMonthlyBudget(
+            familyId: String,
+            paise: Long?,
+        ) {
+            supabase.from("families").update(BudgetUpdate(paise)) { filter { eq("id", familyId) } }
+        }
+
+        @kotlinx.serialization.Serializable
+        private data class BudgetUpdate(
+            @kotlinx.serialization.SerialName("monthly_budget_paise") val paise: Long?,
+        )
 
         private companion object {
             const val TABLE = "expenses"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="login_title">Hisaab AI में स्वागत है</string>
+    <string name="login_title">Kinly में स्वागत है</string>
     <string name="login_subtitle">परिवार के साथ खर्च साझा करने के लिए साइन इन करें। आपका डेटा सुरक्षित रहता है।</string>
     <string name="login_email">ईमेल</string>
     <string name="login_send_code">कोड भेजें</string>

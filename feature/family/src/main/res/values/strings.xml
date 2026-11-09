@@ -24,7 +24,7 @@
     <string name="family_invite_code">Invite code</string>
     <string name="family_invite_hint">Family members enter this code after signing in</string>
     <string name="family_share">Share code</string>
-    <string name="family_share_text">Join our family on Hisaab AI! After signing in, choose \"Join family\" and enter code: %1$s</string>
+    <string name="family_share_text">Join our family on Kinly! After signing in, choose \"Join family\" and enter code: %1$s</string>
     <string name="family_members">Members (%1$d)</string>
     <string name="family_you">" (you)"</string>
     <string name="family_admin">Admin</string>

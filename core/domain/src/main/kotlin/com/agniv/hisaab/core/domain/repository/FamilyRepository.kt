@@ -1,5 +1,6 @@
 package com.agniv.hisaab.core.domain.repository
 
+import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.domain.model.Family
 import kotlinx.coroutines.flow.Flow
 
@@ -34,5 +35,11 @@ interface FamilyRepository {
     suspend fun joinFamily(
         code: String,
         myName: String,
+    ): Result<Unit>
+
+    /** Family monthly budget (PRD F6). Null removes it. Saved on the phone first, then synced. */
+    suspend fun setMonthlyBudget(
+        familyId: String,
+        budget: Money?,
     ): Result<Unit>
 }

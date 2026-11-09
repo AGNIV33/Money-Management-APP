@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.hisaab.android.library)
     alias(libs.plugins.hisaab.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {

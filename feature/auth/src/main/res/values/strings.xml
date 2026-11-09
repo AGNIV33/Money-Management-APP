@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="login_title">Welcome to Hisaab AI</string>
+    <string name="login_title">Welcome to Kinly</string>
     <string name="login_subtitle">Sign in to share expenses with your family. Your data stays safe.</string>
     <string name="login_email">Email</string>
     <string name="login_send_code">Send code</string>

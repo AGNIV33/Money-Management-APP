@@ -6,6 +6,7 @@ import com.agniv.hisaab.core.data.mapper.parseServerTime
 import com.agniv.hisaab.core.data.mapper.toEntity
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository.Companion.TABLE_EXPENSES
 import com.agniv.hisaab.core.database.HisaabDatabase
+import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
 import com.agniv.hisaab.core.domain.model.Session
 import com.agniv.hisaab.core.domain.repository.SessionRepository
@@ -18,6 +19,15 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/** Queue payload for a monthly-budget change (table name [TABLE_FAMILY_BUDGET]). */
+@kotlinx.serialization.Serializable
+data class BudgetChange(
+    val familyId: String,
+    val paise: Long?,
+)
+
+const val TABLE_FAMILY_BUDGET = "family_budget"
 
 /** Remembers how far we have pulled, per family. */
 interface SyncStateStore {
@@ -61,6 +71,7 @@ class SyncEngine
                         resultOf {
                             pull(session)
                             pullMembers(session)
+                            pullFamily(session)
                         }
                     pushed.exceptionOrNull()?.let { Result.failure(it) } ?: pulled
                 }
@@ -72,7 +83,12 @@ class SyncEngine
                 val batch = queue.peek(PUSH_BATCH)
                 if (batch.isEmpty()) return
                 val expenses = batch.filter { it.tableName == TABLE_EXPENSES }
+                val budgets = batch.filter { it.tableName == TABLE_FAMILY_BUDGET }
                 resultOf {
+                    budgets.lastOrNull()?.let {
+                        val change = json.decodeFromString(BudgetChange.serializer(), it.payloadJson)
+                        remote.setMonthlyBudget(change.familyId, change.paise)
+                    }
                     // Same row edited twice offline: only the newest version needs to go up.
                     val rows =
                         expenses
@@ -102,6 +118,21 @@ class SyncEngine
                 since?.let { state.setLastPulled(session.familyId, it) }
                 if (rows.size < PULL_PAGE) return
             }
+        }
+
+        private suspend fun pullFamily(session: Session) {
+            if (db.syncQueueDao().hasPending(TABLE_FAMILY_BUDGET, session.familyId)) return
+            val family = remote.family(session.familyId) ?: return
+            db.familyDao().upsert(
+                FamilyEntity(
+                    family.id,
+                    family.name,
+                    family.inviteCode,
+                    family.monthlyBudgetPaise,
+                    System.currentTimeMillis(),
+                    family.deleted,
+                ),
+            )
         }
 
         private suspend fun pullMembers(session: Session) {

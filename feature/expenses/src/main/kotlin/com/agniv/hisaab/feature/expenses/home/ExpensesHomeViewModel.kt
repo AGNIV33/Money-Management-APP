@@ -8,7 +8,9 @@ import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.Member
 import com.agniv.hisaab.core.domain.model.PayMode
+import com.agniv.hisaab.core.domain.model.Role
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
+import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -43,6 +46,9 @@ data class ExpensesHomeUiState(
     val filter: ExpenseFilter = ExpenseFilter(),
     val categories: Map<String, Category> = emptyMap(),
     val members: Map<String, Member> = emptyMap(),
+    val budget: Money? = null,
+    /** Only admins may change the budget (enforced by Supabase RLS too). */
+    val canEditBudget: Boolean = false,
 )
 
 sealed interface HomeEvent {
@@ -71,15 +77,20 @@ sealed interface HomeEvent {
     data class Undo(
         val id: String,
     ) : HomeEvent
+
+    data class SetBudget(
+        val budget: Money?,
+    ) : HomeEvent
 }
 
 @HiltViewModel
 class ExpensesHomeViewModel
     @Inject
     constructor(
-        sessions: SessionRepository,
         categories: CategoryRepository,
         members: MemberRepository,
+        private val families: FamilyRepository,
+        private val sessions: SessionRepository,
         observeMonthExpenses: ObserveMonthExpenses,
         observeMonthSummary: ObserveMonthSummary,
         private val deleteExpense: DeleteExpense,
@@ -98,9 +109,9 @@ class ExpensesHomeViewModel
                         observeMonthSummary(session, m),
                         observeMonthExpenses(session, m),
                         categories.observeCategories(session.familyId),
-                        members.observeMembers(session.familyId),
+                        combine(members.observeMembers(session.familyId), families.observeFamily(session.familyId)) { p, f -> p to f },
                         filter,
-                    ) { summary, expenses, cats, people, f ->
+                    ) { summary, expenses, cats, (people, family), f ->
                         val byId = cats.associateBy { it.id }
                         val shown = expenses.applyFilter(f, byId)
                         ExpensesHomeUiState(
@@ -114,6 +125,8 @@ class ExpensesHomeViewModel
                             filter = f,
                             categories = byId,
                             members = people.associateBy { it.id },
+                            budget = family?.monthlyBudget,
+                            canEditBudget = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
                         )
                     }
                 }.stateIn(
@@ -133,6 +146,11 @@ class ExpensesHomeViewModel
                 HomeEvent.ClearFilters -> filter.value = ExpenseFilter()
                 is HomeEvent.Delete -> viewModelScope.launch { deleteExpense(event.id) }
                 is HomeEvent.Undo -> viewModelScope.launch { restoreExpense(event.id) }
+                is HomeEvent.SetBudget ->
+                    viewModelScope.launch {
+                        val session = sessions.session.filterNotNull().first()
+                        families.setMonthlyBudget(session.familyId, event.budget)
+                    }
             }
         }
 

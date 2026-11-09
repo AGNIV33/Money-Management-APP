@@ -11,11 +11,11 @@ Hisaab AI is a native Android app (Kotlin + Jetpack Compose) for Indian families
 ## 2. Source-of-truth docs (read before coding)
 | File | Use it for |
 |------|-----------|
-| `PRD.md` | What to build and why. Feature IDs (F1…F20). |
-| `ARCHITECTURE.md` | Modules, layers, data model, sync, ML, AI. |
-| `DESIGN.md` | Colors, type, spacing, components, screens. |
-| `IMPLEMENTATION_PLAN.md` | Build order. Do tasks in order. Tick boxes when done. |
-| `TESTING.md` | Test rules, checklists, bug log. Add every bug found. |
+| `DOCS/PRD.md` | What to build and why. Feature IDs (F1…F20). |
+| `DOCS/ARCHITECTURE.md` | Modules, layers, data model, sync, ML, AI. |
+| `DOCS/DESIGN.md` | Colors, type, spacing, components, screens. |
+| `DOCS/IMPLEMENTATION_PLAN.md` | Build order. Do tasks in order. Tick boxes when done. |
+| `DOCS/TESTING.md` | Test rules, checklists, bug log. Add every bug found. |
 
 If code and docs disagree → **ask the human**, don't guess. Update the doc when a decision changes.
 
@@ -86,8 +86,8 @@ Windows: use `gradlew.bat` instead of `./gradlew`.
 - [ ] Works offline
 - [ ] Strings in en + hi
 - [ ] Checked on low-end emulator (2 GB RAM, API 26)
-- [ ] `IMPLEMENTATION_PLAN.md` box ticked
-- [ ] Any bug found → logged in `TESTING.md`
+- [ ] `DOCS/IMPLEMENTATION_PLAN.md` box ticked
+- [ ] Any bug found → logged in `DOCS/TESTING.md`
 
 ## 9. Things never to do
 - Don't add `READ_SMS` or other restricted permissions.

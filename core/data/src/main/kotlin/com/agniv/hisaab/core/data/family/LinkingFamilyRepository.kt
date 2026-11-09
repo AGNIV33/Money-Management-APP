@@ -7,7 +7,9 @@ import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.toDto
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
+import com.agniv.hisaab.core.data.sync.BudgetChange
 import com.agniv.hisaab.core.data.sync.SyncRequester
+import com.agniv.hisaab.core.data.sync.TABLE_FAMILY_BUDGET
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
@@ -84,6 +86,29 @@ class LinkingFamilyRepository
                     api.members(family.id).firstOrNull { it.userId == requireUser() }
                         ?: MemberDto(local.memberId, family.id, requireUser(), myName.trim(), "MEMBER")
                 adopt(family, me)
+            }
+
+        override suspend fun setMonthlyBudget(
+            familyId: String,
+            budget: Money?,
+        ): Result<Unit> =
+            withContext(dispatchers.io) {
+                resultOf {
+                    db.withTransaction {
+                        val family = db.familyDao().get(familyId) ?: throw FamilyError.NotSignedIn
+                        val now = time.now().toEpochMilli()
+                        db.familyDao().upsert(family.copy(monthlyBudgetPaise = budget?.paise, updatedAt = now))
+                        db.syncQueueDao().insert(
+                            SyncQueueEntity(
+                                tableName = TABLE_FAMILY_BUDGET,
+                                rowId = familyId,
+                                op = OfflineFirstExpenseRepository.OP_UPSERT,
+                                payloadJson = json.encodeToString(BudgetChange.serializer(), BudgetChange(familyId, budget?.paise)),
+                                createdAt = now,
+                            ),
+                        )
+                    }
+                }.onSuccess { sync.requestSync() }
             }
 
         /** Stores the server family + members locally, moves local expenses into it, and switches the session. */
