@@ -11,7 +11,7 @@ complexity:
 style:
   MagicNumber:
     ignoreAnnotated: ['Preview']
-    excludes: ['**/test/**', '**/designsystem/theme/**']
+    excludes: ['**/test/**', '**/designsystem/theme/**', '**/seed/**']
   UnusedPrivateMember:
     ignoreAnnotated: ['Preview']
   MaxLineLength:

@@ -23,8 +23,8 @@
 - [ ] 1.2 `core:network`: supabase-kt client (Auth + Postgrest), DTOs.
 - [ ] 1.3 `feature:auth`: language pick, onboarding slides, phone OTP + Google sign-in, session restore.
 - [ ] 1.4 `feature:family`: create family (invite code), join by code, members list, roles.
-- [ ] 1.5 `core:database`: Room entities + DAOs (families, members, categories, expenses, sync_queue); seed default categories (en + hi names).
-- [ ] 1.6 `core:domain`: models + use cases `AddExpense`, `UpdateExpense`, `DeleteExpense`, `ObserveMonthExpenses`, `ObserveMonthSummary`.
+- [x] 1.5 `core:database`: Room entities + DAOs (families, members, categories, expenses, sync_queue); seed default categories (en + hi names).
+- [x] 1.6 `core:domain`: models + use cases `AddExpense`, `UpdateExpense`, `DeleteExpense`, `ObserveMonthExpenses`, `ObserveMonthSummary`.
 - [ ] 1.7 `core:data`: `ExpenseRepository` (Room first + sync_queue).
 - [ ] 1.8 `SyncWorker` push/pull + last-write-wins + soft delete. Unit tests with fake server.
 - [ ] 1.9 `feature:expenses`: Add Expense sheet (`HNumberPad`, chips, defaults), list grouped by date, edit, swipe delete + undo, filters, search.

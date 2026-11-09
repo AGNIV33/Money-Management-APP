@@ -25,6 +25,8 @@ coil = "3.6.3"
 junit4 = "4.13.2"
 truth = "1.4.5"
 turbine = "1.2.1"
+robolectric = "4.17"
+androidxTestCore = "1.7.0"
 
 detekt = "1.23.8"
 ktlintGradle = "14.2.0"
@@ -67,6 +69,8 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTestCore" }
 
 # build-logic (convention plugins) compile against these
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }

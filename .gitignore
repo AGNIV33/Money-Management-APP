@@ -22,3 +22,4 @@ supabase/.env*
 
 # Claude/agent scratch
 .claude/settings.local.json
+out.txt
