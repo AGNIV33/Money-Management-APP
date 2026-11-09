@@ -5,8 +5,8 @@
     <string name="login_email">Email</string>
     <string name="login_send_code">Send code</string>
     <string name="login_sending">Sending…</string>
-    <string name="login_code_sent">We sent a 6-digit code to %1$s. Check your inbox (and spam).</string>
-    <string name="login_code">6-digit code</string>
+    <string name="login_code_sent">We sent a code to %1$s. Check your inbox (and spam).</string>
+    <string name="login_code">Code from your email</string>
     <string name="login_verify">Sign in</string>
     <string name="login_resend">Send code again</string>
     <string name="login_change_email">Use a different email</string>

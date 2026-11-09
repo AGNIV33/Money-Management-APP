@@ -5,8 +5,8 @@
     <string name="login_email">ईमेल</string>
     <string name="login_send_code">कोड भेजें</string>
     <string name="login_sending">भेज रहे हैं…</string>
-    <string name="login_code_sent">हमने %1$s पर 6 अंकों का कोड भेजा है। इनबॉक्स (और स्पैम) देखें।</string>
-    <string name="login_code">6 अंकों का कोड</string>
+    <string name="login_code_sent">हमने %1$s पर कोड भेजा है। इनबॉक्स (और स्पैम) देखें।</string>
+    <string name="login_code">ईमेल वाला कोड</string>
     <string name="login_verify">साइन इन करें</string>
     <string name="login_resend">कोड फिर से भेजें</string>
     <string name="login_change_email">दूसरा ईमेल डालें</string>

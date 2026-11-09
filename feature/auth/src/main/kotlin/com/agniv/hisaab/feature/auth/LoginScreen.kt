@@ -126,7 +126,7 @@ private fun CodeStep(
     )
     Button(
         onClick = { onEvent(LoginEvent.Verify) },
-        enabled = !state.busy && state.code.length == LoginViewModel.CODE_LENGTH,
+        enabled = !state.busy && state.code.length >= LoginViewModel.MIN_CODE_LENGTH,
         modifier =
             Modifier
                 .fillMaxWidth()

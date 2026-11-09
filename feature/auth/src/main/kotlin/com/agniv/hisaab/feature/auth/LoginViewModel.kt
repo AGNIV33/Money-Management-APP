@@ -66,7 +66,7 @@ class LoginViewModel
             when (event) {
                 is LoginEvent.EmailChanged -> _state.update { it.copy(email = event.value, error = null) }
                 is LoginEvent.CodeChanged ->
-                    _state.update { it.copy(code = event.value.filter(Char::isDigit).take(CODE_LENGTH), error = null) }
+                    _state.update { it.copy(code = event.value.filter(Char::isDigit).take(MAX_CODE_LENGTH), error = null) }
                 LoginEvent.ChangeEmail -> _state.update { it.copy(step = LoginStep.EMAIL, code = "", error = null) }
                 LoginEvent.SendCode ->
                     launchAuth(onSuccess = { it.copy(step = LoginStep.CODE) }) { auth.sendEmailCode(_state.value.email) }
@@ -99,6 +99,9 @@ class LoginViewModel
             }
 
         companion object {
-            const val CODE_LENGTH = 6
+            // Supabase's email code length is a dashboard setting (6 to 10); the app accepts 6 to 8
+            // so changing it there never locks anyone out.
+            const val MIN_CODE_LENGTH = 6
+            const val MAX_CODE_LENGTH = 8
         }
     }
