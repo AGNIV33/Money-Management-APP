@@ -120,6 +120,12 @@ interface SyncQueueDao {
     @Query("DELETE FROM sync_queue WHERE id = :id")
     suspend fun remove(id: Long)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM sync_queue WHERE table_name = :table AND row_id = :rowId)")
+    suspend fun hasPending(
+        table: String,
+        rowId: String,
+    ): Boolean
+
     @Query("DELETE FROM sync_queue")
     suspend fun clear()
 

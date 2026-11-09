@@ -6,6 +6,10 @@ import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.repository.RoomCategoryRepository
 import com.agniv.hisaab.core.data.repository.RoomMemberRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
+import com.agniv.hisaab.core.data.sync.DataStoreSyncState
+import com.agniv.hisaab.core.data.sync.SyncRequester
+import com.agniv.hisaab.core.data.sync.SyncScheduler
+import com.agniv.hisaab.core.data.sync.SyncStateStore
 import com.agniv.hisaab.core.domain.repository.AuthRepository
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
@@ -35,6 +39,10 @@ internal abstract class DataModule {
     @Binds abstract fun authRepository(impl: SupabaseAuthRepository): AuthRepository
 
     @Binds abstract fun familyRepository(impl: LinkingFamilyRepository): FamilyRepository
+
+    @Binds abstract fun syncState(impl: DataStoreSyncState): SyncStateStore
+
+    @Binds abstract fun syncRequester(impl: SyncScheduler): SyncRequester
 
     @Binds abstract fun timeProvider(impl: SystemTimeProvider): TimeProvider
 

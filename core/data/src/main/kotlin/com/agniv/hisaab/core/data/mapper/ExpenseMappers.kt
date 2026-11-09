@@ -68,6 +68,32 @@ fun ExpenseEntity.toDto(): ExpenseDto =
         deleted = deleted,
     )
 
+/** Server row -> local row. [updatedAtMillis] is the server's updated_at, the last-write-wins clock. */
+fun ExpenseDto.toEntity(updatedAtMillis: Long): ExpenseEntity =
+    ExpenseEntity(
+        id = id,
+        familyId = familyId,
+        paidBy = paidBy,
+        ownerUser = ownerUser,
+        amountPaise = amountPaise,
+        categoryId = categoryId,
+        date = LocalDate.parse(date).toEpochDay(),
+        note = note,
+        mode = mode,
+        visibility = visibility,
+        source = source,
+        recurringId = recurringId,
+        updatedAt = updatedAtMillis,
+        deleted = deleted,
+    )
+
+/** Postgres timestamptz text such as 2026-11-09T17:00:00.123456+00:00. */
+fun parseServerTime(text: String): Long =
+    java.time.OffsetDateTime
+        .parse(text)
+        .toInstant()
+        .toEpochMilli()
+
 fun CategoryEntity.toDomain(): Category =
     Category(
         id = id,

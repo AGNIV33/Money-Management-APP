@@ -43,7 +43,8 @@ class OfflineFirstExpenseRepositoryTest {
 
             override fun today(): LocalDate = LocalDate.of(2026, 11, 9)
         }
-    private val repo = OfflineFirstExpenseRepository(db, dispatchers, time)
+    private var syncRequests = 0
+    private val repo = OfflineFirstExpenseRepository(db, dispatchers, time) { syncRequests++ }
 
     @After fun close() = db.close()
 
@@ -78,6 +79,7 @@ class OfflineFirstExpenseRepositoryTest {
             assertThat(queued.single().rowId).isEqualTo("e1")
             assertThat(queued.single().payloadJson).contains("\"amount_paise\":12000")
             assertThat(queued.single().payloadJson).contains("\"date\":\"2026-11-05\"")
+            assertThat(syncRequests).isEqualTo(1)
         }
 
     @Test

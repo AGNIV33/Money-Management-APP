@@ -7,6 +7,7 @@ import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.toDto
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
+import com.agniv.hisaab.core.data.sync.SyncRequester
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
@@ -43,6 +44,7 @@ class LinkingFamilyRepository
         private val sessions: LocalSessionRepository,
         private val time: TimeProvider,
         private val dispatchers: DispatcherProvider,
+        private val sync: SyncRequester,
     ) : FamilyRepository {
         private val json = Json { encodeDefaults = true }
 
@@ -135,6 +137,7 @@ class LinkingFamilyRepository
                 }
             }
             sessions.replace(Session(userId = me.userId, familyId = family.id, memberId = me.id))
+            sync.requestSync()
         }
 
         private fun requireUser(): String = api.currentUserId() ?: throw FamilyError.NotSignedIn

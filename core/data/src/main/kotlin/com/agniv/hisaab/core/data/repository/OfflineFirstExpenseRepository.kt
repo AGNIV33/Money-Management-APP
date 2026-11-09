@@ -6,6 +6,7 @@ import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.toDomain
 import com.agniv.hisaab.core.data.mapper.toDto
 import com.agniv.hisaab.core.data.mapper.toEntity
+import com.agniv.hisaab.core.data.sync.SyncRequester
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.ExpenseEntity
 import com.agniv.hisaab.core.database.entity.SyncQueueEntity
@@ -31,6 +32,7 @@ class OfflineFirstExpenseRepository
         private val db: HisaabDatabase,
         private val dispatchers: DispatcherProvider,
         private val time: TimeProvider,
+        private val sync: SyncRequester,
     ) : ExpenseRepository {
         private val expenseDao = db.expenseDao()
         private val queueDao = db.syncQueueDao()
@@ -74,7 +76,7 @@ class OfflineFirstExpenseRepository
                             ),
                         )
                     }
-                }
+                }.onSuccess { sync.requestSync() }
             }
 
         companion object {

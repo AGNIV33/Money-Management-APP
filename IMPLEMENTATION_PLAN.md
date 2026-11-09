@@ -26,7 +26,7 @@
 - [x] 1.5 `core:database`: Room entities + DAOs (families, members, categories, expenses, sync_queue); seed default categories (en + hi names).
 - [x] 1.6 `core:domain`: models + use cases `AddExpense`, `UpdateExpense`, `DeleteExpense`, `ObserveMonthExpenses`, `ObserveMonthSummary`.
 - [x] 1.7 `core:data`: `ExpenseRepository` (Room first + sync_queue).
-- [ ] 1.8 `SyncWorker` push/pull + last-write-wins + soft delete. Unit tests with fake server.
+- [x] 1.8 `SyncWorker` push/pull + last-write-wins + soft delete. Unit tests with fake server.
 - [x] 1.9 `feature:expenses`: Add Expense sheet (`HNumberPad`, chips, defaults), list grouped by date, edit, swipe delete + undo, filters, search.
 - [ ] 1.10 Visibility FAMILY/PRIVATE enforced in queries + RLS (test with 2 accounts).
 - [ ] 1.11 `feature:dashboard`: month switcher, total, vs last month, top categories donut (Vico), per-member bars, recent list.
@@ -98,3 +98,4 @@
 | 2026-11-09 | 1.9 (part) | `feature:expenses`: Add Expense sheet (keypad, categories, date, mode, note, Only me) + this month's total and list, long-press to delete. Runs as a phone-only family until login (1.3). Category icons are emoji for now. |
 | 2026-11-09 | 1.9 | Edit (tap row), swipe left to delete + Undo, month switcher, search (note / category en+hi), mode + category filters, grouped by day with day totals. Member filter waits for family (1.4). Login decision: Google + email code now, phone OTP before launch. |
 | 2026-11-09 | 1.2–1.4 | supabase-kt client; email-code login (needs custom SMTP so the template can show {{ .Token }}); Google button appears once GOOGLE_WEB_CLIENT_ID is in local.properties. Family setup after login: create (re-uses phone ids), join by code, or auto-link an existing membership; local expenses move into the family and are re-queued. Family sheet: invite code + share, members, admin badge. Sign-out deferred until sync (1.8) so no unsynced data is lost. Language-pick + onboarding slides of 1.3 still to do. |
+| 2026-11-09 | 1.8 | SyncEngine: push queue in batches (dedupe per row), pull changed rows by server updated_at (skips rows with a pending local edit), refresh members. WorkManager: debounced 5 s after writes, on app start, every 6 h, network-only, exponential backoff. 5 Robolectric tests with a fake server. Not yet: categories/budgets sync, pull-to-refresh. |
