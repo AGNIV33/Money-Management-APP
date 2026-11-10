@@ -50,6 +50,7 @@
 - [ ] 3.2 Voice add screen with `SpeechRecognizer` (en-IN, hi-IN), mic permission at use time, preview → edit → save.
 - [ ] 3.3 ML Kit Text Recognition (bundled), camera screen (CameraX), receipt parser (TOTAL/₹ regex, date), confirm card.
 - [ ] 3.4 App lock (biometric / device PIN) toggle.
+- [ ] 3.5 Passbook / statement import (PRD F21): pick photo (camera/gallery) or PDF (system file picker, no storage permission); text from ML Kit OCR (reuse 3.3) or PDF text layer (`PdfRenderer` → OCR for scanned PDFs); `StatementParser` (date, debit/credit, amount, description; common Indian bank formats) with unit tests; `StatementMatcher` against expenses + loan EMIs (same amount, date ±3 days, text hints) → already added / missing / unsure; review list with checkboxes, add selected (AI suggests, user confirms). Mask account numbers on device; any cloud AI fallback gets masked text only.
 **✅ Exit:** 80%+ of test voice phrases parse correctly on device.
 
 ## Phase 4 — ML insights + Cloud AI (Week 5–6)
