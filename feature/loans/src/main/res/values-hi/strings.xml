@@ -71,4 +71,21 @@
     <string name="error_tenure">1 महीने से 40 साल के बीच अवधि लिखें</string>
     <string name="error_emi">इस लोन के लिए EMI बहुत कम है, या रकम सही नहीं है</string>
     <string name="error_save_loan">सेव नहीं हुआ। फिर से कोशिश करें।</string>
+    <string name="ai_fill_button">✨ AI से भरें</string>
+    <string name="ai_fill_title">AI से भरें</string>
+    <string name="ai_fill_privacy">लोन की जानकारी लिखें या पेस्ट करें, या चिट्ठी की फ़ोटो या PDF चुनें। इसे आपके फ़ोन पर ही पढ़ा जाता है। भेजने से पहले खाता, फ़ोन और ID नंबर छिपा दिए जाते हैं। सेव दबाने तक कुछ सेव नहीं होता।</string>
+    <string name="ai_fill_hint">लोन की जानकारी</string>
+    <string name="ai_fill_picture">📷 फ़ोटो</string>
+    <string name="ai_fill_pdf">📄 PDF</string>
+    <string name="ai_fill_run">AI से पढ़ें</string>
+    <string name="ai_fill_reading">पढ़ रहा है…</string>
+    <string name="ai_fill_check">AI ने भरा है। सेव करने से पहले हर खाना ज़रूर जाँच लें।</string>
+    <string name="ai_fill_err_short">पहले थोड़ी और जानकारी जोड़ें।</string>
+    <string name="ai_fill_err_offline">इसके लिए इंटरनेट चाहिए। इंटरनेट होने पर फिर कोशिश करें।</string>
+    <string name="ai_fill_err_limit">आज के AI पढ़ने की सीमा पूरी हो गई। कल फिर कोशिश करें, या लोन खुद भरें।</string>
+    <string name="ai_fill_err_nothing">AI को इसमें लोन की जानकारी नहीं मिली। आप खुद भर सकते हैं।</string>
+    <string name="ai_fill_err_unavailable">AI अभी चालू नहीं है।</string>
+    <string name="ai_fill_err_failed">कुछ गड़बड़ हो गई। फिर कोशिश करें।</string>
+    <string name="ai_fill_err_locked">इस PDF पर पासवर्ड है। पहले उसे हटाएँ, फिर कोशिश करें।</string>
+    <string name="ai_fill_err_read">वह फ़ाइल पढ़ी नहीं जा सकी। साफ़ फ़ोटो चुनें या जानकारी खुद लिखें।</string>
 </resources>

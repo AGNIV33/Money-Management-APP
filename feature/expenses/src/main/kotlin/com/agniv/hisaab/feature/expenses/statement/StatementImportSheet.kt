@@ -49,11 +49,11 @@ import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Category
+import com.agniv.hisaab.core.ml.scan.PdfLockedException
+import com.agniv.hisaab.core.ml.scan.PdfReader
+import com.agniv.hisaab.core.ml.scan.TextScanner
 import com.agniv.hisaab.core.ml.statement.MatchResult
 import com.agniv.hisaab.feature.expenses.R
-import com.agniv.hisaab.feature.expenses.scan.PdfLockedException
-import com.agniv.hisaab.feature.expenses.scan.PdfReader
-import com.agniv.hisaab.feature.expenses.scan.TextScanner
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
 import kotlinx.coroutines.launch

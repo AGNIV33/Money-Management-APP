@@ -4,6 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.domain.loan.LoanExtractException
+import com.agniv.hisaab.core.domain.loan.LoanExtractFailure
+import com.agniv.hisaab.core.domain.loan.LoanExtractRepository
 import com.agniv.hisaab.core.domain.loan.LoanForm
 import com.agniv.hisaab.core.domain.model.LoanType
 import com.agniv.hisaab.core.domain.model.Visibility
@@ -13,6 +16,7 @@ import com.agniv.hisaab.core.domain.usecase.LoanDraft
 import com.agniv.hisaab.core.domain.usecase.LoanError
 import com.agniv.hisaab.core.domain.usecase.SaveLoan
 import com.agniv.hisaab.core.domain.util.TimeProvider
+import com.agniv.hisaab.core.ml.report.PrivacyMask
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +46,13 @@ data class AddLoanUiState(
     val onlyMe: Boolean = false,
     val error: LoanField? = null,
     val saving: Boolean = false,
+    /** "Fill with AI" (4.8): the panel, the text to read, and how it went. */
+    val aiOpen: Boolean = false,
+    val aiText: String = "",
+    val aiBusy: Boolean = false,
+    val aiMessage: LoanAiMessage? = null,
+    /** True after the AI filled the form, until the person edits a field: shows the "please check" notice. */
+    val aiFilled: Boolean = false,
 ) {
     val formulaEmi: Money? get() = LoanForm.formulaEmi(amount, rate, tenure, tenureInYears)
 }
@@ -84,6 +95,23 @@ sealed interface AddLoanEvent {
     ) : AddLoanEvent
 
     data object Save : AddLoanEvent
+
+    data object AiToggle : AddLoanEvent
+
+    data class AiText(
+        val text: String,
+    ) : AddLoanEvent
+
+    /** Text read from a picture or PDF on the phone, added to what is already typed. */
+    data class AiAppend(
+        val text: String,
+    ) : AddLoanEvent
+
+    data class AiScanProblem(
+        val pdfLocked: Boolean,
+    ) : AddLoanEvent
+
+    data object AiRun : AddLoanEvent
 }
 
 @HiltViewModel
@@ -93,6 +121,7 @@ class AddLoanViewModel
         private val sessions: SessionRepository,
         private val loans: LoanRepository,
         private val saveLoan: SaveLoan,
+        private val extractor: LoanExtractRepository,
         time: TimeProvider,
     ) : ViewModel() {
         // Most loans start next month on today's date; the user can change it.
@@ -138,6 +167,46 @@ class AddLoanViewModel
                 is AddLoanEvent.FirstEmi -> _state.update { it.copy(firstEmiDate = event.date) }
                 is AddLoanEvent.OnlyMe -> _state.update { it.copy(onlyMe = event.on) }
                 AddLoanEvent.Save -> save()
+                else -> onAiEvent(event)
+            }
+        }
+
+        private fun onAiEvent(event: AddLoanEvent) {
+            when (event) {
+                AddLoanEvent.AiToggle -> _state.update { it.copy(aiOpen = !it.aiOpen, aiMessage = null) }
+                is AddLoanEvent.AiText -> _state.update { it.copy(aiText = event.text.take(MAX_AI_INPUT), aiMessage = null) }
+                is AddLoanEvent.AiAppend ->
+                    _state.update {
+                        it.copy(aiText = (it.aiText + NEWLINE + event.text).trim().take(MAX_AI_INPUT), aiMessage = null)
+                    }
+                is AddLoanEvent.AiScanProblem ->
+                    _state.update { it.copy(aiMessage = if (event.pdfLocked) LoanAiMessage.PDF_LOCKED else LoanAiMessage.READ_FAILED) }
+                AddLoanEvent.AiRun -> runAi()
+                else -> Unit
+            }
+        }
+
+        /**
+         * Account, phone and ID numbers are hidden here on the phone before anything is sent; the server refuses
+         * text that still looks personal. Nothing is saved: the result only fills the form.
+         */
+        private fun runAi() {
+            val s = _state.value
+            if (s.aiBusy) return
+            val masked = PrivacyMask.mask(s.aiText).trim().take(MAX_AI_SENT)
+            if (masked.length < MIN_AI_TEXT) {
+                _state.update { it.copy(aiMessage = LoanAiMessage.TOO_SHORT) }
+                return
+            }
+            _state.update { it.copy(aiBusy = true, aiMessage = null) }
+            viewModelScope.launch {
+                extractor
+                    .extract(masked)
+                    .onSuccess { found -> _state.update { it.withExtract(found).copy(aiBusy = false, aiOpen = false, aiFilled = true) } }
+                    .onFailure { e ->
+                        val why = (e as? LoanExtractException)?.failure ?: LoanExtractFailure.FAILED
+                        _state.update { it.copy(aiBusy = false, aiMessage = why.toMessage()) }
+                    }
             }
         }
 
@@ -170,6 +239,10 @@ class AddLoanViewModel
 
         private companion object {
             const val MONTHS_PER_YEAR = 12
+            const val NEWLINE = '\n'
+            const val MAX_AI_INPUT = 8_000
+            const val MAX_AI_SENT = 3_900
+            const val MIN_AI_TEXT = 10
         }
     }
 

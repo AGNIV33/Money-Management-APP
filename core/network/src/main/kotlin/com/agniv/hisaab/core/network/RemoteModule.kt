@@ -21,4 +21,6 @@ internal abstract class RemoteModule {
     @Binds abstract fun aiReportRemote(impl: SupabaseAiReportRemote): AiReportRemote
 
     @Binds abstract fun assistantRemote(impl: SupabaseAssistantRemote): AssistantRemote
+
+    @Binds abstract fun loanExtractRemote(impl: SupabaseLoanExtractRemote): LoanExtractRemote
 }

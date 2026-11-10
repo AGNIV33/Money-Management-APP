@@ -71,4 +71,21 @@
     <string name="error_tenure">Enter tenure between 1 month and 40 years</string>
     <string name="error_emi">EMI is too small for this loan, or not a valid amount</string>
     <string name="error_save_loan">Could not save. Please try again.</string>
+    <string name="ai_fill_button">✨ Fill with AI</string>
+    <string name="ai_fill_title">Fill with AI</string>
+    <string name="ai_fill_privacy">Paste or type the loan details, or pick a picture or PDF of the letter. It is read on your phone. Account, phone and ID numbers are hidden before anything is sent. Nothing is saved until you press Save.</string>
+    <string name="ai_fill_hint">Loan details</string>
+    <string name="ai_fill_picture">📷 Picture</string>
+    <string name="ai_fill_pdf">📄 PDF</string>
+    <string name="ai_fill_run">Read with AI</string>
+    <string name="ai_fill_reading">Reading…</string>
+    <string name="ai_fill_check">Filled by AI. Please check every field before saving.</string>
+    <string name="ai_fill_err_short">Add a few more details first.</string>
+    <string name="ai_fill_err_offline">This needs internet. Please try again when you are online.</string>
+    <string name="ai_fill_err_limit">You have used the AI reads for today. Try again tomorrow, or type the loan yourself.</string>
+    <string name="ai_fill_err_nothing">AI could not find loan details in this. You can add them yourself.</string>
+    <string name="ai_fill_err_unavailable">AI is not switched on yet.</string>
+    <string name="ai_fill_err_failed">Something went wrong. Please try again.</string>
+    <string name="ai_fill_err_locked">This PDF has a password. Remove it first, then try again.</string>
+    <string name="ai_fill_err_read">Could not read that file. Try a clearer picture or type the details.</string>
 </resources>

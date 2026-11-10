@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Source
 import com.agniv.hisaab.core.ml.receipt.ReceiptParser
+import com.agniv.hisaab.core.ml.scan.TextScanner
 import com.agniv.hisaab.core.ml.voice.VoiceExpense
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.add.ExpensePrefill

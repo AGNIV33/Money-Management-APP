@@ -1,4 +1,4 @@
-package com.agniv.hisaab.feature.expenses.scan
+package com.agniv.hisaab.core.ml.scan
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -19,7 +19,7 @@ import kotlin.coroutines.resumeWithException
  * Reads the text on a picture with ML Kit's bundled model (PRD F14): no internet, and the picture never
  * leaves the phone. Pictures are scaled down first so a 12 MP photo cannot run a 2 GB phone out of memory.
  */
-internal object TextScanner {
+object TextScanner {
     private const val MAX_SIDE = 2000
     private const val DEGREES_90 = 90f
     private const val DEGREES_180 = 180f

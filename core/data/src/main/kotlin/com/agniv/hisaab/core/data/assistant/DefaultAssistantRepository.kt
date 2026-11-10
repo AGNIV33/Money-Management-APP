@@ -23,9 +23,11 @@ class DefaultAssistantRepository
         private val connector: LiveConnector,
         private val dispatchers: DispatcherProvider,
     ) : AssistantRepository {
+        @Suppress("TooGenericExceptionCaught")
         override suspend fun connect(resumeHandle: String?): Result<LiveSession> =
             withContext(dispatchers.io) {
                 try {
+                    // The WebSocket upgrade can fail with several unrelated exception types, hence the broad catch below.
                     when (val reply = remote.token()) {
                         is AssistantTokenReply.Granted ->
                             Result.success(
@@ -37,10 +39,7 @@ class DefaultAssistantRepository
                     throw e
                 } catch (e: IOException) {
                     Result.failure(AssistantException(AssistantFailure.OFFLINE).also { it.initCause(e) })
-                } catch (
-                    @Suppress("TooGenericExceptionCaught") // WebSocket upgrade failures come as several unrelated types
-                    e: Exception,
-                ) {
+                } catch (e: Exception) {
                     Result.failure(AssistantException(AssistantFailure.FAILED).also { it.initCause(e) })
                 }
             }

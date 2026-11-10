@@ -92,6 +92,8 @@ private fun AddLoanContent(
             stringResource(if (state.editingId == null) R.string.add_loan_title else R.string.edit_loan_title),
             style = MaterialTheme.typography.headlineSmall,
         )
+        // Only for a new loan: an existing one is already filled in.
+        if (state.editingId == null) AiFillCard(state, onEvent)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
             items(LoanType.entries, key = { it.name }) { type ->
                 FilterChip(

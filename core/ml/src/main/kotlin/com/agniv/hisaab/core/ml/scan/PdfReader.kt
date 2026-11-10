@@ -1,4 +1,4 @@
-package com.agniv.hisaab.feature.expenses.scan
+package com.agniv.hisaab.core.ml.scan
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -10,14 +10,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** The PDF is protected by a password (common for bank statements); the user must remove it first. */
-internal class PdfLockedException : Exception()
+class PdfLockedException : Exception()
 
 /**
  * Reads a PDF by drawing each page as a picture and reading that with [TextScanner]. This works for scanned
  * and for normal downloaded statements alike, because Android has no way to pull the text layer out of a PDF.
  * One page at a time, so memory stays small on 2 GB phones.
  */
-internal object PdfReader {
+object PdfReader {
     private const val MAX_PAGES = 12
     private const val TARGET_WIDTH = 1600
 
