@@ -1,8 +1,10 @@
 package com.agniv.hisaab.core.network
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -20,12 +22,14 @@ annotation class GoogleWebClientId
 object SupabaseModule {
     @Provides
     @Singleton
-    fun provideSupabase(): SupabaseClient =
+    fun provideSupabase(
+        @ApplicationContext context: Context,
+    ): SupabaseClient =
         createSupabaseClient(
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_ANON_KEY,
         ) {
-            install(Auth)
+            install(Auth) { sessionManager = EncryptedSessionManager.create(context) }
             install(Postgrest)
         }
 

@@ -33,4 +33,8 @@ dependencies {
     api(libs.supabase.auth)
     api(libs.supabase.postgrest)
     implementation(libs.ktor.client.okhttp)
+
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }
