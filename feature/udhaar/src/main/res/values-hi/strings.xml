@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="udhaar_tab">उधार</string>
+    <string name="udhaar_title">उधार</string>
+    <string name="udhaar_add_fab">उधार जोड़ें</string>
+    <string name="udhaar_empty">अभी कुछ नहीं। किसी पर बकाया रकम या उधार ली हुई चीज़ जोड़ें।</string>
+    <string name="udhaar_you_get">मिलना है</string>
+    <string name="udhaar_you_give">देना है</string>
+    <string name="udhaar_filter_all">सब</string>
+    <string name="udhaar_filter_get">मुझे मिलेगा</string>
+    <string name="udhaar_filter_give">मुझे देना है</string>
+    <string name="udhaar_dir_get">उन पर बकाया है</string>
+    <string name="udhaar_dir_give">मुझ पर बकाया है</string>
+    <string name="udhaar_private">🔒 सिर्फ़ मैं</string>
+    <string name="udhaar_settled">चुकता ✓</string>
+    <string name="udhaar_of">%1$s में से</string>
+    <string name="udhaar_overdue">%1$d दिन से बकाया</string>
+    <string name="udhaar_due_on">%1$s तक</string>
+
+    <string name="udhaar_total">कुल</string>
+    <string name="udhaar_paid">अब तक चुकाया</string>
+    <string name="udhaar_left">अभी बाकी</string>
+    <string name="udhaar_date">तारीख</string>
+    <string name="udhaar_due">आख़िरी तारीख</string>
+    <string name="udhaar_payments">भुगतान</string>
+    <string name="udhaar_undo">वापस लें</string>
+    <string name="udhaar_pay_label">मिली या दी गई रकम (₹)</string>
+    <string name="udhaar_pay_too_much">बाकी रकम (%1$s) से ज़्यादा है</string>
+    <string name="udhaar_add_payment">भुगतान जोड़ें</string>
+    <string name="udhaar_mark_settled">चुकता करें</string>
+    <string name="udhaar_edit">बदलें</string>
+    <string name="udhaar_delete">हटाएँ</string>
+    <string name="udhaar_delete_title">यह एंट्री हटाएँ?</string>
+    <string name="udhaar_delete_text">यह परिवार में सबके लिए हट जाएगी।</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="ok">ठीक है</string>
+
+    <string name="udhaar_add_title">उधार जोड़ें</string>
+    <string name="udhaar_edit_title">उधार बदलें</string>
+    <string name="udhaar_person">व्यक्ति या दुकान</string>
+    <string name="udhaar_amount">रकम (₹)</string>
+    <string name="udhaar_date_line">तारीख: %1$s</string>
+    <string name="udhaar_due_line">आख़िरी तारीख: %1$s</string>
+    <string name="udhaar_no_due">कोई आख़िरी तारीख नहीं</string>
+    <string name="udhaar_set_due">चुनें</string>
+    <string name="udhaar_clear">हटाएँ</string>
+    <string name="udhaar_change">बदलें</string>
+    <string name="udhaar_note">नोट (ज़रूरी नहीं)</string>
+    <string name="udhaar_only_me">सिर्फ़ मैं</string>
+    <string name="udhaar_only_me_hint">परिवार के लोग यह नहीं देखेंगे</string>
+    <string name="udhaar_save">सेव करें</string>
+    <string name="udhaar_err_person">किससे है, यह लिखें (40 अक्षर तक)</string>
+    <string name="udhaar_err_amount">रकम लिखें</string>
+    <string name="udhaar_err_note">नोट बहुत लंबा है</string>
+    <string name="udhaar_err_save">सेव नहीं हुआ। फिर से कोशिश करें।</string>
+</resources>

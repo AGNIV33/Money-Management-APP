@@ -14,11 +14,10 @@ import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.AddExpense
+import com.agniv.hisaab.core.domain.usecase.AddExpenseExtras
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
 import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ExpenseError
-import com.agniv.hisaab.core.domain.usecase.RecurringDraft
-import com.agniv.hisaab.core.domain.usecase.SaveRecurring
 import com.agniv.hisaab.core.domain.usecase.UpdateExpense
 import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
@@ -38,7 +37,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
-enum class AddError { AMOUNT, CATEGORY, NOTE, SAVE_FAILED }
+enum class AddError { AMOUNT, CATEGORY, NOTE, CREDIT_FROM, SAVE_FAILED }
 
 @Immutable
 data class AddExpenseUiState(
@@ -58,6 +57,9 @@ data class AddExpenseUiState(
     val canDelete: Boolean = false,
     /** Null = one time. Only offered for a new expense. */
     val repeat: RecurRule? = null,
+    /** Bought on credit: also makes an "I owe" entry in Udhaar. Only for a new expense. */
+    val onCredit: Boolean = false,
+    val creditFrom: String = "",
 ) {
     val amount: Money? get() = Money.parse(amountText)
 }
@@ -91,6 +93,14 @@ sealed interface AddExpenseEvent {
 
     data object Delete : AddExpenseEvent
 
+    data class SetOnCredit(
+        val on: Boolean,
+    ) : AddExpenseEvent
+
+    data class EditCreditFrom(
+        val text: String,
+    ) : AddExpenseEvent
+
     data class PickRepeat(
         val rule: RecurRule?,
     ) : AddExpenseEvent
@@ -116,7 +126,7 @@ class AddExpenseViewModel
         private val expenses: ExpenseRepository,
         private val members: MemberRepository,
         private val deleteExpense: DeleteExpense,
-        private val saveRecurring: SaveRecurring,
+        private val extras: AddExpenseExtras,
         private val time: TimeProvider,
     ) : ViewModel() {
         private val _state = MutableStateFlow(AddExpenseUiState(date = time.today(), today = time.today()))
@@ -200,6 +210,8 @@ class AddExpenseViewModel
                 is AddExpenseEvent.SetOnlyMe -> _state.update { it.copy(onlyMe = event.onlyMe) }
                 AddExpenseEvent.Save -> save()
                 AddExpenseEvent.Delete -> delete()
+                is AddExpenseEvent.SetOnCredit -> _state.update { it.copy(onCredit = event.on, error = null) }
+                is AddExpenseEvent.EditCreditFrom -> _state.update { it.copy(creditFrom = event.text, error = null) }
                 is AddExpenseEvent.PickRepeat -> _state.update { it.copy(repeat = event.rule) }
             }
         }
@@ -222,6 +234,8 @@ class AddExpenseViewModel
             when {
                 amount == null || amount.paise <= 0 -> _state.update { it.copy(error = AddError.AMOUNT) }
                 categoryId == null -> _state.update { it.copy(error = AddError.CATEGORY) }
+                current.onCredit && current.editingId == null && current.creditFrom.isBlank() ->
+                    _state.update { it.copy(error = AddError.CREDIT_FROM) }
                 else -> {
                     _state.update { it.copy(saving = true) }
                     viewModelScope.launch {
@@ -238,10 +252,9 @@ class AddExpenseViewModel
                         val result =
                             current.editingId?.let { updateExpense(it, draft) } ?: addExpense(session, draft)
                         result
-                            .onSuccess {
-                                // The expense just saved is the first one; the repeat carries on from the next date.
-                                if (current.editingId == null && current.repeat != null) {
-                                    saveRecurring(session, draft.toRecurring(current.repeat))
+                            .onSuccess { expense ->
+                                if (current.editingId == null) {
+                                    extras(session, expense, current.repeat, current.creditFrom.takeIf { current.onCredit })
                                 }
                                 saved.send(Unit)
                             }.onFailure { e ->
@@ -253,9 +266,6 @@ class AddExpenseViewModel
             }
         }
     }
-
-private fun ExpenseDraft.toRecurring(rule: RecurRule) =
-    RecurringDraft(amount, categoryId, mode, note, visibility, rule, date)
 
 /** 12550 paise -> "125.5", 12500 -> "125": what the keypad would have produced. */
 internal fun Money.toInputText(): String {

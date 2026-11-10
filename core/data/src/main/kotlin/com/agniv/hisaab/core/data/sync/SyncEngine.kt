@@ -8,6 +8,8 @@ import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository.Compa
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository.Companion.TABLE_LOANS
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository.Companion.TABLE_LOAN_PAYMENTS
 import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository.Companion.TABLE_RECURRING
+import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository.Companion.TABLE_UDHAAR
+import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository.Companion.TABLE_UDHAAR_PAYMENTS
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
@@ -17,10 +19,13 @@ import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.network.ExpenseRemote
 import com.agniv.hisaab.core.network.LoanRemote
 import com.agniv.hisaab.core.network.RecurringRemote
+import com.agniv.hisaab.core.network.UdhaarRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.RecurringDto
+import com.agniv.hisaab.core.network.dto.UdhaarDto
+import com.agniv.hisaab.core.network.dto.UdhaarPaymentDto
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -63,6 +68,7 @@ class SyncEngine
         private val remote: ExpenseRemote,
         private val loanRemote: LoanRemote,
         private val recurringRemote: RecurringRemote,
+        private val udhaarRemote: UdhaarRemote,
         private val sessions: SessionRepository,
         private val state: SyncStateStore,
         private val dispatchers: DispatcherProvider,
@@ -84,6 +90,7 @@ class SyncEngine
                             pull(session)
                             pullLoans(session)
                             pullRecurring(session)
+                            pullUdhaar(session)
                             pullMembers(session)
                             pullFamily(session)
                         }
@@ -115,6 +122,9 @@ class SyncEngine
                     batch.latest(TABLE_LOANS, LoanDto.serializer())?.let { loanRemote.upsertLoans(it) }
                     batch.latest(TABLE_LOAN_PAYMENTS, LoanPaymentDto.serializer())?.let { loanRemote.upsertPayments(it) }
                     batch.latest(TABLE_RECURRING, RecurringDto.serializer())?.let { recurringRemote.upsert(it) }
+                    // Entries before their payments: a payment row points at its entry on the server.
+                    batch.latest(TABLE_UDHAAR, UdhaarDto.serializer())?.let { udhaarRemote.upsertEntries(it) }
+                    batch.latest(TABLE_UDHAAR_PAYMENTS, UdhaarPaymentDto.serializer())?.let { udhaarRemote.upsertPayments(it) }
                 }.onFailure { batch.forEach { queue.markAttempt(it.id) } }
                     .getOrThrow()
                 batch.forEach { queue.remove(it.id) }
@@ -162,6 +172,23 @@ class SyncEngine
                 stamp = { it.updatedAt },
             ) { row, time ->
                 if (!db.syncQueueDao().hasPending(TABLE_LOAN_PAYMENTS, row.id)) db.loanDao().upsertPayment(row.toEntity(time))
+            }
+        }
+
+        private suspend fun pullUdhaar(session: Session) {
+            pullTable(
+                key = session.familyId + UDHAAR_KEY,
+                fetch = { since -> udhaarRemote.entriesChangedSince(session.familyId, since, PULL_PAGE) },
+                stamp = { it.updatedAt },
+            ) { row, time ->
+                if (!db.syncQueueDao().hasPending(TABLE_UDHAAR, row.id)) db.udhaarDao().upsert(row.toEntity(time))
+            }
+            pullTable(
+                key = session.familyId + UDHAAR_PAYMENTS_KEY,
+                fetch = { since -> udhaarRemote.paymentsChangedSince(session.familyId, since, PULL_PAGE) },
+                stamp = { it.updatedAt },
+            ) { row, time ->
+                if (!db.syncQueueDao().hasPending(TABLE_UDHAAR_PAYMENTS, row.id)) db.udhaarDao().upsertPayment(row.toEntity(time))
             }
         }
 
@@ -228,5 +255,7 @@ class SyncEngine
             private const val LOANS_KEY = ":loans"
             private const val PAYMENTS_KEY = ":loan_payments"
             private const val RECURRING_KEY = ":recurring"
+            private const val UDHAAR_KEY = ":udhaar"
+            private const val UDHAAR_PAYMENTS_KEY = ":udhaar_payments"
         }
     }

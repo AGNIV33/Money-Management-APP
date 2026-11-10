@@ -31,10 +31,12 @@ import com.agniv.hisaab.feature.family.info.FamilySheet
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
 import com.agniv.hisaab.feature.loans.LoansScreen
 import com.agniv.hisaab.feature.tools.ToolsScreen
+import com.agniv.hisaab.feature.udhaar.UdhaarScreen
 import dagger.hilt.android.AndroidEntryPoint
 import com.agniv.hisaab.feature.family.R as FamilyR
 import com.agniv.hisaab.feature.loans.R as LoansR
 import com.agniv.hisaab.feature.tools.R as ToolsR
+import com.agniv.hisaab.feature.udhaar.R as UdhaarR
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -116,6 +118,7 @@ private fun HomeTabs(onFamily: () -> Unit) {
                         },
                     )
                 HomeTab.LOANS -> LoansScreen()
+                HomeTab.UDHAAR -> UdhaarScreen()
                 HomeTab.TOOLS -> ToolsScreen()
             }
         }
@@ -128,5 +131,6 @@ private enum class HomeTab(
 ) {
     HOME("🏠", R.string.tab_home),
     LOANS("🏦", LoansR.string.loans_tab),
+    UDHAAR("🤝", UdhaarR.string.udhaar_tab),
     TOOLS("🧮", ToolsR.string.tools_tab),
 }

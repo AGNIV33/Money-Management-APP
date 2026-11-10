@@ -7,6 +7,8 @@ import com.agniv.hisaab.core.domain.model.LoanPayment
 import com.agniv.hisaab.core.domain.model.Member
 import com.agniv.hisaab.core.domain.model.Recurring
 import com.agniv.hisaab.core.domain.model.Session
+import com.agniv.hisaab.core.domain.model.Udhaar
+import com.agniv.hisaab.core.domain.model.UdhaarPayment
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -83,4 +85,28 @@ interface RecurringRepository {
 
     /** Soft delete: stops future expenses; the ones already made stay. */
     suspend fun delete(id: String): Result<Unit>
+}
+
+/** An udhaar entry with its payments (deleted ones included; the use case filters). */
+data class UdhaarWithPayments(
+    val udhaar: Udhaar,
+    val payments: List<UdhaarPayment>,
+)
+
+interface UdhaarRepository {
+    /** Non-deleted entries [viewerUserId] may see (PRIVATE only for the owner), with their payments. */
+    fun observe(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<UdhaarWithPayments>>
+
+    suspend fun get(id: String): Udhaar?
+
+    suspend fun upsert(udhaar: Udhaar): Result<Unit>
+
+    /** Soft delete. */
+    suspend fun delete(id: String): Result<Unit>
+
+    /** Adds a payment, or with deleted = true takes one back. */
+    suspend fun savePayment(payment: UdhaarPayment): Result<Unit>
 }

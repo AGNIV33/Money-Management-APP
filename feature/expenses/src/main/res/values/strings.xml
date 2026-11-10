@@ -90,4 +90,8 @@
     <string name="voice_err_unavailable">Voice typing is not available on this phone. Type the sentence instead.</string>
     <string name="voice_err_permission">Kinly needs the microphone to listen. You can type the sentence instead.</string>
     <string name="voice_err_no_amount">I could not find an amount. Say it again, like "aaj 200 ka doodh".</string>
+    <string name="credit_title">Bought on credit</string>
+    <string name="credit_hint">Adds to Udhaar under "You will give"</string>
+    <string name="credit_from">Shop or person</string>
+    <string name="error_credit_from">Enter the shop or person you owe</string>
 </resources>

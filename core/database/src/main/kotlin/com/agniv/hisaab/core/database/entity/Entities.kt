@@ -152,3 +152,39 @@ data class RecurringEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     val deleted: Boolean = false,
 )
+
+@Entity(
+    tableName = "udhaar",
+    indices = [Index("family_id")],
+)
+data class UdhaarEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    val direction: String,
+    val person: String,
+    @ColumnInfo(name = "amount_paise") val amountPaise: Long,
+    /** Epoch days. */
+    val date: Long,
+    @ColumnInfo(name = "due_date") val dueDate: Long?,
+    val note: String?,
+    @ColumnInfo(name = "expense_id") val expenseId: String?,
+    val visibility: String,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)
+
+@Entity(
+    tableName = "udhaar_payments",
+    indices = [Index("udhaar_id"), Index("family_id")],
+)
+data class UdhaarPaymentEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "udhaar_id") val udhaarId: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    @ColumnInfo(name = "amount_paise") val amountPaise: Long,
+    @ColumnInfo(name = "paid_on") val paidOn: Long,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)

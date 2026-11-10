@@ -15,4 +15,9 @@
     <string name="emi_today_title">EMI due today</string>
     <string name="emi_text">%1$s: %2$s on %3$s</string>
     <string name="emi_mark_paid">Mark paid</string>
+    <string name="udhaar_channel">Udhaar reminders</string>
+    <string name="udhaar_due_tomorrow_title">Udhaar due tomorrow</string>
+    <string name="udhaar_due_today_title">Udhaar due today</string>
+    <string name="udhaar_pay_text">Pay %2$s to %1$s</string>
+    <string name="udhaar_collect_text">%1$s owes you %2$s</string>
 </resources>

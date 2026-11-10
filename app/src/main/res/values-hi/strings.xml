@@ -14,4 +14,9 @@
     <string name="emi_today_title">आज EMI देनी है</string>
     <string name="emi_text">%1$s: %3$s को %2$s</string>
     <string name="emi_mark_paid">भर दी</string>
+    <string name="udhaar_channel">उधार रिमाइंडर</string>
+    <string name="udhaar_due_tomorrow_title">कल उधार की तारीख है</string>
+    <string name="udhaar_due_today_title">आज उधार की तारीख है</string>
+    <string name="udhaar_pay_text">%1$s को %2$s देने हैं</string>
+    <string name="udhaar_collect_text">%1$s से %2$s लेने हैं</string>
 </resources>

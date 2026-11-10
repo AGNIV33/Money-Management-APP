@@ -11,6 +11,8 @@ import com.agniv.hisaab.core.database.entity.LoanPaymentEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
 import com.agniv.hisaab.core.database.entity.RecurringEntity
 import com.agniv.hisaab.core.database.entity.SyncQueueEntity
+import com.agniv.hisaab.core.database.entity.UdhaarEntity
+import com.agniv.hisaab.core.database.entity.UdhaarPaymentEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -246,5 +248,65 @@ interface RecurringDao {
         newOwner: String,
         oldMemberId: String,
         newMemberId: String,
+    )
+}
+
+@Dao
+interface UdhaarDao {
+    /** PRIVATE entries only for their owner (CLAUDE.md rule 7), same as Supabase RLS. */
+    @Query(
+        """
+        SELECT * FROM udhaar
+        WHERE family_id = :familyId AND deleted = 0
+          AND (visibility = 'FAMILY' OR owner_user = :viewerUserId)
+        """,
+    )
+    fun observeVisible(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<UdhaarEntity>>
+
+    /** Payments of entries the viewer may see; a private entry's payments stay private too. */
+    @Query(
+        """
+        SELECT p.* FROM udhaar_payments p
+        JOIN udhaar u ON u.id = p.udhaar_id
+        WHERE p.family_id = :familyId AND p.deleted = 0 AND u.deleted = 0
+          AND (u.visibility = 'FAMILY' OR u.owner_user = :viewerUserId)
+        """,
+    )
+    fun observeVisiblePayments(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<UdhaarPaymentEntity>>
+
+    @Query("SELECT * FROM udhaar WHERE id = :id")
+    suspend fun get(id: String): UdhaarEntity?
+
+    @Upsert
+    suspend fun upsert(row: UdhaarEntity)
+
+    @Upsert
+    suspend fun upsertPayment(row: UdhaarPaymentEntity)
+
+    @Query("SELECT * FROM udhaar WHERE family_id = :familyId")
+    suspend fun allForFamily(familyId: String): List<UdhaarEntity>
+
+    @Query("SELECT * FROM udhaar_payments WHERE family_id = :familyId")
+    suspend fun allPaymentsForFamily(familyId: String): List<UdhaarPaymentEntity>
+
+    /** Moves phone-only rows into a real family when the user signs in (see AccountLinker). */
+    @Query("UPDATE udhaar SET family_id = :newFamilyId, owner_user = :newOwner WHERE family_id = :oldFamilyId")
+    suspend fun reassign(
+        oldFamilyId: String,
+        newFamilyId: String,
+        newOwner: String,
+    )
+
+    @Query("UPDATE udhaar_payments SET family_id = :newFamilyId, owner_user = :newOwner WHERE family_id = :oldFamilyId")
+    suspend fun reassignPayments(
+        oldFamilyId: String,
+        newFamilyId: String,
+        newOwner: String,
     )
 }

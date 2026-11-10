@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="udhaar_tab">Udhaar</string>
+    <string name="udhaar_title">Udhaar</string>
+    <string name="udhaar_add_fab">Add udhaar</string>
+    <string name="udhaar_empty">Nothing here yet. Add money someone owes you, or something you bought on credit.</string>
+    <string name="udhaar_you_get">You will get</string>
+    <string name="udhaar_you_give">You will give</string>
+    <string name="udhaar_filter_all">All</string>
+    <string name="udhaar_filter_get">I will get</string>
+    <string name="udhaar_filter_give">I will give</string>
+    <string name="udhaar_dir_get">They owe me</string>
+    <string name="udhaar_dir_give">I owe them</string>
+    <string name="udhaar_private">🔒 Only me</string>
+    <string name="udhaar_settled">Settled ✓</string>
+    <string name="udhaar_of">of %1$s</string>
+    <string name="udhaar_overdue">Overdue by %1$d days</string>
+    <string name="udhaar_due_on">Due %1$s</string>
+
+    <string name="udhaar_total">Total</string>
+    <string name="udhaar_paid">Paid so far</string>
+    <string name="udhaar_left">Still left</string>
+    <string name="udhaar_date">Date</string>
+    <string name="udhaar_due">Due date</string>
+    <string name="udhaar_payments">Payments</string>
+    <string name="udhaar_undo">Undo</string>
+    <string name="udhaar_pay_label">Payment received or given (₹)</string>
+    <string name="udhaar_pay_too_much">More than what is left (%1$s)</string>
+    <string name="udhaar_add_payment">Add payment</string>
+    <string name="udhaar_mark_settled">Mark settled</string>
+    <string name="udhaar_edit">Edit</string>
+    <string name="udhaar_delete">Delete</string>
+    <string name="udhaar_delete_title">Delete this entry?</string>
+    <string name="udhaar_delete_text">It will be removed for everyone in the family.</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+
+    <string name="udhaar_add_title">Add udhaar</string>
+    <string name="udhaar_edit_title">Edit udhaar</string>
+    <string name="udhaar_person">Person or shop</string>
+    <string name="udhaar_amount">Amount (₹)</string>
+    <string name="udhaar_date_line">Date: %1$s</string>
+    <string name="udhaar_due_line">Due: %1$s</string>
+    <string name="udhaar_no_due">No due date</string>
+    <string name="udhaar_set_due">Set</string>
+    <string name="udhaar_clear">Clear</string>
+    <string name="udhaar_change">Change</string>
+    <string name="udhaar_note">Note (optional)</string>
+    <string name="udhaar_only_me">Only me</string>
+    <string name="udhaar_only_me_hint">Family members won\'t see this</string>
+    <string name="udhaar_save">Save</string>
+    <string name="udhaar_err_person">Enter who it is with (up to 40 letters)</string>
+    <string name="udhaar_err_amount">Enter an amount</string>
+    <string name="udhaar_err_note">Note is too long</string>
+    <string name="udhaar_err_save">Could not save. Please try again.</string>
+</resources>

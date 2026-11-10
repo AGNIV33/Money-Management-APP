@@ -7,6 +7,7 @@ import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Loan
@@ -16,6 +17,9 @@ import com.agniv.hisaab.core.domain.model.RecurRule
 import com.agniv.hisaab.core.domain.model.Recurring
 import com.agniv.hisaab.core.domain.model.Session
 import com.agniv.hisaab.core.domain.model.Source
+import com.agniv.hisaab.core.domain.model.Udhaar
+import com.agniv.hisaab.core.domain.model.UdhaarDirection
+import com.agniv.hisaab.core.domain.model.UdhaarPayment
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
@@ -23,12 +27,15 @@ import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.ExpenseRemote
 import com.agniv.hisaab.core.network.LoanRemote
 import com.agniv.hisaab.core.network.RecurringRemote
+import com.agniv.hisaab.core.network.UdhaarRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
 import com.agniv.hisaab.core.network.dto.FamilyDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
 import com.agniv.hisaab.core.network.dto.RecurringDto
+import com.agniv.hisaab.core.network.dto.UdhaarDto
+import com.agniv.hisaab.core.network.dto.UdhaarPaymentDto
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -74,9 +81,10 @@ class SyncEngineTest {
     private val server = FakeRemote(userId = "u1")
     private val loanServer = FakeLoanRemote()
     private val recurringServer = FakeRecurringRemote()
+    private val udhaarServer = FakeUdhaarRemote()
     private val state = MemoryState()
     private val repo = OfflineFirstExpenseRepository(db, dispatchers, time) {}
-    private val engine = SyncEngine(db, server, loanServer, recurringServer, sessions, state, dispatchers)
+    private val engine = SyncEngine(db, server, loanServer, recurringServer, udhaarServer, sessions, state, dispatchers)
 
     @After fun close() = db.close()
 
@@ -309,9 +317,70 @@ class SyncEngineTest {
         }
 
     @Test
+    fun `udhaar syncs both ways, entries before payments, private stays private`() =
+        runTest {
+            val repo = OfflineFirstUdhaarRepository(db, dispatchers, time) {}
+            val entry =
+                Udhaar(
+                    "d1",
+                    "f1",
+                    "u1",
+                    UdhaarDirection.I_OWE,
+                    "Machhli wala",
+                    Money.ofRupees(500),
+                    LocalDate.of(2026, 11, 9),
+                    null,
+                    null,
+                    null,
+                    Visibility.FAMILY,
+                    time.now(),
+                )
+            repo.upsert(entry).getOrThrow()
+            repo.upsert(entry.copy(id = "d2", visibility = Visibility.PRIVATE)).getOrThrow()
+            repo
+                .savePayment(
+                    UdhaarPayment("p1", "d1", "f1", "u1", Money.ofRupees(200), LocalDate.of(2026, 11, 10), time.now()),
+                ).getOrThrow()
+            udhaarServer.rows +=
+                UdhaarDto(
+                    "d3",
+                    "f1",
+                    "u2",
+                    "THEY_OWE_ME",
+                    "Ramesh",
+                    100_000,
+                    "2026-11-01",
+                    "2026-11-20",
+                    "lent",
+                    null,
+                    "FAMILY",
+                    false,
+                    "2026-11-09T12:00:00+00:00",
+                )
+
+            engine.sync().getOrThrow()
+
+            assertThat(udhaarServer.calls).containsExactly("entries", "payments").inOrder()
+            assertThat(udhaarServer.pushedEntries.map { it.id }).containsExactly("d1", "d2")
+            assertThat(db.udhaarDao().get("d3")?.person).isEqualTo("Ramesh")
+            assertThat(db.udhaarDao().get("d3")?.dueDate).isEqualTo(LocalDate.of(2026, 11, 20).toEpochDay())
+            assertThat(db.syncQueueDao().peek(10)).isEmpty()
+            assertThat(repo.observe("f1", "u2").first().map { it.udhaar.id }).containsExactly("d1", "d3")
+            assertThat(
+                repo
+                    .observe("f1", "u2")
+                    .first()
+                    .first { it.udhaar.id == "d1" }
+                    .payments,
+            ).hasSize(1)
+            assertThat(repo.observe("f1", "u1").first().map { it.udhaar.id }).containsExactly("d1", "d2", "d3")
+        }
+
+    @Test
     fun `nothing syncs while the family is still phone-only`() =
         runTest {
-            val notLinked = SyncEngine(db, FakeRemote(userId = "someone-else"), loanServer, recurringServer, sessions, state, dispatchers)
+            val notLinked =
+                SyncEngine(db, FakeRemote(userId = "someone-else"), loanServer, recurringServer, udhaarServer, sessions, state, dispatchers)
             repo.upsert(expense("e1")).getOrThrow()
             notLinked.sync().getOrThrow()
             assertThat(db.syncQueueDao().peek(10)).hasSize(1)
@@ -411,4 +480,33 @@ private class FakeRecurringRemote : RecurringRemote {
         sinceIso: String?,
         limit: Int,
     ): List<RecurringDto> = rows.filter { sinceIso == null || it.updatedAt.orEmpty() > sinceIso }.take(limit)
+}
+
+private class FakeUdhaarRemote : UdhaarRemote {
+    val calls = mutableListOf<String>()
+    val pushedEntries = mutableListOf<UdhaarDto>()
+    val pushedPayments = mutableListOf<UdhaarPaymentDto>()
+    val rows = mutableListOf<UdhaarDto>()
+
+    override suspend fun upsertEntries(rows: List<UdhaarDto>) {
+        calls += "entries"
+        pushedEntries += rows
+    }
+
+    override suspend fun upsertPayments(rows: List<UdhaarPaymentDto>) {
+        calls += "payments"
+        pushedPayments += rows
+    }
+
+    override suspend fun entriesChangedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<UdhaarDto> = rows.filter { sinceIso == null || it.updatedAt.orEmpty() > sinceIso }.take(limit)
+
+    override suspend fun paymentsChangedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<UdhaarPaymentDto> = emptyList()
 }

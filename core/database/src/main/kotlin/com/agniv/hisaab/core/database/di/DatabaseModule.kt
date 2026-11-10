@@ -10,6 +10,7 @@ import com.agniv.hisaab.core.database.dao.LoanDao
 import com.agniv.hisaab.core.database.dao.MemberDao
 import com.agniv.hisaab.core.database.dao.RecurringDao
 import com.agniv.hisaab.core.database.dao.SyncQueueDao
+import com.agniv.hisaab.core.database.dao.UdhaarDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,4 +40,6 @@ object DatabaseModule {
     @Provides fun loanDao(db: HisaabDatabase): LoanDao = db.loanDao()
 
     @Provides fun recurringDao(db: HisaabDatabase): RecurringDao = db.recurringDao()
+
+    @Provides fun udhaarDao(db: HisaabDatabase): UdhaarDao = db.udhaarDao()
 }

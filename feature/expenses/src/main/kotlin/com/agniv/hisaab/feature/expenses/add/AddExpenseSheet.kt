@@ -138,6 +138,27 @@ internal fun AddExpenseContent(
         }
 
         if (state.editingId == null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.credit_title), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.credit_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = state.onCredit, onCheckedChange = { onEvent(AddExpenseEvent.SetOnCredit(it)) })
+            }
+            if (state.onCredit) {
+                OutlinedTextField(
+                    value = state.creditFrom,
+                    onValueChange = { onEvent(AddExpenseEvent.EditCreditFrom(it)) },
+                    label = { Text(stringResource(R.string.credit_from)) },
+                    isError = state.error == AddError.CREDIT_FROM,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
             Text(stringResource(R.string.repeat_title), style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 listOf(null, RecurRule.DAILY, RecurRule.WEEKLY, RecurRule.MONTHLY).forEach { rule ->
@@ -229,6 +250,7 @@ private fun ErrorText(error: AddError?) {
             AddError.AMOUNT -> R.string.error_amount
             AddError.CATEGORY -> R.string.error_category
             AddError.NOTE -> R.string.error_note
+            AddError.CREDIT_FROM -> R.string.error_credit_from
             AddError.SAVE_FAILED -> R.string.error_save
         }
     Text(stringResource(text), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)

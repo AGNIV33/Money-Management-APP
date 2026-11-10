@@ -90,4 +90,8 @@
     <string name="voice_err_unavailable">इस फ़ोन पर बोलकर लिखना उपलब्ध नहीं है। वाक्य लिखें।</string>
     <string name="voice_err_permission">सुनने के लिए Kinly को माइक चाहिए। आप वाक्य लिख सकते हैं।</string>
     <string name="voice_err_no_amount">रकम नहीं मिली। फिर बोलें, जैसे "आज 200 का दूध"।</string>
+    <string name="credit_title">उधार में खरीदा</string>
+    <string name="credit_hint">उधार में "देना है" के नीचे जुड़ेगा</string>
+    <string name="credit_from">दुकान या व्यक्ति</string>
+    <string name="error_credit_from">जिसे देना है उस दुकान या व्यक्ति का नाम लिखें</string>
 </resources>

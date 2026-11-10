@@ -18,6 +18,9 @@ import com.agniv.hisaab.core.domain.loan.EmiReminder
 import com.agniv.hisaab.core.domain.loan.EmiReminders
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.ObserveLoans
+import com.agniv.hisaab.core.domain.usecase.ObserveUdhaar
+import com.agniv.hisaab.core.domain.usecase.UdhaarReminder
+import com.agniv.hisaab.core.domain.usecase.UdhaarReminders
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -36,11 +39,16 @@ interface EmiReminderNotifier {
     fun notify(reminder: EmiReminder)
 }
 
+/** Shows an udhaar reminder. Implemented in :app. */
+interface UdhaarReminderNotifier {
+    fun notify(reminder: UdhaarReminder)
+}
+
 private val Context.reminderStore: DataStore<Preferences> by preferencesDataStore(name = "emi_reminders")
 private val SHOWN = stringSetPreferencesKey("shown")
 
 /**
- * Daily EMI check (ARCHITECTURE.md §7). Reads Room only, so it works offline and with the app closed.
+ * Daily EMI and udhaar due-date check (ARCHITECTURE.md §7). Reads Room only, so it works offline and with the app closed.
  * Every reminder shown is remembered, so running twice a day (app start + daily job) never repeats one.
  */
 @HiltWorker
@@ -51,21 +59,34 @@ class EmiReminderWorker
         @Assisted params: WorkerParameters,
         private val sessions: SessionRepository,
         private val observeLoans: ObserveLoans,
+        private val observeUdhaar: ObserveUdhaar,
         private val notifier: EmiReminderNotifier,
+        private val udhaarNotifier: UdhaarReminderNotifier,
         private val time: TimeProvider,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
             val session = sessions.session.first() ?: return Result.success()
             val today = time.today()
             val due = EmiReminders.due(observeLoans(session).first().items, session.userId)
+            val udhaarDue = UdhaarReminders.due(observeUdhaar(session).first().items, session.userId, today)
             val store = applicationContext.reminderStore
             val shown = store.data.first()[SHOWN].orEmpty()
             val fresh = due.filter { it.key !in shown }
+            val freshUdhaar = udhaarDue.filter { it.key !in shown }
             fresh.forEach(notifier::notify)
+            freshUdhaar.forEach(udhaarNotifier::notify)
             // Forget keys older than last month so the set stays tiny.
             val oldest = YearMonth.from(today).minusMonths(1).toString()
             store.edit { prefs ->
-                prefs[SHOWN] = (shown + fresh.map { it.key }).filter { it.split(':').getOrNull(1).orEmpty() >= oldest }.toSet()
+                prefs[SHOWN] =
+                    (shown + fresh.map { it.key } + freshUdhaar.map { it.key })
+                        .filter {
+                            it
+                                .split(
+                                    ':',
+                                ).getOrNull(1)
+                                .orEmpty() >= oldest
+                        }.toSet()
             }
             return Result.success()
         }
