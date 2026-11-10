@@ -135,26 +135,7 @@ fun VoiceAddSheet(
             MicArea(state, onMic = onMic, onStop = { controller.stop().also { viewModel.reset() } })
             TypeBox(onRead = viewModel::onSentence)
             MessageText(state.message)
-            state.result?.takeIf { state.message != VoiceMessage.NO_AMOUNT || it.amount != null }?.let {
-                ResultCard(state, viewModel)
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = viewModel::save,
-                        enabled = state.canSave && !state.saving,
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                    ) { Text(stringResource(R.string.voice_save)) }
-                    OutlinedButton(
-                        onClick = { viewModel.prefill()?.let(onEdit) },
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                    ) { Text(stringResource(R.string.voice_edit)) }
-                }
-            }
+            ParsedPreview(state, viewModel, onEdit)
         }
     }
 }
@@ -200,10 +181,11 @@ private fun TypeBox(onRead: (String) -> Unit) {
 }
 
 @Composable
-private fun MessageText(message: VoiceMessage?) {
+internal fun MessageText(message: VoiceMessage?) {
     val res =
         when (message) {
             null -> return
+            VoiceMessage.NO_TEXT -> R.string.scan_err_no_text
             VoiceMessage.NO_SPEECH -> R.string.voice_err_no_speech
             VoiceMessage.NETWORK -> R.string.voice_err_network
             VoiceMessage.BUSY -> R.string.voice_err_busy
@@ -245,5 +227,33 @@ private fun ResultCard(
                 }
             }
         }
+    }
+}
+
+/** What was understood, with Save and Edit. Shared by voice and bill scan. */
+@Composable
+internal fun ParsedPreview(
+    state: VoiceUiState,
+    viewModel: VoiceAddViewModel,
+    onEdit: (ExpensePrefill) -> Unit,
+) {
+    state.result?.takeIf { state.message != VoiceMessage.NO_AMOUNT || it.amount != null } ?: return
+    ResultCard(state, viewModel)
+    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = viewModel::save,
+            enabled = state.canSave && !state.saving,
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(56.dp),
+        ) { Text(stringResource(R.string.voice_save)) }
+        OutlinedButton(
+            onClick = { viewModel.prefill()?.let(onEdit) },
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(56.dp),
+        ) { Text(stringResource(R.string.voice_edit)) }
     }
 }

@@ -94,4 +94,10 @@
     <string name="credit_hint">उधार में "देना है" के नीचे जुड़ेगा</string>
     <string name="credit_from">दुकान या व्यक्ति</string>
     <string name="error_credit_from">जिसे देना है उस दुकान या व्यक्ति का नाम लिखें</string>
+    <string name="scan_title">बिल स्कैन करें</string>
+    <string name="scan_take">फ़ोटो खींचें</string>
+    <string name="scan_pick">तस्वीर चुनें</string>
+    <string name="scan_hint">पूरे बिल की साफ़ फ़ोटो लें। यह इसी फ़ोन पर पढ़ा जाता है; तस्वीर कहीं नहीं भेजी जाती।</string>
+    <string name="scan_reading">बिल पढ़ रहा हूँ…</string>
+    <string name="scan_err_no_text">कोई लिखावट नहीं पढ़ पाया। बिल की साफ़, रोशनी वाली फ़ोटो लें।</string>
 </resources>

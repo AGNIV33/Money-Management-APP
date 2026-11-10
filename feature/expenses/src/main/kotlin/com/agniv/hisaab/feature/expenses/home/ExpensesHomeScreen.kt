@@ -66,6 +66,7 @@ import com.agniv.hisaab.feature.expenses.add.AddExpenseSheet
 import com.agniv.hisaab.feature.expenses.add.ExpensePrefill
 import com.agniv.hisaab.feature.expenses.add.labelRes
 import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
+import com.agniv.hisaab.feature.expenses.scan.ScanBillSheet
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
 import com.agniv.hisaab.feature.expenses.voice.VoiceAddSheet
@@ -73,7 +74,11 @@ import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-/** Phase 1 home: month total and the expense list. The full dashboard (task 1.11) replaces the header later. */
+/**
+ * Home: month total, budget, charts and the expense list. It owns every sheet it opens (add, voice, scan, repeating),
+ * so it has many small branches and the complexity rule is switched off here.
+ */
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun ExpensesHomeScreen(
     title: String,
@@ -85,6 +90,7 @@ fun ExpensesHomeScreen(
     var sheetFor by rememberSaveable { mutableStateOf<String?>(null) }
     var showRepeating by rememberSaveable { mutableStateOf(false) }
     var showVoice by rememberSaveable { mutableStateOf(false) }
+    var showScan by rememberSaveable { mutableStateOf(false) }
     // Set when the user picks Edit after speaking; opens the add sheet with the spoken values filled in.
     var voicePrefill by remember { mutableStateOf<ExpensePrefill?>(null) }
     val snackbar = remember { SnackbarHostState() }
@@ -93,6 +99,7 @@ fun ExpensesHomeScreen(
     val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
     val deletedText = stringResource(R.string.deleted)
     val voiceLabel = stringResource(R.string.voice_title)
+    val scanLabel = stringResource(R.string.scan_title)
     val undoText = stringResource(R.string.undo)
 
     val onDelete: (Expense) -> Unit = { expense ->
@@ -108,6 +115,9 @@ fun ExpensesHomeScreen(
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                SmallFloatingActionButton(onClick = { showScan = true }) {
+                    Text("📷", modifier = Modifier.semantics { contentDescription = scanLabel })
+                }
                 SmallFloatingActionButton(onClick = { showVoice = true }) {
                     Text("🎤", modifier = Modifier.semantics { contentDescription = voiceLabel })
                 }
@@ -184,6 +194,16 @@ fun ExpensesHomeScreen(
     }
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
+    if (showScan) {
+        ScanBillSheet(
+            onDismiss = { showScan = false },
+            onEdit = {
+                voicePrefill = it
+                showScan = false
+                sheetFor = ""
+            },
+        )
+    }
     if (showVoice) {
         VoiceAddSheet(
             onDismiss = { showVoice = false },

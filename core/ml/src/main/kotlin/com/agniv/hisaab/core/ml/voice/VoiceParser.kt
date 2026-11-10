@@ -260,6 +260,12 @@ object VoiceParser {
         // "light bill" is electricity; "light" alone is not.
         val light = words.indexOf("light")
         if (light >= 0 && "bill" in words) hits += CategoryHit("Electricity", light)
+        // "Indian Oil" is a petrol pump, not cooking oil.
+        val indianOil = words.indices.firstOrNull { words[it] == "oil" && words.getOrNull(it - 1) == "indian" }
+        if (indianOil != null) {
+            hits.removeAll { it.index == indianOil }
+            hits += CategoryHit("Fuel", indianOil)
+        }
         hits.sortBy { it.index }
         // "auto ka kiraya" / "bus kiraya" is a fare, not house rent.
         val transport = hits.firstOrNull { it.name == "Transport" }
@@ -601,6 +607,11 @@ object VoiceParser {
                 "मिठाई",
                 "पूजा",
             )
+            // Shop types seen on bills (receipt scan reuses this table).
+            add("Groceries", "supermarket", "dmart", "bigbasket", "blinkit", "zepto", "instamart", "bazaar")
+            add("Medical", "pharmacy", "apollo", "medplus", "clinic", "pathology")
+            add("Food Outside", "dhaba", "bakery", "sweets", "eatery")
+            add("Fuel", "bpcl", "hpcl", "iocl", "indianoil")
             add("EMI", "emi", "kist", "installment", "ईएमआई", "किस्त")
             add(
                 "Entertainment",

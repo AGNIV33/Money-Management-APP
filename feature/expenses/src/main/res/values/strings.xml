@@ -94,4 +94,10 @@
     <string name="credit_hint">Adds to Udhaar under "You will give"</string>
     <string name="credit_from">Shop or person</string>
     <string name="error_credit_from">Enter the shop or person you owe</string>
+    <string name="scan_title">Scan a bill</string>
+    <string name="scan_take">Take photo</string>
+    <string name="scan_pick">Choose picture</string>
+    <string name="scan_hint">Take a clear photo of the whole bill. It is read on this phone; the picture is not sent anywhere.</string>
+    <string name="scan_reading">Reading the bill…</string>
+    <string name="scan_err_no_text">I could not read any text. Try a clearer, well-lit photo of the bill.</string>
 </resources>

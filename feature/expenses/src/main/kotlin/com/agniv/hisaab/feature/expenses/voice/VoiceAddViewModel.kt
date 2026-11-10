@@ -36,7 +36,7 @@ enum class VoiceLanguage(
     HINDI("hi-IN"),
 }
 
-enum class VoiceMessage { NO_SPEECH, NETWORK, BUSY, OTHER, UNAVAILABLE, NO_PERMISSION, NO_AMOUNT, SAVE_FAILED }
+enum class VoiceMessage { NO_TEXT, NO_SPEECH, NETWORK, BUSY, OTHER, UNAVAILABLE, NO_PERMISSION, NO_AMOUNT, SAVE_FAILED }
 
 @Immutable
 data class VoiceUiState(
@@ -49,10 +49,14 @@ data class VoiceUiState(
     val categories: List<Category> = emptyList(),
     val message: VoiceMessage? = null,
     val saving: Boolean = false,
+    /** Where the values came from; stored on the expense. */
+    val source: Source = Source.VOICE,
 ) {
     val canSave: Boolean get() = result?.amount != null && categoryId != null
 }
 
+// Small one-line state setters for the sheet (voice and bill scan share them).
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class VoiceAddViewModel
     @Inject
@@ -93,8 +97,14 @@ class VoiceAddViewModel
         fun onFailure(message: VoiceMessage) = _state.update { it.copy(listening = false, message = message) }
 
         /** A sentence from the microphone or typed in. Parsed on the phone; nothing is saved yet. */
-        fun onSentence(text: String) {
-            val parsed = VoiceParser.parse(text, time.today())
+        fun onSentence(text: String) = onParsed(VoiceParser.parse(text, time.today()), text, Source.VOICE)
+
+        /** Anything read into an expense (a sentence or a scanned bill). Nothing is saved until the user confirms. */
+        fun onParsed(
+            parsed: VoiceExpense,
+            heard: String,
+            source: Source,
+        ) {
             _state.update { s ->
                 val category =
                     s.categories.firstOrNull { it.name == parsed.categoryName }
@@ -102,7 +112,8 @@ class VoiceAddViewModel
                         ?: s.categories.firstOrNull { it.name == OTHERS }
                 s.copy(
                     listening = false,
-                    heard = text,
+                    heard = heard,
+                    source = source,
                     result = parsed,
                     categoryId = category?.id,
                     message = if (parsed.amount == null) VoiceMessage.NO_AMOUNT else null,
@@ -137,7 +148,7 @@ class VoiceAddViewModel
                         date = r.date,
                         note = r.note,
                         mode = r.mode ?: PayMode.UPI,
-                        source = Source.VOICE,
+                        source = s.source,
                     )
                 addExpense(session, draft)
                     .onSuccess { saved.send(Unit) }

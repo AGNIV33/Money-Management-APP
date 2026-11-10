@@ -37,6 +37,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Lets the phone's camera app save a bill photo into our private cache (no CAMERA permission needed). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- "Mark paid" button on EMI reminders. Not exported: only our own PendingIntent can reach it. -->
         <receiver
             android:name=".EmiPaidReceiver"
