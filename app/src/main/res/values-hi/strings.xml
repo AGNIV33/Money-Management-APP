@@ -7,4 +7,5 @@
     <string name="budget_warning_text">आपने %2$s के मासिक बजट में से %1$s खर्च कर दिए हैं।</string>
     <string name="budget_over_title">बजट पार हो गया</string>
     <string name="budget_over_text">आपने %1$s खर्च किए, जो %2$s के मासिक बजट से ज़्यादा है।</string>
+    <string name="tab_home">होम</string>
 </resources>

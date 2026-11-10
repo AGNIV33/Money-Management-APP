@@ -34,6 +34,7 @@ dependencies {
     implementation(projects.feature.expenses)
     implementation(projects.feature.auth)
     implementation(projects.feature.family)
+    implementation(projects.feature.loans)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

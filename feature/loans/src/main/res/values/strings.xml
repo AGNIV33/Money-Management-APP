@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loans_title">Loans &amp; EMIs</string>
+    <string name="loans_tab">Loans</string>
+    <string name="loans_add_fab">Add loan</string>
+    <string name="loans_empty">No loans yet. Add your home, car or phone loan to never miss an EMI.</string>
+    <string name="loans_monthly_emi">EMIs every month</string>
+    <string name="loans_outstanding">Still to repay: %1$s</string>
+    <string name="loans_closed">Fully paid ✓</string>
+
+    <string name="loan_type_home">Home</string>
+    <string name="loan_type_car">Car</string>
+    <string name="loan_type_bike">Bike</string>
+    <string name="loan_type_personal">Personal</string>
+    <string name="loan_type_education">Education</string>
+    <string name="loan_type_gold">Gold</string>
+    <string name="loan_type_consumer">Phone / TV</string>
+    <string name="loan_type_credit_card">Credit card</string>
+    <string name="loan_type_other">Other</string>
+
+    <string name="due_overdue">Overdue by %1$d days</string>
+    <string name="due_today">Due today</string>
+    <string name="due_in_days">Due in %1$d days</string>
+    <string name="due_on">Due %1$s</string>
+    <string name="loan_paid_of">%1$d of %2$d EMIs paid</string>
+    <string name="loan_emi_line">EMI %1$s</string>
+    <string name="loan_private">🔒 Only me</string>
+
+    <string name="mark_paid">Mark paid</string>
+    <string name="undo_paid">Undo last paid</string>
+    <string name="loan_back">Back</string>
+    <string name="loan_edit">Edit</string>
+    <string name="loan_delete">Delete</string>
+    <string name="loan_delete_title">Delete this loan?</string>
+    <string name="loan_delete_text">Its EMI history will be removed for everyone in the family.</string>
+    <string name="cancel">Cancel</string>
+    <string name="loan_next_emi">Next EMI</string>
+    <string name="loan_principal">Loan amount</string>
+    <string name="loan_rate">Interest</string>
+    <string name="loan_tenure">Tenure</string>
+    <string name="loan_total_interest">Total interest</string>
+    <string name="loan_left">Left to repay</string>
+    <string name="loan_months_value">%1$d months</string>
+    <string name="loan_rate_value">%1$s%% a year</string>
+    <string name="loan_schedule">Repayment schedule</string>
+    <string name="loan_schedule_no">#</string>
+    <string name="loan_schedule_date">Date</string>
+    <string name="loan_schedule_interest">Interest</string>
+    <string name="loan_schedule_balance">Left after</string>
+
+    <string name="add_loan_title">Add loan</string>
+    <string name="edit_loan_title">Edit loan</string>
+    <string name="add_loan_lender">Bank or lender</string>
+    <string name="add_loan_amount">Loan amount (₹)</string>
+    <string name="add_loan_rate" formatted="false">Interest rate (% a year)</string>
+    <string name="add_loan_tenure">Tenure</string>
+    <string name="add_loan_years">Years</string>
+    <string name="add_loan_months">Months</string>
+    <string name="add_loan_emi">EMI (₹)</string>
+    <string name="add_loan_emi_hint">Leave empty to use %1$s. Type the bank\'s EMI if it is different.</string>
+    <string name="add_loan_first_emi">First EMI date: %1$s</string>
+    <string name="add_loan_change">Change</string>
+    <string name="add_loan_only_me">Only me</string>
+    <string name="add_loan_only_me_hint">Family members won\'t see this loan</string>
+    <string name="add_loan_save">Save loan</string>
+    <string name="ok">OK</string>
+
+    <string name="error_lender">Enter the bank or lender name (up to 40 letters)</string>
+    <string name="error_loan_amount">Enter the loan amount</string>
+    <string name="error_rate">Enter interest between 0 and 42, like 8.5</string>
+    <string name="error_tenure">Enter tenure between 1 month and 40 years</string>
+    <string name="error_emi">EMI is too small for this loan, or not a valid amount</string>
+    <string name="error_save_loan">Could not save. Please try again.</string>
+</resources>

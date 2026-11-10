@@ -6,12 +6,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,8 +29,10 @@ import com.agniv.hisaab.feature.auth.OnboardingScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import com.agniv.hisaab.feature.family.info.FamilySheet
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
+import com.agniv.hisaab.feature.loans.LoansScreen
 import dagger.hilt.android.AndroidEntryPoint
 import com.agniv.hisaab.feature.family.R as FamilyR
+import com.agniv.hisaab.feature.loans.R as LoansR
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -64,18 +74,55 @@ class MainActivity : ComponentActivity() {
                     RootScreen.LOGIN -> LoginScreen()
                     RootScreen.FAMILY_SETUP -> FamilySetupScreen()
                     RootScreen.HOME -> {
-                        ExpensesHomeScreen(
-                            title = stringResource(R.string.app_name),
-                            headerAction = {
-                                TextButton(onClick = { showFamily = true }) {
-                                    Text("👪 " + stringResource(FamilyR.string.family_button))
-                                }
-                            },
-                        )
+                        HomeTabs(onFamily = { showFamily = true })
                         if (showFamily) FamilySheet(onDismiss = { showFamily = false })
                     }
                 }
             }
         }
     }
+}
+
+/** Home with the bottom tab bar. Inner screens have their own Scaffolds; this one only adds the bar. */
+@Composable
+private fun HomeTabs(onFamily: () -> Unit) {
+    var tab by rememberSaveable { mutableStateOf(HomeTab.HOME) }
+    Scaffold(
+        contentWindowInsets = WindowInsets(0),
+        bottomBar = {
+            NavigationBar {
+                HomeTab.entries.forEach { t ->
+                    NavigationBarItem(
+                        selected = tab == t,
+                        onClick = { tab = t },
+                        icon = { Text(t.emoji) },
+                        label = { Text(stringResource(t.label)) },
+                    )
+                }
+            }
+        },
+    ) { padding ->
+        Box(Modifier.padding(bottom = padding.calculateBottomPadding())) {
+            when (tab) {
+                HomeTab.HOME ->
+                    ExpensesHomeScreen(
+                        title = stringResource(R.string.app_name),
+                        headerAction = {
+                            TextButton(onClick = onFamily) {
+                                Text("👪 " + stringResource(FamilyR.string.family_button))
+                            }
+                        },
+                    )
+                HomeTab.LOANS -> LoansScreen()
+            }
+        }
+    }
+}
+
+private enum class HomeTab(
+    val emoji: String,
+    val label: Int,
+) {
+    HOME("🏠", R.string.tab_home),
+    LOANS("🏦", LoansR.string.loans_tab),
 }

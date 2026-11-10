@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loans_title">लोन और EMI</string>
+    <string name="loans_tab">लोन</string>
+    <string name="loans_add_fab">लोन जोड़ें</string>
+    <string name="loans_empty">अभी कोई लोन नहीं। घर, गाड़ी या फ़ोन का लोन जोड़ें ताकि कोई EMI न छूटे।</string>
+    <string name="loans_monthly_emi">हर महीने की EMI</string>
+    <string name="loans_outstanding">अभी चुकाना बाकी: %1$s</string>
+    <string name="loans_closed">पूरा चुका दिया ✓</string>
+
+    <string name="loan_type_home">घर</string>
+    <string name="loan_type_car">कार</string>
+    <string name="loan_type_bike">बाइक</string>
+    <string name="loan_type_personal">पर्सनल</string>
+    <string name="loan_type_education">पढ़ाई</string>
+    <string name="loan_type_gold">गोल्ड</string>
+    <string name="loan_type_consumer">फ़ोन / टीवी</string>
+    <string name="loan_type_credit_card">क्रेडिट कार्ड</string>
+    <string name="loan_type_other">अन्य</string>
+
+    <string name="due_overdue">%1$d दिन से बकाया</string>
+    <string name="due_today">आज देनी है</string>
+    <string name="due_in_days">%1$d दिन में देनी है</string>
+    <string name="due_on">%1$s को देनी है</string>
+    <string name="loan_paid_of">%2$d में से %1$d EMI भरी</string>
+    <string name="loan_emi_line">EMI %1$s</string>
+    <string name="loan_private">🔒 सिर्फ़ मैं</string>
+
+    <string name="mark_paid">भर दी</string>
+    <string name="undo_paid">पिछली भरी हुई वापस लें</string>
+    <string name="loan_back">वापस</string>
+    <string name="loan_edit">बदलें</string>
+    <string name="loan_delete">हटाएँ</string>
+    <string name="loan_delete_title">यह लोन हटाएँ?</string>
+    <string name="loan_delete_text">इसकी EMI का हिसाब परिवार में सबके लिए हट जाएगा।</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="loan_next_emi">अगली EMI</string>
+    <string name="loan_principal">लोन की रकम</string>
+    <string name="loan_rate">ब्याज</string>
+    <string name="loan_tenure">अवधि</string>
+    <string name="loan_total_interest">कुल ब्याज</string>
+    <string name="loan_left">चुकाना बाकी</string>
+    <string name="loan_months_value">%1$d महीने</string>
+    <string name="loan_rate_value">%1$s%% सालाना</string>
+    <string name="loan_schedule">भुगतान की सूची</string>
+    <string name="loan_schedule_no">#</string>
+    <string name="loan_schedule_date">तारीख</string>
+    <string name="loan_schedule_interest">ब्याज</string>
+    <string name="loan_schedule_balance">बाद में बाकी</string>
+
+    <string name="add_loan_title">लोन जोड़ें</string>
+    <string name="edit_loan_title">लोन बदलें</string>
+    <string name="add_loan_lender">बैंक या देने वाला</string>
+    <string name="add_loan_amount">लोन की रकम (₹)</string>
+    <string name="add_loan_rate" formatted="false">ब्याज दर (% सालाना)</string>
+    <string name="add_loan_tenure">अवधि</string>
+    <string name="add_loan_years">साल</string>
+    <string name="add_loan_months">महीने</string>
+    <string name="add_loan_emi">EMI (₹)</string>
+    <string name="add_loan_emi_hint">खाली छोड़ें तो %1$s लगेगी। बैंक की EMI अलग हो तो वह लिखें।</string>
+    <string name="add_loan_first_emi">पहली EMI की तारीख: %1$s</string>
+    <string name="add_loan_change">बदलें</string>
+    <string name="add_loan_only_me">सिर्फ़ मैं</string>
+    <string name="add_loan_only_me_hint">परिवार के लोग यह लोन नहीं देखेंगे</string>
+    <string name="add_loan_save">लोन सेव करें</string>
+    <string name="ok">ठीक है</string>
+
+    <string name="error_lender">बैंक या देने वाले का नाम लिखें (40 अक्षर तक)</string>
+    <string name="error_loan_amount">लोन की रकम लिखें</string>
+    <string name="error_rate">0 से 42 के बीच ब्याज लिखें, जैसे 8.5</string>
+    <string name="error_tenure">1 महीने से 40 साल के बीच अवधि लिखें</string>
+    <string name="error_emi">इस लोन के लिए EMI बहुत कम है, या रकम सही नहीं है</string>
+    <string name="error_save_loan">सेव नहीं हुआ। फिर से कोशिश करें।</string>
+</resources>
