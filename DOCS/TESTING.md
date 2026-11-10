@@ -124,6 +124,8 @@ Severity: **S1** crash/data loss/security · **S2** wrong numbers/broken feature
 | ID | Date | Sev | Area | Steps to reproduce | Expected | Actual | Status | Fix (commit) |
 |----|------|-----|------|--------------------|----------|--------|--------|--------------|
 | BUG-001 | 2026-11-09 | S3 | Build / lint | Run `gradlew detekt` with Gradle daemon on JDK 25 (Android Studio default) | detekt runs | Fails with "25.0.4" / invalid `--jvm-target` (detekt 1.23 max is JDK 22) | Fixed | Daemon pinned to JDK 21 (`gradle/gradle-daemon-jvm.properties` + foojay resolver); detekt `jvmTarget = 17` in build-logic |
+| BUG-002 | 2026-11-10 | S2 | Sync / RLS (expenses) | Member B edits a FAMILY expense created by member A; sync pushes it as an upsert | Edit reaches the server | Found by reading, not yet seen live: Postgres checks the INSERT policy on upsert too, and `expenses_insert` needs `owner_user = auth.uid()`, so B's edit is refused and stays in B's queue | Open | Loans (004) already use `private.loan_owner()` to allow this; expenses need the same in a small 005 migration |
+| BUG-003 | 2026-11-10 | S4 | Build | `gradlew clean` then `assembleDebug` | Builds | Hilt "SessionRepository cannot be provided": `core:data` KSP output was restored empty | Workaround | `./gradlew :core:data:kspDebugKotlin --rerun` |
 
 ## 10. Audit notes / decisions
 | Date | Topic | Finding / Decision |
