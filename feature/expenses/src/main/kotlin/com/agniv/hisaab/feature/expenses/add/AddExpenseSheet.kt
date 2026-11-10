@@ -108,6 +108,14 @@ internal fun AddExpenseContent(
             }
         }
 
+        if (state.categoryAuto) {
+            Text(
+                stringResource(R.string.category_auto),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
+        }
+
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
             FilterChip(
                 selected = state.date == state.today,

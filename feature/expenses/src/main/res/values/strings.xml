@@ -133,4 +133,5 @@
     <string name="insight_budget_cross">At this pace your %1$s budget will run out on day %2$d. Spending about %3$s a day will keep you within it.</string>
     <string name="insight_budget_ok">You are on track. %1$s of your budget is left, about %2$s a day for the next %3$d days.</string>
     <string name="insight_emi_load">EMIs take about %1$d%% of what you spend in a month (%2$s of %3$s).</string>
+    <string name="category_auto">✨ Category picked from your note. Change it if it is wrong.</string>
 </resources>

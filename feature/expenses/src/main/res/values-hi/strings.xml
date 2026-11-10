@@ -133,4 +133,5 @@
     <string name="insight_budget_cross">इसी रफ़्तार से आपका %1$s का बजट %2$d तारीख को खत्म हो जाएगा। रोज़ करीब %3$s खर्च करने पर बजट में रहेंगे।</string>
     <string name="insight_budget_ok">आप सही चल रहे हैं। बजट में %1$s बाकी है, अगले %3$d दिनों के लिए रोज़ करीब %2$s।</string>
     <string name="insight_emi_load">आपके महीने के खर्च का करीब %1$d%% EMI में जाता है (%3$s में से %2$s)।</string>
+    <string name="category_auto">✨ कैटेगरी आपके नोट से चुनी गई है। गलत हो तो बदल दें।</string>
 </resources>

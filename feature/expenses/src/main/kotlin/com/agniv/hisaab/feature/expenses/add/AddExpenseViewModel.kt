@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.designsystem.component.PadKey
 import com.agniv.hisaab.core.domain.model.Category
+import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.RecurRule
 import com.agniv.hisaab.core.domain.model.Visibility
@@ -21,6 +22,7 @@ import com.agniv.hisaab.core.domain.usecase.ExpenseError
 import com.agniv.hisaab.core.domain.usecase.UpdateExpense
 import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
+import com.agniv.hisaab.core.ml.category.CategorySuggester
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -57,6 +59,8 @@ data class AddExpenseUiState(
     val canDelete: Boolean = false,
     /** Null = one time. Only offered for a new expense. */
     val repeat: RecurRule? = null,
+    /** The category was guessed from the note (not picked by the user). */
+    val categoryAuto: Boolean = false,
     /** Bought on credit: also makes an "I owe" entry in Udhaar. Only for a new expense. */
     val onCredit: Boolean = false,
     val creditFrom: String = "",
@@ -129,6 +133,10 @@ class AddExpenseViewModel
         private val extras: AddExpenseExtras,
         private val time: TimeProvider,
     ) : ViewModel() {
+        /** Past expenses the category guess learns from; loaded once. */
+        private var history: List<Expense> = emptyList()
+        private var userPickedCategory = false
+
         private val _state = MutableStateFlow(AddExpenseUiState(date = time.today(), today = time.today()))
         val state: StateFlow<AddExpenseUiState> = _state.asStateFlow()
 
@@ -149,6 +157,26 @@ class AddExpenseViewModel
 
         init {
             observeCategories(categories)
+            loadHistory()
+        }
+
+        private fun loadHistory() {
+            viewModelScope.launch {
+                val session = sessions.session.filterNotNull().first()
+                val today = time.today()
+                history = expenses.observeExpenses(session.familyId, session.userId, today.minusDays(HISTORY_DAYS), today).first()
+            }
+        }
+
+        /** Fills the category from the note unless the user already chose one. */
+        private fun suggestFromNote(note: String) {
+            if (userPickedCategory || _state.value.editingId != null) return
+            val byName =
+                _state.value.categories
+                    .filter { it.isDefault }
+                    .associate { it.name to it.id }
+            val id = CategorySuggester.suggest(note, history, byName, time.today()) ?: return
+            _state.update { it.copy(categoryId = id, categoryAuto = true) }
         }
 
         /**
@@ -160,6 +188,7 @@ class AddExpenseViewModel
             prefill: ExpensePrefill? = null,
         ) {
             val today = time.today()
+            userPickedCategory = prefill?.categoryId != null
             _state.update {
                 AddExpenseUiState(categories = it.categories, date = today, today = today, mode = it.mode)
             }
@@ -203,10 +232,16 @@ class AddExpenseViewModel
             when (event) {
                 is AddExpenseEvent.Key ->
                     _state.update { it.copy(amountText = AmountInput.apply(it.amountText, event.key), error = null) }
-                is AddExpenseEvent.PickCategory -> _state.update { it.copy(categoryId = event.id, error = null) }
+                is AddExpenseEvent.PickCategory -> {
+                    userPickedCategory = true
+                    _state.update { it.copy(categoryId = event.id, categoryAuto = false, error = null) }
+                }
                 is AddExpenseEvent.PickDate -> _state.update { it.copy(date = event.date) }
                 is AddExpenseEvent.PickMode -> _state.update { it.copy(mode = event.mode) }
-                is AddExpenseEvent.EditNote -> _state.update { it.copy(note = event.note, error = null) }
+                is AddExpenseEvent.EditNote -> {
+                    _state.update { it.copy(note = event.note, error = null) }
+                    suggestFromNote(event.note)
+                }
                 is AddExpenseEvent.SetOnlyMe -> _state.update { it.copy(onlyMe = event.onlyMe) }
                 AddExpenseEvent.Save -> save()
                 AddExpenseEvent.Delete -> delete()
@@ -264,6 +299,10 @@ class AddExpenseViewModel
                     }
                 }
             }
+        }
+
+        private companion object {
+            const val HISTORY_DAYS = 180L
         }
     }
 
