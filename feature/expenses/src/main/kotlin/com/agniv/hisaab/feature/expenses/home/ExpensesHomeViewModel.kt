@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
+import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Member
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Role
@@ -21,6 +22,7 @@ import com.agniv.hisaab.core.domain.usecase.ObserveMonthExpenses
 import com.agniv.hisaab.core.domain.usecase.ObserveMonthSummary
 import com.agniv.hisaab.core.domain.usecase.RestoreExpense
 import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
+import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,7 +56,12 @@ data class ExpensesHomeUiState(
     val canEditBudget: Boolean = false,
     /** Soonest unpaid EMI the user may see (DESIGN.md §7.3 "Next EMI" card); null when no open loans. */
     val nextEmi: LoanItem? = null,
-)
+    val viewerUserId: String = "",
+    val isAdmin: Boolean = false,
+) {
+    fun canDelete(expense: Expense): Boolean =
+        canDelete(expense.ownerUserId, viewerUserId, if (isAdmin) Role.ADMIN else Role.MEMBER)
+}
 
 sealed interface HomeEvent {
     data object PreviousMonth : HomeEvent
@@ -144,6 +151,8 @@ class ExpensesHomeViewModel
                             members = people.associateBy { it.id },
                             budget = family?.monthlyBudget,
                             canEditBudget = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
+                            viewerUserId = session.userId,
+                            isAdmin = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
                             nextEmi = loans.items.firstOrNull { !it.progress.isClosed },
                         )
                     }

@@ -58,4 +58,7 @@
     <string name="next_emi_today">Due today</string>
     <string name="next_emi_in_days">Due in %1$d days</string>
     <string name="next_emi_on">Due %1$s</string>
+    <string name="delete_expense">Delete expense</string>
+    <string name="delete_expense_title">Delete this expense?</string>
+    <string name="delete_expense_text">It will be removed for everyone in the family.</string>
 </resources>

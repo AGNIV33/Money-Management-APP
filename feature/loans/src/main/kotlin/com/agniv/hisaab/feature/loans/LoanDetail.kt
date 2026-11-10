@@ -46,6 +46,7 @@ internal fun LoanDetail(
     today: LocalDate,
     onBack: () -> Unit,
     onEdit: () -> Unit,
+    canDelete: Boolean,
     onDelete: () -> Unit,
     onSetPaid: (YearMonth, Boolean) -> Unit,
 ) {
@@ -71,8 +72,10 @@ internal fun LoanDetail(
                 TextButton(onClick = onBack) { Text("◀ " + stringResource(R.string.loan_back)) }
                 Text("", Modifier.weight(1f))
                 TextButton(onClick = onEdit) { Text(stringResource(R.string.loan_edit)) }
-                TextButton(onClick = { confirmDelete = true }) {
-                    Text(stringResource(R.string.loan_delete), color = MaterialTheme.colorScheme.error)
+                if (canDelete) {
+                    TextButton(onClick = { confirmDelete = true }) {
+                        Text(stringResource(R.string.loan_delete), color = MaterialTheme.colorScheme.error)
+                    }
                 }
             }
         }

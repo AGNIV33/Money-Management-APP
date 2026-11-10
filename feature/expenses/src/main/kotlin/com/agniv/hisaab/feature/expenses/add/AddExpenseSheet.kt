@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -72,6 +73,7 @@ internal fun AddExpenseContent(
     onEvent: (AddExpenseEvent) -> Unit,
 ) {
     var pickingDate by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
     Column(
         modifier =
             Modifier
@@ -169,6 +171,26 @@ internal fun AddExpenseContent(
         ) {
             Text(stringResource(R.string.add_expense_save))
         }
+        if (state.canDelete) {
+            TextButton(onClick = { confirmDelete = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.delete_expense), color = MaterialTheme.colorScheme.error)
+            }
+        }
+    }
+
+    if (confirmDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text(stringResource(R.string.delete_expense_title)) },
+            text = { Text(stringResource(R.string.delete_expense_text)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDelete = false
+                    onEvent(AddExpenseEvent.Delete)
+                }) { Text(stringResource(R.string.delete_expense), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.cancel)) } },
+        )
     }
 
     if (pickingDate) {

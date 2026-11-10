@@ -10,11 +10,14 @@ import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
+import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.AddExpense
+import com.agniv.hisaab.core.domain.usecase.DeleteExpense
 import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ExpenseError
 import com.agniv.hisaab.core.domain.usecase.UpdateExpense
+import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,6 +51,8 @@ data class AddExpenseUiState(
     val onlyMe: Boolean = false,
     val saving: Boolean = false,
     val error: AddError? = null,
+    /** Editing an expense the viewer may delete (creator or family admin). */
+    val canDelete: Boolean = false,
 ) {
     val amount: Money? get() = Money.parse(amountText)
 }
@@ -78,6 +83,8 @@ sealed interface AddExpenseEvent {
     ) : AddExpenseEvent
 
     data object Save : AddExpenseEvent
+
+    data object Delete : AddExpenseEvent
 }
 
 @HiltViewModel
@@ -89,6 +96,8 @@ class AddExpenseViewModel
         private val addExpense: AddExpense,
         private val updateExpense: UpdateExpense,
         private val expenses: ExpenseRepository,
+        private val members: MemberRepository,
+        private val deleteExpense: DeleteExpense,
         private val time: TimeProvider,
     ) : ViewModel() {
         private val _state = MutableStateFlow(AddExpenseUiState(date = time.today(), today = time.today()))
@@ -125,6 +134,13 @@ class AddExpenseViewModel
             if (editId == null) return
             viewModelScope.launch {
                 val e = expenses.getExpense(editId) ?: return@launch
+                val session = sessions.session.filterNotNull().first()
+                val role =
+                    members
+                        .observeMembers(session.familyId)
+                        .first()
+                        .firstOrNull { it.id == session.memberId }
+                        ?.role
                 _state.update {
                     it.copy(
                         editingId = e.id,
@@ -134,6 +150,7 @@ class AddExpenseViewModel
                         mode = e.mode,
                         note = e.note.orEmpty(),
                         onlyMe = e.visibility == Visibility.PRIVATE,
+                        canDelete = canDelete(e.ownerUserId, session.userId, role),
                     )
                 }
             }
@@ -149,6 +166,17 @@ class AddExpenseViewModel
                 is AddExpenseEvent.EditNote -> _state.update { it.copy(note = event.note, error = null) }
                 is AddExpenseEvent.SetOnlyMe -> _state.update { it.copy(onlyMe = event.onlyMe) }
                 AddExpenseEvent.Save -> save()
+                AddExpenseEvent.Delete -> delete()
+            }
+        }
+
+        private fun delete() {
+            val id = _state.value.editingId ?: return
+            if (!_state.value.canDelete) return
+            viewModelScope.launch {
+                deleteExpense(id)
+                    .onSuccess { saved.send(Unit) }
+                    .onFailure { _state.update { it.copy(error = AddError.SAVE_FAILED) } }
             }
         }
 

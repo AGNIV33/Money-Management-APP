@@ -154,7 +154,7 @@ fun ExpensesHomeScreen(
             state.days.forEach { day ->
                 item(key = "day-${day.date}") { DayHeader(day) }
                 items(day.expenses, key = { it.id }) { expense ->
-                    SwipeToDelete(onDelete = { onDelete(expense) }) {
+                    SwipeToDelete(enabled = state.canDelete(expense), onDelete = { onDelete(expense) }) {
                         ExpenseRow(
                             expense = expense,
                             category = state.categories[expense.categoryId],
@@ -298,9 +298,14 @@ private fun DayHeader(day: DayGroup) {
 
 @Composable
 private fun SwipeToDelete(
+    enabled: Boolean,
     onDelete: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    if (!enabled) {
+        content()
+        return
+    }
     val state = rememberSwipeToDismissBoxState()
     val scope = rememberCoroutineScope()
     SwipeToDismissBox(

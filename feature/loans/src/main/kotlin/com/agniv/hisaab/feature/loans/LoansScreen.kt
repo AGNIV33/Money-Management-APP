@@ -50,6 +50,7 @@ fun LoansScreen(viewModel: LoansViewModel = hiltViewModel()) {
             today = state.today,
             onBack = { openId = null },
             onEdit = { openSheet(open.loan.id) },
+            canDelete = state.canDelete(open.loan),
             onDelete = {
                 viewModel.onEvent(LoansEvent.Delete(open.loan.id))
                 openId = null

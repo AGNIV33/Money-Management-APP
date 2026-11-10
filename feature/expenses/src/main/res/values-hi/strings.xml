@@ -58,4 +58,7 @@
     <string name="next_emi_today">आज देनी है</string>
     <string name="next_emi_in_days">%1$d दिन में देनी है</string>
     <string name="next_emi_on">%1$s को देनी है</string>
+    <string name="delete_expense">खर्च हटाएँ</string>
+    <string name="delete_expense_title">यह खर्च हटाएँ?</string>
+    <string name="delete_expense_text">यह परिवार में सबके लिए हट जाएगा।</string>
 </resources>
