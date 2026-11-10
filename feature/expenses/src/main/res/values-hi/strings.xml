@@ -52,4 +52,10 @@
     <string name="budget_dialog_title">मासिक बजट</string>
     <string name="budget_amount">रकम</string>
     <string name="budget_remove">हटाएँ</string>
+    <string name="next_emi_title">अगली EMI</string>
+    <string name="next_emi_mark_paid">भर दी</string>
+    <string name="next_emi_overdue">%1$d दिन से बकाया</string>
+    <string name="next_emi_today">आज देनी है</string>
+    <string name="next_emi_in_days">%1$d दिन में देनी है</string>
+    <string name="next_emi_on">%1$s को देनी है</string>
 </resources>

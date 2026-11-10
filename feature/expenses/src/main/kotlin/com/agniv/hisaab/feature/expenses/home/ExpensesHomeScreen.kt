@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -134,6 +135,7 @@ fun ExpensesHomeScreen(
                     }
                 }
             }
+            nextEmiItem(state, viewModel::onEvent)
             if (!state.filter.isActive) {
                 item(key = "top-categories") { TopCategoriesCard(state) }
                 item(key = "who-spent") { WhoSpentCard(state) }
@@ -166,6 +168,15 @@ fun ExpensesHomeScreen(
     }
 
     sheetFor?.let { id -> AddExpenseSheet(onDismiss = { sheetFor = null }, editId = id.ifEmpty { null }) }
+}
+
+private fun LazyListScope.nextEmiItem(
+    state: ExpensesHomeUiState,
+    onEvent: (HomeEvent) -> Unit,
+) {
+    val next = state.nextEmi ?: return
+    if (!state.isCurrentMonth || state.filter.isActive) return
+    item(key = "next-emi") { NextEmiCard(next) { onEvent(HomeEvent.MarkEmiPaid(next.loan.id)) } }
 }
 
 @Composable

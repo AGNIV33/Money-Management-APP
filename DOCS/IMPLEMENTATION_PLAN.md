@@ -41,7 +41,7 @@
 - [x] 2.4 `EmiReminderWorker`: D-3, D-1, D-0 notifications; notification action "Mark paid"; Android 13 notification permission flow.
 - [x] 2.5 Decide & implement encryption for sensitive local fields (measure on low-end emulator; log result in `TESTING.md`).
 - [x] 2.6 `feature:tools`: Calculator, EMI calc (+ pie + table), Prepayment saver, Can I afford?
-- [ ] 2.7 Dashboard "Next EMI" card.
+- [x] 2.7 Dashboard "Next EMI" card.
 - [ ] 2.8 Recurring expenses + `RecurringWorker`.
 **✅ Exit:** all loan math tests pass; reminders fire on time.
 
@@ -113,3 +113,4 @@
 | 2026-11-10 | 2.4 | `EmiReminderWorker`: runs at app start and daily ~9 am, reads Room only (offline, app closed). Reminds the loan owner (not the whole family) 3 days before (2 days counts if a check was missed), 1 day before and on the due day; each reminder remembered so it never repeats. Notification has "Mark paid" (ticks that month, no app open). Android 13+ permission asked right after a loan is saved. Overdue EMIs show red on the Loans screen, no extra notification. Not checked on a device yet (emulator would not stay up). |
 | 2026-11-10 | 2.5 | Decision: encrypt the login (Supabase access + refresh token) with an Android Keystore AES-256-GCM key (`EncryptedSessionManager`); old plain-text logins move over on first start, nobody is logged out. Room DB is not encrypted (no SQLCipher): it would add several MB of native code and slow every query on 2 GB phones, while Android already encrypts app storage on disk, keeps other apps out, and our backup rules exclude the DB, prefs and DataStore. Cost: one tiny encrypt/decrypt per login or token refresh (about hourly), so no low-end measurement needed; still to confirm on a device. |
 | 2026-11-10 | 2.6 | `feature:tools` + Tools tab: 4 cards. EMI calculator (EMI, total interest/payable, principal vs interest donut, year-by-year table). Prepayment saver (EMIs paid, lump sum, finish sooner vs smaller EMI → interest saved, months saved / new EMI). Can I afford? (income, current EMIs pre-filled from Kinly loans, new loan → burden % with words + colour, biggest loan under 40%). Calculator (BigDecimal, × ÷ before + −, shop-style %). Loan tools can fill from "my loans". `LoanForm` moved to `core:domain` so Loans and Tools share it. Income is typed each time, not stored (decide later if it should be saved). |
+| 2026-11-10 | 2.7 | Home shows a "Next EMI" card (current month, no filter): soonest unpaid EMI of any loan you can see, lender + EMI, due in words + colour (red overdue, amber within 3 days), one-tap Paid. Hidden when there are no open loans. Income is still typed per use in Tools (Agniv: keep unsaved for now). |

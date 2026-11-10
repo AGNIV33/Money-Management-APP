@@ -52,4 +52,10 @@
     <string name="budget_dialog_title">Monthly budget</string>
     <string name="budget_amount">Amount</string>
     <string name="budget_remove">Remove</string>
+    <string name="next_emi_title">Next EMI</string>
+    <string name="next_emi_mark_paid">Paid</string>
+    <string name="next_emi_overdue">Overdue by %1$d days</string>
+    <string name="next_emi_today">Due today</string>
+    <string name="next_emi_in_days">Due in %1$d days</string>
+    <string name="next_emi_on">Due %1$s</string>
 </resources>

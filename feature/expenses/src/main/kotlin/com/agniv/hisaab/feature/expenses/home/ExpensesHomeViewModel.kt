@@ -14,10 +14,13 @@ import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
+import com.agniv.hisaab.core.domain.usecase.LoanItem
 import com.agniv.hisaab.core.domain.usecase.MonthSummary
+import com.agniv.hisaab.core.domain.usecase.ObserveLoans
 import com.agniv.hisaab.core.domain.usecase.ObserveMonthExpenses
 import com.agniv.hisaab.core.domain.usecase.ObserveMonthSummary
 import com.agniv.hisaab.core.domain.usecase.RestoreExpense
+import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,6 +52,8 @@ data class ExpensesHomeUiState(
     val budget: Money? = null,
     /** Only admins may change the budget (enforced by Supabase RLS too). */
     val canEditBudget: Boolean = false,
+    /** Soonest unpaid EMI the user may see (DESIGN.md §7.3 "Next EMI" card); null when no open loans. */
+    val nextEmi: LoanItem? = null,
 )
 
 sealed interface HomeEvent {
@@ -81,10 +86,16 @@ sealed interface HomeEvent {
     data class SetBudget(
         val budget: Money?,
     ) : HomeEvent
+
+    data class MarkEmiPaid(
+        val loanId: String,
+    ) : HomeEvent
 }
 
 @HiltViewModel
 class ExpensesHomeViewModel
+    // Injected by Hilt; Home really does read expenses, budget, family, members and loans.
+    @Suppress("LongParameterList")
     @Inject
     constructor(
         categories: CategoryRepository,
@@ -95,6 +106,8 @@ class ExpensesHomeViewModel
         observeMonthSummary: ObserveMonthSummary,
         private val deleteExpense: DeleteExpense,
         private val restoreExpense: RestoreExpense,
+        observeLoans: ObserveLoans,
+        private val setEmiPaid: SetEmiPaid,
         time: TimeProvider,
     ) : ViewModel() {
         private val thisMonth = YearMonth.from(time.today())
@@ -109,9 +122,13 @@ class ExpensesHomeViewModel
                         observeMonthSummary(session, m),
                         observeMonthExpenses(session, m),
                         categories.observeCategories(session.familyId),
-                        combine(members.observeMembers(session.familyId), families.observeFamily(session.familyId)) { p, f -> p to f },
+                        combine(
+                            members.observeMembers(session.familyId),
+                            families.observeFamily(session.familyId),
+                            observeLoans(session),
+                        ) { p, f, l -> Triple(p, f, l) },
                         filter,
-                    ) { summary, expenses, cats, (people, family), f ->
+                    ) { summary, expenses, cats, (people, family, loans), f ->
                         val byId = cats.associateBy { it.id }
                         val shown = expenses.applyFilter(f, byId)
                         ExpensesHomeUiState(
@@ -127,6 +144,7 @@ class ExpensesHomeViewModel
                             members = people.associateBy { it.id },
                             budget = family?.monthlyBudget,
                             canEditBudget = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
+                            nextEmi = loans.items.firstOrNull { !it.progress.isClosed },
                         )
                     }
                 }.stateIn(
@@ -146,6 +164,13 @@ class ExpensesHomeViewModel
                 HomeEvent.ClearFilters -> filter.value = ExpenseFilter()
                 is HomeEvent.Delete -> viewModelScope.launch { deleteExpense(event.id) }
                 is HomeEvent.Undo -> viewModelScope.launch { restoreExpense(event.id) }
+                is HomeEvent.MarkEmiPaid ->
+                    viewModelScope.launch {
+                        val session = sessions.session.filterNotNull().first()
+                        val item = state.value.nextEmi?.takeIf { it.loan.id == event.loanId } ?: return@launch
+                        val month = item.progress.next?.month ?: return@launch
+                        setEmiPaid(session, item.loan, month, paid = true)
+                    }
                 is HomeEvent.SetBudget ->
                     viewModelScope.launch {
                         val session = sessions.session.filterNotNull().first()
