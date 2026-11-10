@@ -35,7 +35,7 @@
 **✅ Exit (v0.1 internal):** 2 phones in same family add expenses offline, sync works, dashboard correct.
 
 ## Phase 2 — Loans, EMI, Calculators (Week 3)
-- [ ] 2.1 `core:domain` `EmiMath`: EMI formula, amortisation, prepayment, affordability, 0% rate case. **Heavy unit tests** (compare with known bank calculator values).
+- [x] 2.1 `core:domain` `EmiMath`: EMI formula, amortisation, prepayment, affordability, 0% rate case. **Heavy unit tests** (compare with known bank calculator values).
 - [ ] 2.2 Room + Supabase: loans, loan_payments (+ RLS, visibility by owner).
 - [ ] 2.3 `feature:loans`: list + summary (total EMI, burden %, outstanding), detail with schedule, mark paid, add/edit manual form with validation.
 - [ ] 2.4 `EmiReminderWorker`: D-3, D-1, D-0 notifications; notification action "Mark paid"; Android 13 notification permission flow.
@@ -105,3 +105,5 @@
 | 2026-11-09 | 1.12 | Family monthly budget: card with progress bar (green / amber from 80% / red from 100%, words + ▲ as well as colour), admins set/change/remove it, syncs via the queue. `BudgetAlertMonitor` (runs while the app process lives, reads Room, so works offline) notifies once at 80% and once at 100% per month; remembers the last level so it never repeats, resets if spending drops. Android 13+ notification permission is asked right after a budget is set. Per-category limits not done yet (PRD F6 says optional). Background alert when the app process is dead still to do (EmiReminder-style worker in Phase 2). |
 
 | 2026-11-09 | 1.13 + 1.3 rest | Hindi parity check: every English string in all 4 modules has a Hindi one. First launch: language pick (English / हिंदी, both shown bilingually), 3 slides with Skip, then login. Language is stored in SharedPreferences and applied in `attachBaseContext` (needs to be synchronous). Signed-in users never see onboarding. A language switch inside the app (Settings) is still missing; it comes with Settings (5.6). Phase 1 exit test (2 phones in one family) skipped by Agniv for now; privacy rules are covered by DAO + RLS tests and one server check. |
+
+| 2026-11-10 | 2.1 | `EmiMath` in paise with rate in basis points: EMI, schedule (last row absorbs rounding, ends at exactly ₹0), balance after n, prepay (shorter loan or smaller EMI), max loan for an EMI, affordability (30% caution, >40% risky). 15 tests incl. bank-calculator values and invariants over 384 loans. |
