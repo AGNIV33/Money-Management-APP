@@ -65,6 +65,9 @@ import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.add.AddExpenseSheet
 import com.agniv.hisaab.feature.expenses.add.ExpensePrefill
 import com.agniv.hisaab.feature.expenses.add.labelRes
+import com.agniv.hisaab.feature.expenses.insights.HomeInsightCard
+import com.agniv.hisaab.feature.expenses.insights.InsightsSheet
+import com.agniv.hisaab.feature.expenses.insights.InsightsViewModel
 import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
 import com.agniv.hisaab.feature.expenses.scan.ScanBillSheet
 import com.agniv.hisaab.feature.expenses.statement.StatementImportSheet
@@ -85,6 +88,7 @@ fun ExpensesHomeScreen(
     title: String,
     headerAction: @Composable () -> Unit = {},
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
+    insightsViewModel: InsightsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     // null = closed, "" = adding, otherwise the id being edited.
@@ -93,6 +97,8 @@ fun ExpensesHomeScreen(
     var showVoice by rememberSaveable { mutableStateOf(false) }
     var showScan by rememberSaveable { mutableStateOf(false) }
     var showStatement by rememberSaveable { mutableStateOf(false) }
+    var showInsights by rememberSaveable { mutableStateOf(false) }
+    val insights by insightsViewModel.state.collectAsStateWithLifecycle()
     // Set when the user picks Edit after speaking; opens the add sheet with the spoken values filled in.
     var voicePrefill by remember { mutableStateOf<ExpensePrefill?>(null) }
     val snackbar = remember { SnackbarHostState() }
@@ -171,6 +177,9 @@ fun ExpensesHomeScreen(
                 }
             }
             nextEmiItem(state, viewModel::onEvent)
+            if (state.isCurrentMonth && !state.filter.isActive) {
+                item(key = "insights") { HomeInsightCard(insights, onOpen = { showInsights = true }) }
+            }
             if (!state.filter.isActive) {
                 item(key = "top-categories") { TopCategoriesCard(state) }
                 item(key = "who-spent") { WhoSpentCard(state) }
@@ -203,6 +212,7 @@ fun ExpensesHomeScreen(
     }
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
+    if (showInsights) InsightsSheet(insights, onDismiss = { showInsights = false })
     if (showStatement) StatementImportSheet(onDismiss = { showStatement = false })
     if (showScan) {
         ScanBillSheet(

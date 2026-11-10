@@ -118,4 +118,19 @@
     <string name="stmt_err_no_rows">कोई भुगतान नहीं मिला। साफ़ फ़ोटो या बैंक का PDF आज़माएँ।</string>
     <string name="stmt_err_locked">इस PDF पर पासवर्ड है। इसे खोलकर पासवर्ड हटाएँ, या फ़ोटो इस्तेमाल करें।</string>
     <string name="stmt_err_read">पढ़ नहीं पाया। फिर कोशिश करें।</string>
+    <string name="insights_title">आपके लिए सुझाव</string>
+    <string name="insights_see_all">सभी %1$d देखें</string>
+    <string name="insights_footer">यह इसी फ़ोन पर आपकी अपनी एंट्री से निकाला गया है। ये सिर्फ़ आसान अंदाज़े हैं, वित्तीय सलाह नहीं।</string>
+    <string name="insights_this_category">इस कैटेगरी</string>
+    <string name="insight_month_more">आपने पिछले महीने के इन्हीं दिनों से %1$d%% ज़्यादा खर्च किया है (%2$s, पहले %3$s)।</string>
+    <string name="insight_month_less">आपने पिछले महीने के इन्हीं दिनों से %1$d%% कम खर्च किया है (%2$s, पहले %3$s)। शाबाश!</string>
+    <string name="insight_category_jump">%1$s में %2$d%% बढ़ोतरी: अब तक %3$s, पिछले महीने इन्हीं दिनों %4$s।</string>
+    <string name="insight_big_expense">%1$s में %2$s का भुगतान आपके आम %3$s से बहुत ज़्यादा है। कृपया जाँच लें कि सही है।</string>
+    <string name="insight_repeat">आप हर महीने करीब %3$d तारीख को %2$s के लिए %1$s देते हैं। अगली बार जोड़ते समय "हर महीने" चुनें, Kinly खुद जोड़ देगा।</string>
+    <string name="insight_month_end">इसी रफ़्तार से इस महीने करीब %1$s खर्च होगा (अब तक %2$s)।</string>
+    <string name="insight_next_month">पिछले %2$d महीनों के हिसाब से अगले महीने करीब %1$s खर्च हो सकता है।</string>
+    <string name="insight_budget_over">आप अपने %1$s के बजट से आगे निकल चुके हैं। अब तक खर्च: %2$s।</string>
+    <string name="insight_budget_cross">इसी रफ़्तार से आपका %1$s का बजट %2$d तारीख को खत्म हो जाएगा। रोज़ करीब %3$s खर्च करने पर बजट में रहेंगे।</string>
+    <string name="insight_budget_ok">आप सही चल रहे हैं। बजट में %1$s बाकी है, अगले %3$d दिनों के लिए रोज़ करीब %2$s।</string>
+    <string name="insight_emi_load">आपके महीने के खर्च का करीब %1$d%% EMI में जाता है (%3$s में से %2$s)।</string>
 </resources>

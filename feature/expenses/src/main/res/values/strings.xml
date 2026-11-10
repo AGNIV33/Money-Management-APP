@@ -118,4 +118,19 @@
     <string name="stmt_err_no_rows">I could not find any payments. Try a clearer photo, or the PDF from your bank.</string>
     <string name="stmt_err_locked">This PDF has a password. Open it, remove the password, or use photos instead.</string>
     <string name="stmt_err_read">Could not read it. Please try again.</string>
+    <string name="insights_title">Insights for you</string>
+    <string name="insights_see_all">See all %1$d insights</string>
+    <string name="insights_footer">Worked out on this phone from your own entries. These are simple guides, not financial advice.</string>
+    <string name="insights_this_category">this category</string>
+    <string name="insight_month_more">You have spent %1$d%% more than the same days last month (%2$s against %3$s).</string>
+    <string name="insight_month_less">You have spent %1$d%% less than the same days last month (%2$s against %3$s). Well done!</string>
+    <string name="insight_category_jump">%1$s is up %2$d%%: %3$s so far, against %4$s in the same days last month.</string>
+    <string name="insight_big_expense">A %1$s payment of %2$s is much more than your usual %3$s for it. Please check it is right.</string>
+    <string name="insight_repeat">You pay %1$s for %2$s around the %3$d of every month. Next time choose Every month when adding it and Kinly will add it for you.</string>
+    <string name="insight_month_end">At this pace you will spend about %1$s this month (so far %2$s).</string>
+    <string name="insight_next_month">Next month may be around %1$s, based on your last %2$d months.</string>
+    <string name="insight_budget_over">You have already gone over your %1$s budget. Spent so far: %2$s.</string>
+    <string name="insight_budget_cross">At this pace your %1$s budget will run out on day %2$d. Spending about %3$s a day will keep you within it.</string>
+    <string name="insight_budget_ok">You are on track. %1$s of your budget is left, about %2$s a day for the next %3$d days.</string>
+    <string name="insight_emi_load">EMIs take about %1$d%% of what you spend in a month (%2$s of %3$s).</string>
 </resources>
