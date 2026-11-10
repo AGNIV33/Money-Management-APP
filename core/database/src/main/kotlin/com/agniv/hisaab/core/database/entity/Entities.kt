@@ -188,3 +188,35 @@ data class UdhaarPaymentEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     val deleted: Boolean = false,
 )
+
+@Entity(
+    tableName = "goals",
+    indices = [Index("family_id")],
+)
+data class GoalEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    val name: String,
+    @ColumnInfo(name = "target_paise") val targetPaise: Long,
+    /** Epoch day, or null for no deadline. */
+    val deadline: Long?,
+    val visibility: String,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)
+
+@Entity(
+    tableName = "goal_contributions",
+    indices = [Index("goal_id"), Index("family_id")],
+)
+data class GoalContributionEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "goal_id") val goalId: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    @ColumnInfo(name = "amount_paise") val amountPaise: Long,
+    val date: Long,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)

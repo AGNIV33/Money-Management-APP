@@ -6,6 +6,8 @@ import androidx.room.Upsert
 import com.agniv.hisaab.core.database.entity.CategoryEntity
 import com.agniv.hisaab.core.database.entity.ExpenseEntity
 import com.agniv.hisaab.core.database.entity.FamilyEntity
+import com.agniv.hisaab.core.database.entity.GoalContributionEntity
+import com.agniv.hisaab.core.database.entity.GoalEntity
 import com.agniv.hisaab.core.database.entity.LoanEntity
 import com.agniv.hisaab.core.database.entity.LoanPaymentEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
@@ -305,6 +307,66 @@ interface UdhaarDao {
 
     @Query("UPDATE udhaar_payments SET family_id = :newFamilyId, owner_user = :newOwner WHERE family_id = :oldFamilyId")
     suspend fun reassignPayments(
+        oldFamilyId: String,
+        newFamilyId: String,
+        newOwner: String,
+    )
+}
+
+@Dao
+interface GoalDao {
+    /** PRIVATE goals only for their owner (CLAUDE.md rule 7), same as Supabase RLS. */
+    @Query(
+        """
+        SELECT * FROM goals
+        WHERE family_id = :familyId AND deleted = 0
+          AND (visibility = 'FAMILY' OR owner_user = :viewerUserId)
+        """,
+    )
+    fun observeVisible(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<GoalEntity>>
+
+    /** Savings of goals the viewer may see; a private goal's savings stay private too. */
+    @Query(
+        """
+        SELECT c.* FROM goal_contributions c
+        JOIN goals g ON g.id = c.goal_id
+        WHERE c.family_id = :familyId AND c.deleted = 0 AND g.deleted = 0
+          AND (g.visibility = 'FAMILY' OR g.owner_user = :viewerUserId)
+        """,
+    )
+    fun observeVisibleContributions(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<GoalContributionEntity>>
+
+    @Query("SELECT * FROM goals WHERE id = :id")
+    suspend fun get(id: String): GoalEntity?
+
+    @Upsert
+    suspend fun upsert(row: GoalEntity)
+
+    @Upsert
+    suspend fun upsertContribution(row: GoalContributionEntity)
+
+    @Query("SELECT * FROM goals WHERE family_id = :familyId")
+    suspend fun allForFamily(familyId: String): List<GoalEntity>
+
+    @Query("SELECT * FROM goal_contributions WHERE family_id = :familyId")
+    suspend fun allContributionsForFamily(familyId: String): List<GoalContributionEntity>
+
+    /** Moves phone-only rows into a real family when the user signs in (see AccountLinker). */
+    @Query("UPDATE goals SET family_id = :newFamilyId, owner_user = :newOwner WHERE family_id = :oldFamilyId")
+    suspend fun reassign(
+        oldFamilyId: String,
+        newFamilyId: String,
+        newOwner: String,
+    )
+
+    @Query("UPDATE goal_contributions SET family_id = :newFamilyId, owner_user = :newOwner WHERE family_id = :oldFamilyId")
+    suspend fun reassignContributions(
         oldFamilyId: String,
         newFamilyId: String,
         newOwner: String,

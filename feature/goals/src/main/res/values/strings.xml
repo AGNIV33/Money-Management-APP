@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="goals_tab">Goals</string>
+    <string name="goals_title">Savings goals</string>
+    <string name="goals_add_fab">Add goal</string>
+    <string name="goals_empty">No goals yet. Add something you are saving for, like a fridge, a trip or school fees.</string>
+    <string name="goals_saved_total">Saved so far</string>
+    <string name="goals_of_target">of %1$s in all goals</string>
+    <string name="goals_private">🔒 Only me</string>
+    <string name="goals_percent">%1$d%%</string>
+    <string name="goals_saved_of">%1$s of %2$s</string>
+    <string name="goals_reached">Goal reached!</string>
+    <string name="goals_by">By %1$s</string>
+    <string name="goals_per_month">Put aside about %1$s a month to reach it on time</string>
+    <string name="goals_left">Still to save: %1$s</string>
+    <string name="goals_entries">Savings added</string>
+    <string name="goals_undo">Undo</string>
+    <string name="goals_add_label">Amount saved now (₹)</string>
+    <string name="goals_add_savings">Add savings</string>
+    <string name="goals_edit">Edit</string>
+    <string name="goals_delete">Delete</string>
+    <string name="goals_delete_title">Delete this goal?</string>
+    <string name="goals_delete_text">It will be removed for everyone in the family.</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="goals_new_title">New goal</string>
+    <string name="goals_edit_title">Edit goal</string>
+    <string name="goals_name">What are you saving for?</string>
+    <string name="goals_target">Target amount (₹)</string>
+    <string name="goals_no_deadline">No date</string>
+    <string name="goals_set_date">Set date</string>
+    <string name="goals_clear">Clear</string>
+    <string name="goals_only_me">Only me</string>
+    <string name="goals_only_me_hint">Family members won\'t see this goal</string>
+    <string name="goals_save">Save goal</string>
+    <string name="goals_err_name">Enter a name (up to 40 letters)</string>
+    <string name="goals_err_target">Enter the target amount</string>
+    <string name="goals_err_deadline">Pick a date that has not passed</string>
+    <string name="goals_err_save">Could not save. Please try again.</string>
+</resources>

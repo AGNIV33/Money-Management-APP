@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="goals_tab">लक्ष्य</string>
+    <string name="goals_title">बचत के लक्ष्य</string>
+    <string name="goals_add_fab">लक्ष्य जोड़ें</string>
+    <string name="goals_empty">अभी कोई लक्ष्य नहीं। जिसके लिए बचा रहे हैं वह जोड़ें, जैसे फ्रिज, यात्रा या स्कूल की फ़ीस।</string>
+    <string name="goals_saved_total">अब तक बचाया</string>
+    <string name="goals_of_target">सभी लक्ष्यों के %1$s में से</string>
+    <string name="goals_private">🔒 सिर्फ़ मैं</string>
+    <string name="goals_percent">%1$d%%</string>
+    <string name="goals_saved_of">%2$s में से %1$s</string>
+    <string name="goals_reached">लक्ष्य पूरा हुआ!</string>
+    <string name="goals_by">%1$s तक</string>
+    <string name="goals_per_month">समय पर पहुँचने के लिए हर महीने करीब %1$s अलग रखें</string>
+    <string name="goals_left">अभी बचाना बाकी: %1$s</string>
+    <string name="goals_entries">जोड़ी गई बचत</string>
+    <string name="goals_undo">वापस लें</string>
+    <string name="goals_add_label">अभी बचाई रकम (₹)</string>
+    <string name="goals_add_savings">बचत जोड़ें</string>
+    <string name="goals_edit">बदलें</string>
+    <string name="goals_delete">हटाएँ</string>
+    <string name="goals_delete_title">यह लक्ष्य हटाएँ?</string>
+    <string name="goals_delete_text">यह परिवार में सबके लिए हट जाएगा।</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="ok">ठीक है</string>
+    <string name="goals_new_title">नया लक्ष्य</string>
+    <string name="goals_edit_title">लक्ष्य बदलें</string>
+    <string name="goals_name">किसके लिए बचा रहे हैं?</string>
+    <string name="goals_target">लक्ष्य की रकम (₹)</string>
+    <string name="goals_no_deadline">कोई तारीख नहीं</string>
+    <string name="goals_set_date">तारीख चुनें</string>
+    <string name="goals_clear">हटाएँ</string>
+    <string name="goals_only_me">सिर्फ़ मैं</string>
+    <string name="goals_only_me_hint">परिवार के लोग यह लक्ष्य नहीं देखेंगे</string>
+    <string name="goals_save">लक्ष्य सेव करें</string>
+    <string name="goals_err_name">नाम लिखें (40 अक्षर तक)</string>
+    <string name="goals_err_target">लक्ष्य की रकम लिखें</string>
+    <string name="goals_err_deadline">ऐसी तारीख चुनें जो बीती न हो</string>
+    <string name="goals_err_save">सेव नहीं हुआ। फिर से कोशिश करें।</string>
+</resources>

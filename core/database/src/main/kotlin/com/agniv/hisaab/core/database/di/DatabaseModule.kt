@@ -6,6 +6,7 @@ import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.dao.CategoryDao
 import com.agniv.hisaab.core.database.dao.ExpenseDao
 import com.agniv.hisaab.core.database.dao.FamilyDao
+import com.agniv.hisaab.core.database.dao.GoalDao
 import com.agniv.hisaab.core.database.dao.LoanDao
 import com.agniv.hisaab.core.database.dao.MemberDao
 import com.agniv.hisaab.core.database.dao.RecurringDao
@@ -42,4 +43,6 @@ object DatabaseModule {
     @Provides fun recurringDao(db: HisaabDatabase): RecurringDao = db.recurringDao()
 
     @Provides fun udhaarDao(db: HisaabDatabase): UdhaarDao = db.udhaarDao()
+
+    @Provides fun goalDao(db: HisaabDatabase): GoalDao = db.goalDao()
 }

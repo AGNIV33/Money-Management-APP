@@ -6,6 +6,7 @@ import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.toDto
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstGoalRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository
@@ -24,6 +25,8 @@ import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.FamilyApi
 import com.agniv.hisaab.core.network.dto.FamilyDto
+import com.agniv.hisaab.core.network.dto.GoalContributionDto
+import com.agniv.hisaab.core.network.dto.GoalDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
@@ -152,6 +155,8 @@ class LinkingFamilyRepository
                     newMemberId = me.id,
                 )
                 db.recurringDao().reassign(local.familyId, family.id, me.userId, local.memberId, me.id)
+                db.goalDao().reassign(local.familyId, family.id, me.userId)
+                db.goalDao().reassignContributions(local.familyId, family.id, me.userId)
                 db.udhaarDao().reassign(local.familyId, family.id, me.userId)
                 db.udhaarDao().reassignPayments(local.familyId, family.id, me.userId)
                 db.loanDao().reassign(local.familyId, family.id, me.userId)
@@ -194,6 +199,16 @@ class LinkingFamilyRepository
             // Loans before payments, the order the server needs.
             db.loanDao().allForFamily(familyId).forEach {
                 add(OfflineFirstLoanRepository.TABLE_LOANS, it.id, json.encodeToString(LoanDto.serializer(), it.toDto()))
+            }
+            db.goalDao().allForFamily(familyId).forEach {
+                add(OfflineFirstGoalRepository.TABLE_GOALS, it.id, json.encodeToString(GoalDto.serializer(), it.toDto()))
+            }
+            db.goalDao().allContributionsForFamily(familyId).forEach {
+                add(
+                    OfflineFirstGoalRepository.TABLE_GOAL_CONTRIBUTIONS,
+                    it.id,
+                    json.encodeToString(GoalContributionDto.serializer(), it.toDto()),
+                )
             }
             db.udhaarDao().allForFamily(familyId).forEach {
                 add(OfflineFirstUdhaarRepository.TABLE_UDHAAR, it.id, json.encodeToString(UdhaarDto.serializer(), it.toDto()))

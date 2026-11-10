@@ -4,6 +4,8 @@ import com.agniv.hisaab.core.domain.model.AiReportRequest
 import com.agniv.hisaab.core.domain.model.AiTip
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.Expense
+import com.agniv.hisaab.core.domain.model.Goal
+import com.agniv.hisaab.core.domain.model.GoalContribution
 import com.agniv.hisaab.core.domain.model.Loan
 import com.agniv.hisaab.core.domain.model.LoanPayment
 import com.agniv.hisaab.core.domain.model.Member
@@ -116,4 +118,28 @@ interface UdhaarRepository {
 interface AiReportRepository {
     /** The month's saving tips (made once per family per month on the server). Fails with an AiReportException. */
     suspend fun monthlyTips(request: AiReportRequest): Result<List<AiTip>>
+}
+
+/** A goal with its savings entries (deleted ones included; the use case filters). */
+data class GoalWithContributions(
+    val goal: Goal,
+    val contributions: List<GoalContribution>,
+)
+
+interface GoalRepository {
+    /** Non-deleted goals [viewerUserId] may see (PRIVATE only for the owner), with their entries. */
+    fun observe(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<GoalWithContributions>>
+
+    suspend fun get(id: String): Goal?
+
+    suspend fun upsert(goal: Goal): Result<Unit>
+
+    /** Soft delete. */
+    suspend fun delete(id: String): Result<Unit>
+
+    /** Adds a savings entry, or with deleted = true takes one back. */
+    suspend fun saveContribution(contribution: GoalContribution): Result<Unit>
 }

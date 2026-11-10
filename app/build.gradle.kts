@@ -37,6 +37,7 @@ dependencies {
     implementation(projects.feature.loans)
     implementation(projects.feature.tools)
     implementation(projects.feature.udhaar)
+    implementation(projects.feature.goals)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

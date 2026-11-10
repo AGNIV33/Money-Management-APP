@@ -5,11 +5,14 @@ import androidx.test.core.app.ApplicationProvider
 import com.agniv.hisaab.core.common.dispatcher.DispatcherProvider
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstGoalRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.domain.model.Expense
+import com.agniv.hisaab.core.domain.model.Goal
+import com.agniv.hisaab.core.domain.model.GoalContribution
 import com.agniv.hisaab.core.domain.model.Loan
 import com.agniv.hisaab.core.domain.model.LoanType
 import com.agniv.hisaab.core.domain.model.PayMode
@@ -25,11 +28,14 @@ import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.ExpenseRemote
+import com.agniv.hisaab.core.network.GoalRemote
 import com.agniv.hisaab.core.network.LoanRemote
 import com.agniv.hisaab.core.network.RecurringRemote
 import com.agniv.hisaab.core.network.UdhaarRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
 import com.agniv.hisaab.core.network.dto.FamilyDto
+import com.agniv.hisaab.core.network.dto.GoalContributionDto
+import com.agniv.hisaab.core.network.dto.GoalDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
@@ -82,9 +88,10 @@ class SyncEngineTest {
     private val loanServer = FakeLoanRemote()
     private val recurringServer = FakeRecurringRemote()
     private val udhaarServer = FakeUdhaarRemote()
+    private val goalServer = FakeGoalRemote()
     private val state = MemoryState()
     private val repo = OfflineFirstExpenseRepository(db, dispatchers, time) {}
-    private val engine = SyncEngine(db, server, loanServer, recurringServer, udhaarServer, sessions, state, dispatchers)
+    private val engine = SyncEngine(db, server, loanServer, recurringServer, udhaarServer, goalServer, sessions, state, dispatchers)
 
     @After fun close() = db.close()
 
@@ -377,10 +384,49 @@ class SyncEngineTest {
         }
 
     @Test
+    fun `goals sync both ways, goals before savings, private stays private`() =
+        runTest {
+            val repo = OfflineFirstGoalRepository(db, dispatchers, time) {}
+            val goal = Goal("g1", "f1", "u1", "Fridge", Money.ofRupees(40_000), LocalDate.of(2027, 3, 1), Visibility.FAMILY, time.now())
+            repo.upsert(goal).getOrThrow()
+            repo.upsert(goal.copy(id = "g2", visibility = Visibility.PRIVATE)).getOrThrow()
+            repo
+                .saveContribution(
+                    GoalContribution("s1", "g1", "f1", "u1", Money.ofRupees(5_000), LocalDate.of(2026, 11, 10), time.now()),
+                ).getOrThrow()
+            goalServer.rows += GoalDto("g3", "f1", "u2", "Trip", 2_000_000, null, "FAMILY", false, "2026-11-09T12:00:00+00:00")
+
+            engine.sync().getOrThrow()
+
+            assertThat(goalServer.calls).containsExactly("goals", "contributions").inOrder()
+            assertThat(goalServer.pushedGoals.map { it.id }).containsExactly("g1", "g2")
+            assertThat(db.goalDao().get("g3")?.name).isEqualTo("Trip")
+            assertThat(db.syncQueueDao().peek(10)).isEmpty()
+            assertThat(repo.observe("f1", "u2").first().map { it.goal.id }).containsExactly("g1", "g3")
+            assertThat(
+                repo
+                    .observe("f1", "u2")
+                    .first()
+                    .first { it.goal.id == "g1" }
+                    .contributions,
+            ).hasSize(1)
+        }
+
+    @Test
     fun `nothing syncs while the family is still phone-only`() =
         runTest {
             val notLinked =
-                SyncEngine(db, FakeRemote(userId = "someone-else"), loanServer, recurringServer, udhaarServer, sessions, state, dispatchers)
+                SyncEngine(
+                    db,
+                    FakeRemote(userId = "someone-else"),
+                    loanServer,
+                    recurringServer,
+                    udhaarServer,
+                    goalServer,
+                    sessions,
+                    state,
+                    dispatchers,
+                )
             repo.upsert(expense("e1")).getOrThrow()
             notLinked.sync().getOrThrow()
             assertThat(db.syncQueueDao().peek(10)).hasSize(1)
@@ -509,4 +555,31 @@ private class FakeUdhaarRemote : UdhaarRemote {
         sinceIso: String?,
         limit: Int,
     ): List<UdhaarPaymentDto> = emptyList()
+}
+
+private class FakeGoalRemote : GoalRemote {
+    val calls = mutableListOf<String>()
+    val pushedGoals = mutableListOf<GoalDto>()
+    val rows = mutableListOf<GoalDto>()
+
+    override suspend fun upsertGoals(rows: List<GoalDto>) {
+        calls += "goals"
+        pushedGoals += rows
+    }
+
+    override suspend fun upsertContributions(rows: List<GoalContributionDto>) {
+        calls += "contributions"
+    }
+
+    override suspend fun goalsChangedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<GoalDto> = rows.filter { sinceIso == null || it.updatedAt.orEmpty() > sinceIso }.take(limit)
+
+    override suspend fun contributionsChangedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<GoalContributionDto> = emptyList()
 }

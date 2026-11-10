@@ -4,6 +4,7 @@ import com.agniv.hisaab.core.data.auth.SupabaseAuthRepository
 import com.agniv.hisaab.core.data.family.LinkingFamilyRepository
 import com.agniv.hisaab.core.data.report.RemoteAiReportRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstGoalRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository
@@ -19,6 +20,7 @@ import com.agniv.hisaab.core.domain.repository.AuthRepository
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
+import com.agniv.hisaab.core.domain.repository.GoalRepository
 import com.agniv.hisaab.core.domain.repository.LoanRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.RecurringRepository
@@ -44,6 +46,8 @@ internal abstract class DataModule {
     @Binds abstract fun recurringRepository(impl: OfflineFirstRecurringRepository): RecurringRepository
 
     @Binds abstract fun aiReportRepository(impl: RemoteAiReportRepository): AiReportRepository
+
+    @Binds abstract fun goalRepository(impl: OfflineFirstGoalRepository): GoalRepository
 
     @Binds abstract fun udhaarRepository(impl: OfflineFirstUdhaarRepository): UdhaarRepository
 
