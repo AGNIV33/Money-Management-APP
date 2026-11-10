@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -18,13 +20,18 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
+import com.agniv.hisaab.core.domain.model.AiReportFailure
+import com.agniv.hisaab.core.domain.model.AiTip
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.ml.insight.Insight
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.ui.label
+import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 /** DESIGN.md `HInsightCard`: a light-bulb, one plain sentence. */
@@ -66,6 +73,8 @@ internal fun HomeInsightCard(
 @Composable
 internal fun InsightsSheet(
     state: InsightsUiState,
+    report: ReportUiState,
+    onGetTips: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
@@ -79,6 +88,7 @@ internal fun InsightsSheet(
         ) {
             Text(stringResource(R.string.insights_title), style = MaterialTheme.typography.headlineSmall)
             state.insights.forEach { InsightCard(it, state.categories) }
+            ReportSection(report, onGetTips)
             Text(
                 stringResource(R.string.insights_footer),
                 style = MaterialTheme.typography.bodySmall,
@@ -153,5 +163,63 @@ private fun insightText(
                 insight.emi.formatted(),
                 insight.averageMonthly.formatted(),
             )
+    }
+}
+
+/** The AI saving tips for last month: asked for on purpose, with the privacy promise shown first. */
+@Composable
+private fun ReportSection(
+    report: ReportUiState,
+    onGetTips: (String) -> Unit,
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val monthName = report.month.format(DateTimeFormatter.ofPattern("MMMM yyyy", locale))
+    HorizontalDivider()
+    Text(stringResource(R.string.report_title, monthName), style = MaterialTheme.typography.titleMedium)
+    when (report.phase) {
+        ReportPhase.READY -> report.tips.forEach { TipCard(it) }
+        ReportPhase.LOADING -> Text(stringResource(R.string.report_loading), style = MaterialTheme.typography.bodyLarge)
+        else -> {
+            Text(
+                stringResource(R.string.report_privacy),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            report.failure?.let {
+                val res =
+                    when (it) {
+                        AiReportFailure.NOT_CONFIGURED -> R.string.report_err_not_ready
+                        AiReportFailure.OFFLINE -> R.string.report_err_offline
+                        AiReportFailure.NOT_ALLOWED -> R.string.report_err_signin
+                        AiReportFailure.FAILED -> R.string.report_err_failed
+                    }
+                Text(stringResource(res), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+            }
+            Button(onClick = { onGetTips(locale.language) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.report_get))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TipCard(tip: AiTip) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            Text("✨ " + tip.title, style = MaterialTheme.typography.titleMedium)
+            Text(tip.detail, style = MaterialTheme.typography.bodyMedium)
+            if (tip.estSaving.paise > 0) {
+                Text(
+                    stringResource(R.string.report_saving, tip.estSaving.formatted()),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = HisaabTheme.extendedColors.success,
+                )
+            }
+            Text(
+                stringResource(R.string.report_ai_label),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }

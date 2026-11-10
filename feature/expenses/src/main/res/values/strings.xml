@@ -134,4 +134,14 @@
     <string name="insight_budget_ok">You are on track. %1$s of your budget is left, about %2$s a day for the next %3$d days.</string>
     <string name="insight_emi_load">EMIs take about %1$d%% of what you spend in a month (%2$s of %3$s).</string>
     <string name="category_auto">✨ Category picked from your note. Change it if it is wrong.</string>
+    <string name="report_title">Saving tips for %1$s</string>
+    <string name="report_privacy">Kinly sends only your category totals (like Groceries ₹8,000) to get tips. No names, notes, shops, phone or account numbers ever leave your phone.</string>
+    <string name="report_get">Get saving tips</string>
+    <string name="report_loading">Making your tips…</string>
+    <string name="report_saving">You could save about %1$s a month</string>
+    <string name="report_ai_label">Suggested by AI. Check before you act on it.</string>
+    <string name="report_err_not_ready">Saving tips are not switched on yet. The insights above still work.</string>
+    <string name="report_err_offline">Tips need internet. Try again when you are online.</string>
+    <string name="report_err_signin">Please sign in with your family account to get tips.</string>
+    <string name="report_err_failed">Could not make tips right now, or there is no spending last month. Try again later.</string>
 </resources>

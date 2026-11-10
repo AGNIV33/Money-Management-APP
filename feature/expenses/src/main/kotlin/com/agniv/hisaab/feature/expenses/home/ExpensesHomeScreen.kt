@@ -212,7 +212,10 @@ fun ExpensesHomeScreen(
     }
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
-    if (showInsights) InsightsSheet(insights, onDismiss = { showInsights = false })
+    if (showInsights) {
+        val report by insightsViewModel.report.collectAsStateWithLifecycle()
+        InsightsSheet(insights, report, onGetTips = insightsViewModel::requestTips, onDismiss = { showInsights = false })
+    }
     if (showStatement) StatementImportSheet(onDismiss = { showStatement = false })
     if (showScan) {
         ScanBillSheet(

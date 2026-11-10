@@ -134,4 +134,14 @@
     <string name="insight_budget_ok">आप सही चल रहे हैं। बजट में %1$s बाकी है, अगले %3$d दिनों के लिए रोज़ करीब %2$s।</string>
     <string name="insight_emi_load">आपके महीने के खर्च का करीब %1$d%% EMI में जाता है (%3$s में से %2$s)।</string>
     <string name="category_auto">✨ कैटेगरी आपके नोट से चुनी गई है। गलत हो तो बदल दें।</string>
+    <string name="report_title">%1$s के बचत सुझाव</string>
+    <string name="report_privacy">सुझाव लेने के लिए Kinly सिर्फ़ कैटेगरी के कुल खर्च (जैसे किराना ₹8,000) भेजता है। नाम, नोट, दुकान, फ़ोन या खाता नंबर कभी आपके फ़ोन से बाहर नहीं जाते।</string>
+    <string name="report_get">बचत सुझाव पाएँ</string>
+    <string name="report_loading">आपके सुझाव बन रहे हैं…</string>
+    <string name="report_saving">आप हर महीने करीब %1$s बचा सकते हैं</string>
+    <string name="report_ai_label">AI का सुझाव है। अमल से पहले जाँच लें।</string>
+    <string name="report_err_not_ready">बचत सुझाव अभी चालू नहीं हैं। ऊपर के सुझाव काम करते रहेंगे।</string>
+    <string name="report_err_offline">सुझावों के लिए इंटरनेट चाहिए। इंटरनेट होने पर फिर कोशिश करें।</string>
+    <string name="report_err_signin">सुझाव पाने के लिए अपने परिवार के खाते से साइन इन करें।</string>
+    <string name="report_err_failed">अभी सुझाव नहीं बन पाए, या पिछले महीने कोई खर्च नहीं है। बाद में फिर कोशिश करें।</string>
 </resources>

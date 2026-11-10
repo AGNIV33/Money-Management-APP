@@ -1,5 +1,7 @@
 package com.agniv.hisaab.core.domain.repository
 
+import com.agniv.hisaab.core.domain.model.AiReportRequest
+import com.agniv.hisaab.core.domain.model.AiTip
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Loan
@@ -109,4 +111,9 @@ interface UdhaarRepository {
 
     /** Adds a payment, or with deleted = true takes one back. */
     suspend fun savePayment(payment: UdhaarPayment): Result<Unit>
+}
+
+interface AiReportRepository {
+    /** The month's saving tips (made once per family per month on the server). Fails with an AiReportException. */
+    suspend fun monthlyTips(request: AiReportRequest): Result<List<AiTip>>
 }

@@ -15,4 +15,6 @@ internal abstract class RemoteModule {
     @Binds abstract fun recurringRemote(impl: SupabaseRecurringRemote): RecurringRemote
 
     @Binds abstract fun udhaarRemote(impl: SupabaseUdhaarRemote): UdhaarRemote
+
+    @Binds abstract fun aiReportRemote(impl: SupabaseAiReportRemote): AiReportRemote
 }
