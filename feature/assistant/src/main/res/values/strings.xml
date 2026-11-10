@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="assistant_open">Talk to Kinly</string>
+    <string name="assistant_title">Talk to Kinly</string>
+    <string name="assistant_orb">Start or stop talking to Kinly</string>
+    <string name="assistant_tap">Tap to talk about your money</string>
+    <string name="assistant_tap_again">Tap to try again</string>
+    <string name="assistant_connecting">Connecting…</string>
+    <string name="assistant_listening">I\'m listening. Ask me anything about your money.</string>
+    <string name="assistant_thinking">Checking your numbers…</string>
+    <string name="assistant_speaking">Speaking. You can talk over me anytime.</string>
+    <string name="assistant_end">End</string>
+    <string name="assistant_tip">Earphones work best. Kinly only talks about money and cannot change your entries.</string>
+
+    <string name="assistant_consent_title">Before you talk to Kinly</string>
+    <string name="assistant_consent_voice">To talk, your voice is sent live to Google\'s Gemini, which answers back in voice.</string>
+    <string name="assistant_consent_totals">When you ask about your money, only totals are shared, like \"spent this month\". Never names, notes, phone numbers or account numbers.</string>
+    <string name="assistant_consent_nosave">Kinly does not save what you say or hear.</string>
+    <string name="assistant_consent_free">This uses Google\'s free service, so Google may use these conversations to improve its products.</string>
+    <string name="assistant_consent_never">Never say passwords, OTPs or card numbers.</string>
+    <string name="assistant_consent_yes">I understand, continue</string>
+    <string name="assistant_consent_no">Not now</string>
+
+    <string name="assistant_err_permission">Microphone permission is needed to talk. You can allow it in the phone\'s settings.</string>
+    <string name="assistant_err_mic">The microphone could not start. Another app may be using it.</string>
+    <string name="assistant_err_offline">This needs internet. Please try again when you are online.</string>
+    <string name="assistant_err_daily_limit">You have used today\'s voice time. It comes back tomorrow.</string>
+    <string name="assistant_err_busy">Kinly\'s voice is very busy today. Please try again tomorrow.</string>
+    <string name="assistant_err_not_configured">Voice is not switched on yet.</string>
+    <string name="assistant_err_signed_in">Sign in to talk to Kinly.</string>
+    <string name="assistant_err_failed">Something went wrong. Please try again.</string>
+    <string name="assistant_err_lost">The connection was lost. Tap to start again.</string>
+    <string name="assistant_stopped_quiet">I stopped listening because it was quiet. Tap to start again.</string>
+</resources>

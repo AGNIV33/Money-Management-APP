@@ -23,6 +23,11 @@ class AppSettings(
         get() = prefs.getString(KEY_AVATAR, null)
         set(value) = prefs.edit().putString(KEY_AVATAR, value).apply()
 
+    /** True once the person has read and accepted what the voice assistant shares (asked before first use). */
+    var assistantConsent: Boolean
+        get() = prefs.getBoolean(KEY_ASSISTANT_CONSENT, false)
+        set(value) = prefs.edit().putBoolean(KEY_ASSISTANT_CONSENT, value).apply()
+
     /** Optional app lock (fingerprint or phone PIN). */
     var appLock: Boolean
         get() = prefs.getBoolean(KEY_APP_LOCK, false)
@@ -46,5 +51,6 @@ class AppSettings(
         const val KEY_ONBOARDING = "onboarding_done"
         const val KEY_APP_LOCK = "app_lock"
         const val KEY_AVATAR = "avatar"
+        const val KEY_ASSISTANT_CONSENT = "assistant_consent"
     }
 }

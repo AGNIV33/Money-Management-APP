@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
@@ -24,6 +25,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
+import com.agniv.hisaab.feature.assistant.AssistantButton
+import com.agniv.hisaab.feature.assistant.AssistantSheet
 import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.auth.OnboardingScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
@@ -86,6 +89,8 @@ class MainActivity : FragmentActivity() {
     private fun AppRoot() {
         val screen by viewModel.screen.collectAsStateWithLifecycle()
         var showProfile by rememberSaveable { mutableStateOf(false) }
+        var showAssistant by rememberSaveable { mutableStateOf(false) }
+        var assistantConsent by remember { mutableStateOf(settings.assistantConsent) }
         var avatar by remember { mutableStateOf(settings.avatar) }
         when (screen) {
             RootScreen.SPLASH -> Unit
@@ -103,7 +108,17 @@ class MainActivity : FragmentActivity() {
             RootScreen.LOGIN -> LoginScreen()
             RootScreen.FAMILY_SETUP -> FamilySetupScreen()
             RootScreen.HOME -> {
-                HomeTabs(avatar = avatar, onProfile = { showProfile = true })
+                HomeTabs(avatar = avatar, onProfile = { showProfile = true }, onAssistant = { showAssistant = true })
+                if (showAssistant) {
+                    AssistantSheet(
+                        consentGiven = assistantConsent,
+                        onConsent = {
+                            settings.assistantConsent = true
+                            assistantConsent = true
+                        },
+                        onDismiss = { showAssistant = false },
+                    )
+                }
                 if (showProfile) {
                     ProfileSheet(
                         avatar = avatar,
@@ -137,6 +152,7 @@ class MainActivity : FragmentActivity() {
 private fun HomeTabs(
     avatar: String?,
     onProfile: () -> Unit,
+    onAssistant: () -> Unit,
 ) {
     var tab by rememberSaveable { mutableStateOf(HomeTab.HOME) }
     Scaffold(
@@ -160,7 +176,10 @@ private fun HomeTabs(
                     ExpensesHomeScreen(
                         title = stringResource(R.string.app_name),
                         headerAction = {
-                            ProfileButton(avatar = avatar, onClick = onProfile)
+                            Row {
+                                AssistantButton(onClick = onAssistant)
+                                ProfileButton(avatar = avatar, onClick = onProfile)
+                            }
                         },
                     )
                 HomeTab.LOANS -> LoansScreen()

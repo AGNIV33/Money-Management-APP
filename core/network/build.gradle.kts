@@ -28,13 +28,17 @@ android {
 
 dependencies {
     implementation(projects.core.common)
+    // The live voice connection implements the domain's LiveSession.
+    implementation(projects.core.domain)
     api(libs.kotlinx.serialization.json)
     api(platform(libs.supabase.bom))
     api(libs.supabase.auth)
     api(libs.supabase.postgrest)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.websockets)
 
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
 }
