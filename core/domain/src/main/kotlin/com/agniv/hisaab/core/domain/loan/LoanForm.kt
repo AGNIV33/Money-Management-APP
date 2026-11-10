@@ -1,11 +1,9 @@
-package com.agniv.hisaab.feature.loans
+package com.agniv.hisaab.core.domain.loan
 
 import com.agniv.hisaab.core.common.money.Money
-import com.agniv.hisaab.core.domain.loan.EmiMath
-import com.agniv.hisaab.core.domain.loan.LoanTerms
 
 /** Text-field rules for the loan form. Pure so they can be unit tested. */
-internal object LoanForm {
+object LoanForm {
     private const val MAX_RATE_DECIMALS = 2
     private const val BPS_PER_PERCENT = 100
     private const val MONTHS_PER_YEAR = 12

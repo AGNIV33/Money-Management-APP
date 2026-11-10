@@ -1,4 +1,4 @@
-package com.agniv.hisaab.feature.loans
+package com.agniv.hisaab.core.domain.loan
 
 import com.agniv.hisaab.core.common.money.Money
 import com.google.common.truth.Truth.assertThat

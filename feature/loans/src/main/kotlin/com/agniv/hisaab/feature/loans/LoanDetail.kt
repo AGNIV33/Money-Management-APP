@@ -34,6 +34,7 @@ import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.EmiMath
 import com.agniv.hisaab.core.domain.loan.Installment
+import com.agniv.hisaab.core.domain.loan.LoanForm
 import com.agniv.hisaab.core.domain.loan.LoanProgress
 import com.agniv.hisaab.core.domain.usecase.LoanItem
 import java.time.LocalDate

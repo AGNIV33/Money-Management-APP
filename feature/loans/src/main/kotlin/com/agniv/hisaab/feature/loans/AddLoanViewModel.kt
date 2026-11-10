@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.domain.loan.LoanForm
 import com.agniv.hisaab.core.domain.model.LoanType
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.LoanRepository

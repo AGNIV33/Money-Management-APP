@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tools_tab">Tools</string>
+    <string name="tools_title">Tools</string>
+    <string name="tool_calculator">Calculator</string>
+    <string name="tool_calculator_hint">Quick sums, with %</string>
+    <string name="tool_emi">EMI calculator</string>
+    <string name="tool_emi_hint">EMI, total interest, year by year</string>
+    <string name="tool_prepay">Prepayment saver</string>
+    <string name="tool_prepay_hint">How much a lump sum saves</string>
+    <string name="tool_afford">Can I afford it?</string>
+    <string name="tool_afford_hint">Check a new loan against your income</string>
+    <string name="tools_back">Back</string>
+
+    <string name="field_amount">Loan amount (₹)</string>
+    <string name="field_rate" formatted="false">Interest rate (% a year)</string>
+    <string name="field_tenure">Tenure</string>
+    <string name="unit_years">Years</string>
+    <string name="unit_months">Months</string>
+    <string name="fill_from_loan">Fill from my loans</string>
+    <string name="tools_need_inputs">Fill in amount, interest and tenure to see the result.</string>
+
+    <string name="emi_result">Monthly EMI</string>
+    <string name="emi_total_interest">Total interest</string>
+    <string name="emi_total_payable">Total you pay</string>
+    <string name="emi_pie_desc">Principal %1$s, interest %2$s</string>
+    <string name="emi_principal">Principal</string>
+    <string name="emi_interest">Interest</string>
+    <string name="emi_year_table">Year by year</string>
+    <string name="col_year">Year</string>
+    <string name="col_principal">Principal</string>
+    <string name="col_interest">Interest</string>
+    <string name="col_balance">Left</string>
+
+    <string name="prepay_paid">EMIs already paid</string>
+    <string name="prepay_extra">Extra payment now (₹)</string>
+    <string name="prepay_shorter">Finish sooner</string>
+    <string name="prepay_smaller">Smaller EMI</string>
+    <string name="prepay_saved">You save in interest</string>
+    <string name="prepay_months_saved">Loan ends %1$d months sooner</string>
+    <string name="prepay_new_emi">New EMI: %1$s (was %2$s)</string>
+    <string name="prepay_bad_extra">Extra payment must be more than ₹0 and less than what is left (%1$s).</string>
+    <string name="prepay_bad_paid">EMIs paid must be less than the tenure.</string>
+
+    <string name="afford_income">Monthly take-home income (₹)</string>
+    <string name="afford_existing">EMIs you already pay each month (₹)</string>
+    <string name="afford_new_emi">New EMI</string>
+    <string name="afford_burden">%1$s%% of your income would go to EMIs</string>
+    <string name="afford_ok">Comfortable</string>
+    <string name="afford_caution" formatted="false">Careful: over 30%</string>
+    <string name="afford_risky" formatted="false">Risky: over 40%</string>
+    <string name="afford_max">Biggest loan that keeps EMIs under 40%%: %1$s</string>
+    <string name="afford_no_room" formatted="false">Your current EMIs already use 40% of income.</string>
+    <string name="afford_note">A rough guide, not financial advice.</string>
+
+    <string name="calc_backspace">Delete</string>
+</resources>
