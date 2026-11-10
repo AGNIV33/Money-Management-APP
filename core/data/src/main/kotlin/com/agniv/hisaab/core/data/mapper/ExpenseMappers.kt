@@ -116,7 +116,7 @@ fun MemberEntity.toDomain(): Member =
 
 // An unknown value from a newer app version must not crash old phones.
 // For visibility the fallback is PRIVATE: hiding too much is safer than leaking.
-private inline fun <reified E : Enum<E>> enumOr(
+internal inline fun <reified E : Enum<E>> enumOr(
     value: String,
     fallback: E,
 ): E = enumValues<E>().firstOrNull { it.name == value } ?: fallback

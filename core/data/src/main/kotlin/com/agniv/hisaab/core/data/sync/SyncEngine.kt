@@ -5,17 +5,24 @@ import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.parseServerTime
 import com.agniv.hisaab.core.data.mapper.toEntity
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository.Companion.TABLE_EXPENSES
+import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository.Companion.TABLE_LOANS
+import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository.Companion.TABLE_LOAN_PAYMENTS
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
+import com.agniv.hisaab.core.database.entity.SyncQueueEntity
 import com.agniv.hisaab.core.domain.model.Session
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.network.ExpenseRemote
+import com.agniv.hisaab.core.network.LoanRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
+import com.agniv.hisaab.core.network.dto.LoanDto
+import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,6 +58,7 @@ class SyncEngine
     constructor(
         private val db: HisaabDatabase,
         private val remote: ExpenseRemote,
+        private val loanRemote: LoanRemote,
         private val sessions: SessionRepository,
         private val state: SyncStateStore,
         private val dispatchers: DispatcherProvider,
@@ -70,6 +78,7 @@ class SyncEngine
                     val pulled =
                         resultOf {
                             pull(session)
+                            pullLoans(session)
                             pullMembers(session)
                             pullFamily(session)
                         }
@@ -97,6 +106,9 @@ class SyncEngine
                             .values
                             .toList()
                     if (rows.isNotEmpty()) remote.upsert(rows)
+                    // Loans before payments: a payment row points at its loan on the server.
+                    batch.latest(TABLE_LOANS, LoanDto.serializer())?.let { loanRemote.upsertLoans(it) }
+                    batch.latest(TABLE_LOAN_PAYMENTS, LoanPaymentDto.serializer())?.let { loanRemote.upsertPayments(it) }
                 }.onFailure { batch.forEach { queue.markAttempt(it.id) } }
                     .getOrThrow()
                 batch.forEach { queue.remove(it.id) }
@@ -116,6 +128,54 @@ class SyncEngine
                     since = serverTime
                 }
                 since?.let { state.setLastPulled(session.familyId, it) }
+                if (rows.size < PULL_PAGE) return
+            }
+        }
+
+        private fun <T> List<SyncQueueEntity>.latest(
+            table: String,
+            serializer: KSerializer<T>,
+        ): List<T>? =
+            filter { it.tableName == table }
+                .associateBy { it.rowId }
+                .values
+                .map { json.decodeFromString(serializer, it.payloadJson) }
+                .ifEmpty { null }
+
+        private suspend fun pullLoans(session: Session) {
+            pullTable(
+                key = session.familyId + LOANS_KEY,
+                fetch = { since -> loanRemote.loansChangedSince(session.familyId, since, PULL_PAGE) },
+                stamp = { it.updatedAt },
+            ) { row, time ->
+                if (!db.syncQueueDao().hasPending(TABLE_LOANS, row.id)) db.loanDao().upsert(row.toEntity(time))
+            }
+            pullTable(
+                key = session.familyId + PAYMENTS_KEY,
+                fetch = { since -> loanRemote.paymentsChangedSince(session.familyId, since, PULL_PAGE) },
+                stamp = { it.updatedAt },
+            ) { row, time ->
+                if (!db.syncQueueDao().hasPending(TABLE_LOAN_PAYMENTS, row.id)) db.loanDao().upsertPayment(row.toEntity(time))
+            }
+        }
+
+        /** Pages through rows changed since the saved server time and remembers how far it got. */
+        private suspend fun <T> pullTable(
+            key: String,
+            fetch: suspend (String?) -> List<T>,
+            stamp: (T) -> String?,
+            store: suspend (T, Long) -> Unit,
+        ) {
+            var since = state.lastPulled(key)
+            while (true) {
+                val rows = fetch(since)
+                if (rows.isEmpty()) return
+                for (row in rows) {
+                    val serverTime = stamp(row) ?: continue
+                    store(row, parseServerTime(serverTime))
+                    since = serverTime
+                }
+                since?.let { state.setLastPulled(key, it) }
                 if (rows.size < PULL_PAGE) return
             }
         }
@@ -147,5 +207,9 @@ class SyncEngine
         companion object {
             const val PUSH_BATCH = 50
             const val PULL_PAGE = 500
+
+            // Loans keep their own pull clock next to the expenses one (same store, keyed per family).
+            private const val LOANS_KEY = ":loans"
+            private const val PAYMENTS_KEY = ":loan_payments"
         }
     }

@@ -5,17 +5,24 @@ import androidx.test.core.app.ApplicationProvider
 import com.agniv.hisaab.core.common.dispatcher.DispatcherProvider
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.domain.model.Expense
+import com.agniv.hisaab.core.domain.model.Loan
+import com.agniv.hisaab.core.domain.model.LoanType
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Session
 import com.agniv.hisaab.core.domain.model.Source
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.SessionRepository
+import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.ExpenseRemote
+import com.agniv.hisaab.core.network.LoanRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
 import com.agniv.hisaab.core.network.dto.FamilyDto
+import com.agniv.hisaab.core.network.dto.LoanDto
+import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,6 +39,7 @@ import org.robolectric.annotation.Config
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDate
+import java.time.YearMonth
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -59,9 +67,10 @@ class SyncEngineTest {
             override val session: Flow<Session?> = flowOf(me)
         }
     private val server = FakeRemote(userId = "u1")
+    private val loanServer = FakeLoanRemote()
     private val state = MemoryState()
     private val repo = OfflineFirstExpenseRepository(db, dispatchers, time) {}
-    private val engine = SyncEngine(db, server, sessions, state, dispatchers)
+    private val engine = SyncEngine(db, server, loanServer, sessions, state, dispatchers)
 
     @After fun close() = db.close()
 
@@ -155,9 +164,97 @@ class SyncEngineTest {
         }
 
     @Test
+    fun `loans push before their payments and pull with their own clock`() =
+        runTest {
+            val loans = OfflineFirstLoanRepository(db, dispatchers, time) {}
+            val loan =
+                Loan(
+                    "l1",
+                    "f1",
+                    "u1",
+                    LoanType.CAR,
+                    "SBI",
+                    Money.ofRupees(100_000),
+                    1_200,
+                    12,
+                    Money.ofRupees(8_885),
+                    LocalDate.of(2026, 12, 5),
+                    5,
+                    LocalDate.of(2026, 11, 9),
+                    Visibility.FAMILY,
+                    time.now(),
+                )
+            loans.upsert(loan).getOrThrow()
+            SetEmiPaid(loans, time)(me, loan, YearMonth.of(2026, 12), paid = true).getOrThrow()
+            loans.upsert(loan.copy(lender = "SBI Car")).getOrThrow() // edited offline: one upload
+            loanServer.rows +=
+                LoanDto(
+                    "l2",
+                    "f1",
+                    "u2",
+                    "HOME",
+                    "LIC",
+                    500_000_000,
+                    850,
+                    240,
+                    4_339_115,
+                    "2026-12-01",
+                    1,
+                    "2026-11-09",
+                    "FAMILY",
+                    false,
+                    "2026-11-09T12:00:00+00:00",
+                )
+
+            engine.sync().getOrThrow()
+
+            assertThat(loanServer.calls).containsExactly("loans", "payments").inOrder()
+            assertThat(loanServer.pushedLoans.single().lender).isEqualTo("SBI Car")
+            assertThat(loanServer.pushedPayments.single().month).isEqualTo("2026-12-01")
+            assertThat(db.loanDao().get("l2")?.lender).isEqualTo("LIC")
+            assertThat(state.lastPulled("f1:loans")).isEqualTo("2026-11-09T12:00:00+00:00")
+            assertThat(db.syncQueueDao().peek(10)).isEmpty()
+        }
+
+    @Test
+    fun `private loans of others never show, nor their payments`() =
+        runTest {
+            val loans = OfflineFirstLoanRepository(db, dispatchers, time) {}
+            val mine =
+                Loan(
+                    "l1",
+                    "f1",
+                    "u1",
+                    LoanType.CAR,
+                    "SBI",
+                    Money.ofRupees(100_000),
+                    1_200,
+                    12,
+                    Money.ofRupees(8_885),
+                    LocalDate.of(2026, 12, 5),
+                    5,
+                    LocalDate.of(2026, 11, 9),
+                    Visibility.PRIVATE,
+                    time.now(),
+                )
+            loans.upsert(mine).getOrThrow()
+            SetEmiPaid(loans, time)(me, mine, YearMonth.of(2026, 12), paid = true).getOrThrow()
+
+            assertThat(
+                loans
+                    .observeLoans("f1", "u1")
+                    .first()
+                    .single()
+                    .payments,
+            ).hasSize(1)
+            assertThat(loans.observeLoans("f1", "u2").first()).isEmpty()
+            assertThat(db.loanDao().observeVisiblePayments("f1", "u2").first()).isEmpty()
+        }
+
+    @Test
     fun `nothing syncs while the family is still phone-only`() =
         runTest {
-            val notLinked = SyncEngine(db, FakeRemote(userId = "someone-else"), sessions, state, dispatchers)
+            val notLinked = SyncEngine(db, FakeRemote(userId = "someone-else"), loanServer, sessions, state, dispatchers)
             repo.upsert(expense("e1")).getOrThrow()
             notLinked.sync().getOrThrow()
             assertThat(db.syncQueueDao().peek(10)).hasSize(1)
@@ -213,4 +310,33 @@ private class FakeRemote(
     }
 
     override suspend fun members(familyId: String): List<MemberDto> = listOf(MemberDto("m2", familyId, "u2", "Didi", "MEMBER"))
+}
+
+private class FakeLoanRemote : LoanRemote {
+    val pushedLoans = mutableListOf<LoanDto>()
+    val pushedPayments = mutableListOf<LoanPaymentDto>()
+    val calls = mutableListOf<String>()
+    val rows = mutableListOf<LoanDto>()
+
+    override suspend fun upsertLoans(rows: List<LoanDto>) {
+        calls += "loans"
+        pushedLoans += rows
+    }
+
+    override suspend fun upsertPayments(rows: List<LoanPaymentDto>) {
+        calls += "payments"
+        pushedPayments += rows
+    }
+
+    override suspend fun loansChangedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<LoanDto> = rows.filter { sinceIso == null || it.updatedAt.orEmpty() > sinceIso }.take(limit)
+
+    override suspend fun paymentsChangedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<LoanPaymentDto> = emptyList()
 }

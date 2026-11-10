@@ -3,6 +3,7 @@ package com.agniv.hisaab.core.data.di
 import com.agniv.hisaab.core.data.auth.SupabaseAuthRepository
 import com.agniv.hisaab.core.data.family.LinkingFamilyRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.repository.RoomCategoryRepository
 import com.agniv.hisaab.core.data.repository.RoomMemberRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
@@ -14,6 +15,7 @@ import com.agniv.hisaab.core.domain.repository.AuthRepository
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
+import com.agniv.hisaab.core.domain.repository.LoanRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.util.IdGenerator
@@ -27,8 +29,11 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("TooManyFunctions") // one @Binds per repository; splitting the list only hides it
 internal abstract class DataModule {
     @Binds abstract fun expenseRepository(impl: OfflineFirstExpenseRepository): ExpenseRepository
+
+    @Binds abstract fun loanRepository(impl: OfflineFirstLoanRepository): LoanRepository
 
     @Binds abstract fun categoryRepository(impl: RoomCategoryRepository): CategoryRepository
 

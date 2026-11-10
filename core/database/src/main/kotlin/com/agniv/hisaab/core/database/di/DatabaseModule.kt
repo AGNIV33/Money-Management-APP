@@ -6,6 +6,7 @@ import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.dao.CategoryDao
 import com.agniv.hisaab.core.database.dao.ExpenseDao
 import com.agniv.hisaab.core.database.dao.FamilyDao
+import com.agniv.hisaab.core.database.dao.LoanDao
 import com.agniv.hisaab.core.database.dao.MemberDao
 import com.agniv.hisaab.core.database.dao.SyncQueueDao
 import dagger.Module
@@ -33,4 +34,6 @@ object DatabaseModule {
     @Provides fun memberDao(db: HisaabDatabase): MemberDao = db.memberDao()
 
     @Provides fun syncQueueDao(db: HisaabDatabase): SyncQueueDao = db.syncQueueDao()
+
+    @Provides fun loanDao(db: HisaabDatabase): LoanDao = db.loanDao()
 }

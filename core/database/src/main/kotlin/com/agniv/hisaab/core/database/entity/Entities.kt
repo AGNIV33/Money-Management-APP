@@ -89,3 +89,44 @@ data class SyncQueueEntity(
     val attempts: Int = 0,
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )
+
+@Entity(
+    tableName = "loans",
+    indices = [Index("family_id")],
+)
+data class LoanEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    val type: String,
+    val lender: String,
+    @ColumnInfo(name = "principal_paise") val principalPaise: Long,
+    @ColumnInfo(name = "annual_rate_bps") val annualRateBps: Int,
+    @ColumnInfo(name = "tenure_months") val tenureMonths: Int,
+    @ColumnInfo(name = "emi_paise") val emiPaise: Long,
+    /** Epoch day of instalment 1. */
+    @ColumnInfo(name = "first_emi_date") val firstEmiDate: Long,
+    @ColumnInfo(name = "due_day") val dueDay: Int,
+    /** Epoch day the loan was entered in the app. */
+    @ColumnInfo(name = "added_on") val addedOn: Long,
+    val visibility: String,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)
+
+@Entity(
+    tableName = "loan_payments",
+    indices = [Index("loan_id"), Index("family_id")],
+)
+data class LoanPaymentEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "loan_id") val loanId: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    /** First day of the month the EMI was due in, as epoch day. */
+    val month: Long,
+    @ColumnInfo(name = "amount_paise") val amountPaise: Long,
+    @ColumnInfo(name = "paid_on") val paidOn: Long,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)

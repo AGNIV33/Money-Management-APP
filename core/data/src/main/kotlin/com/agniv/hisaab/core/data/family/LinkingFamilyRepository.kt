@@ -6,6 +6,7 @@ import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.toDto
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
 import com.agniv.hisaab.core.data.sync.BudgetChange
 import com.agniv.hisaab.core.data.sync.SyncRequester
@@ -21,6 +22,8 @@ import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.FamilyApi
 import com.agniv.hisaab.core.network.dto.FamilyDto
+import com.agniv.hisaab.core.network.dto.LoanDto
+import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.RestException
@@ -143,26 +146,50 @@ class LinkingFamilyRepository
                     oldMemberId = local.memberId,
                     newMemberId = me.id,
                 )
+                db.loanDao().reassign(local.familyId, family.id, me.userId)
+                db.loanDao().reassignPayments(local.familyId, family.id, me.userId)
                 if (local.familyId != family.id) {
                     db.memberDao().deleteForFamily(local.familyId)
                     db.familyDao().delete(local.familyId)
                 }
                 // Old queue entries carry the phone-only owner id; queue everything again with the real one.
-                db.syncQueueDao().clear()
-                db.expenseDao().allForFamily(family.id).forEach { row ->
-                    db.syncQueueDao().insert(
-                        SyncQueueEntity(
-                            tableName = OfflineFirstExpenseRepository.TABLE_EXPENSES,
-                            rowId = row.id,
-                            op = OfflineFirstExpenseRepository.OP_UPSERT,
-                            payloadJson = json.encodeToString(row.toDto()),
-                            createdAt = now,
-                        ),
-                    )
-                }
+                requeueAll(family.id, now)
             }
             sessions.replace(Session(userId = me.userId, familyId = family.id, memberId = me.id))
             sync.requestSync()
+        }
+
+        /** Must run inside the adopt transaction. */
+        private suspend fun requeueAll(
+            familyId: String,
+            now: Long,
+        ) {
+            val queue = db.syncQueueDao()
+            queue.clear()
+
+            suspend fun add(
+                table: String,
+                rowId: String,
+                payload: String,
+            ) = queue.insert(
+                SyncQueueEntity(
+                    tableName = table,
+                    rowId = rowId,
+                    op = OfflineFirstExpenseRepository.OP_UPSERT,
+                    payloadJson = payload,
+                    createdAt = now,
+                ),
+            )
+            db.expenseDao().allForFamily(familyId).forEach {
+                add(OfflineFirstExpenseRepository.TABLE_EXPENSES, it.id, json.encodeToString(it.toDto()))
+            }
+            // Loans before payments, the order the server needs.
+            db.loanDao().allForFamily(familyId).forEach {
+                add(OfflineFirstLoanRepository.TABLE_LOANS, it.id, json.encodeToString(LoanDto.serializer(), it.toDto()))
+            }
+            db.loanDao().allPaymentsForFamily(familyId).forEach {
+                add(OfflineFirstLoanRepository.TABLE_LOAN_PAYMENTS, it.id, json.encodeToString(LoanPaymentDto.serializer(), it.toDto()))
+            }
         }
 
         private fun requireUser(): String = api.currentUserId() ?: throw FamilyError.NotSignedIn

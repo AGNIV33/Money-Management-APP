@@ -1,15 +1,19 @@
 package com.agniv.hisaab.core.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.agniv.hisaab.core.database.dao.CategoryDao
 import com.agniv.hisaab.core.database.dao.ExpenseDao
 import com.agniv.hisaab.core.database.dao.FamilyDao
+import com.agniv.hisaab.core.database.dao.LoanDao
 import com.agniv.hisaab.core.database.dao.MemberDao
 import com.agniv.hisaab.core.database.dao.SyncQueueDao
 import com.agniv.hisaab.core.database.entity.CategoryEntity
 import com.agniv.hisaab.core.database.entity.ExpenseEntity
 import com.agniv.hisaab.core.database.entity.FamilyEntity
+import com.agniv.hisaab.core.database.entity.LoanEntity
+import com.agniv.hisaab.core.database.entity.LoanPaymentEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
 import com.agniv.hisaab.core.database.entity.SyncQueueEntity
 
@@ -20,9 +24,13 @@ import com.agniv.hisaab.core.database.entity.SyncQueueEntity
         CategoryEntity::class,
         ExpenseEntity::class,
         SyncQueueEntity::class,
+        LoanEntity::class,
+        LoanPaymentEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    // v2 only adds the loan tables, so Room can migrate on its own (no data loss on update).
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
 )
 abstract class HisaabDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
@@ -34,6 +42,8 @@ abstract class HisaabDatabase : RoomDatabase() {
     abstract fun memberDao(): MemberDao
 
     abstract fun syncQueueDao(): SyncQueueDao
+
+    abstract fun loanDao(): LoanDao
 
     companion object {
         const val NAME = "hisaab.db"

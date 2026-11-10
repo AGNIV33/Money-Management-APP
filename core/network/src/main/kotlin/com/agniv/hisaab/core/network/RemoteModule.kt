@@ -9,4 +9,6 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 internal abstract class RemoteModule {
     @Binds abstract fun expenseRemote(impl: SupabaseExpenseRemote): ExpenseRemote
+
+    @Binds abstract fun loanRemote(impl: SupabaseLoanRemote): LoanRemote
 }
