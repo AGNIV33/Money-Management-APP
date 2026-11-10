@@ -18,6 +18,11 @@ class AppSettings(
         get() = prefs.getString(KEY_LANGUAGE, null)
         set(value) = prefs.edit().putString(KEY_LANGUAGE, value).apply()
 
+    /** Emoji picked as the profile picture; null = show the first letter of the name. Stays on this phone. */
+    var avatar: String?
+        get() = prefs.getString(KEY_AVATAR, null)
+        set(value) = prefs.edit().putString(KEY_AVATAR, value).apply()
+
     /** Optional app lock (fingerprint or phone PIN). */
     var appLock: Boolean
         get() = prefs.getBoolean(KEY_APP_LOCK, false)
@@ -40,5 +45,6 @@ class AppSettings(
         const val KEY_LANGUAGE = "language"
         const val KEY_ONBOARDING = "onboarding_done"
         const val KEY_APP_LOCK = "app_lock"
+        const val KEY_AVATAR = "avatar"
     }
 }

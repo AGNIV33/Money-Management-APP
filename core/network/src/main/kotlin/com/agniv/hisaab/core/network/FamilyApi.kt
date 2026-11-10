@@ -11,6 +11,8 @@ import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import javax.inject.Inject
 
 /** Thin wrapper over the family tables and RPCs in supabase/migrations/001_init.sql. */
@@ -50,6 +52,25 @@ class FamilyApi
                 .from("members")
                 .select { filter { eq("family_id", familyId) } }
                 .decodeList()
+
+        /**
+         * Changes one member row. Allowed by RLS: your own name, or anything for an admin. Only the fields that are
+         * not null are sent. The database refuses to remove or demote the last admin.
+         */
+        suspend fun updateMember(
+            memberId: String,
+            name: String? = null,
+            role: String? = null,
+            deleted: Boolean? = null,
+        ) {
+            val change =
+                buildJsonObject {
+                    name?.let { put("name", it) }
+                    role?.let { put("role", it) }
+                    deleted?.let { put("deleted", it) }
+                }
+            supabase.from("members").update(change) { filter { eq("id", memberId) } }
+        }
 
         suspend fun createFamily(
             familyId: String,

@@ -97,6 +97,15 @@ class LocalSessionRepository
             return created
         }
 
+        /** Forgets the account on this phone and starts a fresh phone-only family (used by sign out). */
+        suspend fun resetLocal(
+            familyName: String,
+            memberName: String,
+        ): Session {
+            withContext(dispatchers.io) { context.sessionStore.edit { it.clear() } }
+            return ensureLocalSession(familyName, memberName)
+        }
+
         /** Points the app at a different family/member, e.g. after linking to a signed-in account. */
         suspend fun replace(session: Session) {
             context.sessionStore.edit {

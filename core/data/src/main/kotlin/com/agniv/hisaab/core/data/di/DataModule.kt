@@ -1,5 +1,6 @@
 package com.agniv.hisaab.core.data.di
 
+import com.agniv.hisaab.core.data.account.DefaultAccountRepository
 import com.agniv.hisaab.core.data.auth.SupabaseAuthRepository
 import com.agniv.hisaab.core.data.family.LinkingFamilyRepository
 import com.agniv.hisaab.core.data.report.RemoteAiReportRepository
@@ -15,6 +16,7 @@ import com.agniv.hisaab.core.data.sync.DataStoreSyncState
 import com.agniv.hisaab.core.data.sync.SyncRequester
 import com.agniv.hisaab.core.data.sync.SyncScheduler
 import com.agniv.hisaab.core.data.sync.SyncStateStore
+import com.agniv.hisaab.core.domain.repository.AccountRepository
 import com.agniv.hisaab.core.domain.repository.AiReportRepository
 import com.agniv.hisaab.core.domain.repository.AuthRepository
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
@@ -44,6 +46,8 @@ internal abstract class DataModule {
     @Binds abstract fun loanRepository(impl: OfflineFirstLoanRepository): LoanRepository
 
     @Binds abstract fun recurringRepository(impl: OfflineFirstRecurringRepository): RecurringRepository
+
+    @Binds abstract fun accountRepository(impl: DefaultAccountRepository): AccountRepository
 
     @Binds abstract fun aiReportRepository(impl: RemoteAiReportRepository): AiReportRepository
 

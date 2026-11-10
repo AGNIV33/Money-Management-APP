@@ -6,17 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -28,14 +27,14 @@ import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.auth.OnboardingScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
-import com.agniv.hisaab.feature.family.info.FamilySheet
+import com.agniv.hisaab.feature.family.profile.ProfileButton
+import com.agniv.hisaab.feature.family.profile.ProfileSheet
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
 import com.agniv.hisaab.feature.goals.GoalsScreen
 import com.agniv.hisaab.feature.loans.LoansScreen
 import com.agniv.hisaab.feature.tools.ToolsScreen
 import com.agniv.hisaab.feature.udhaar.UdhaarScreen
 import dagger.hilt.android.AndroidEntryPoint
-import com.agniv.hisaab.feature.family.R as FamilyR
 import com.agniv.hisaab.feature.goals.R as GoalsR
 import com.agniv.hisaab.feature.loans.R as LoansR
 import com.agniv.hisaab.feature.tools.R as ToolsR
@@ -86,8 +85,8 @@ class MainActivity : FragmentActivity() {
     @Composable
     private fun AppRoot() {
         val screen by viewModel.screen.collectAsStateWithLifecycle()
-        var showFamily by rememberSaveable { mutableStateOf(false) }
-        var showSettings by rememberSaveable { mutableStateOf(false) }
+        var showProfile by rememberSaveable { mutableStateOf(false) }
+        var avatar by remember { mutableStateOf(settings.avatar) }
         when (screen) {
             RootScreen.SPLASH -> Unit
             RootScreen.ONBOARDING ->
@@ -104,17 +103,28 @@ class MainActivity : FragmentActivity() {
             RootScreen.LOGIN -> LoginScreen()
             RootScreen.FAMILY_SETUP -> FamilySetupScreen()
             RootScreen.HOME -> {
-                HomeTabs(onFamily = { showFamily = true }, onSettings = { showSettings = true })
-                if (showFamily) FamilySheet(onDismiss = { showFamily = false })
-                if (showSettings) {
-                    SettingsSheet(
-                        settings = settings,
-                        lock = lock,
-                        onLanguage = {
-                            settings.language = it
-                            recreate()
+                HomeTabs(avatar = avatar, onProfile = { showProfile = true })
+                if (showProfile) {
+                    ProfileSheet(
+                        avatar = avatar,
+                        onAvatar = {
+                            settings.avatar = it
+                            avatar = it
                         },
-                        onDismiss = { showSettings = false },
+                        localFamilyName = getString(R.string.local_family_name),
+                        localMemberName = getString(R.string.local_member_name),
+                        onSignedOut = { showProfile = false },
+                        onDismiss = { showProfile = false },
+                        settingsContent = {
+                            SettingsSection(
+                                settings = settings,
+                                lock = lock,
+                                onLanguage = {
+                                    settings.language = it
+                                    recreate()
+                                },
+                            )
+                        },
                     )
                 }
             }
@@ -125,8 +135,8 @@ class MainActivity : FragmentActivity() {
 /** Home with the bottom tab bar. Inner screens have their own Scaffolds; this one only adds the bar. */
 @Composable
 private fun HomeTabs(
-    onFamily: () -> Unit,
-    onSettings: () -> Unit,
+    avatar: String?,
+    onProfile: () -> Unit,
 ) {
     var tab by rememberSaveable { mutableStateOf(HomeTab.HOME) }
     Scaffold(
@@ -150,12 +160,7 @@ private fun HomeTabs(
                     ExpensesHomeScreen(
                         title = stringResource(R.string.app_name),
                         headerAction = {
-                            Row {
-                                TextButton(onClick = onSettings) { Text("⚙️") }
-                                TextButton(onClick = onFamily) {
-                                    Text("👪 " + stringResource(FamilyR.string.family_button))
-                                }
-                            }
+                            ProfileButton(avatar = avatar, onClick = onProfile)
                         },
                     )
                 HomeTab.LOANS -> LoansScreen()

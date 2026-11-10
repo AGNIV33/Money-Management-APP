@@ -29,4 +29,27 @@
     <string name="family_you">" (you)"</string>
     <string name="family_admin">Admin</string>
     <string name="family_button">Family</string>
+    <string name="cancel">Cancel</string>
+    <string name="profile_open">Open profile</string>
+    <string name="profile_edit_name">Change name</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_picture">Your picture</string>
+    <string name="profile_use_initial">Use my initial</string>
+    <string name="profile_make_admin">Make admin</string>
+    <string name="profile_make_member">Make member</string>
+    <string name="profile_remove">Remove from family</string>
+    <string name="profile_remove_title">Remove %1$s?</string>
+    <string name="profile_remove_text">They will no longer see the family\'s entries. What they added stays with the family.</string>
+    <string name="profile_sign_out">Sign out</string>
+    <string name="profile_sign_out_title">Sign out of Kinly?</string>
+    <string name="profile_sign_out_text">Your entries are safe in your family account. This phone\'s copy is cleared, and you get everything back when you sign in again.</string>
+    <string name="profile_pending_title">Some entries are not uploaded</string>
+    <string name="profile_pending_text">%1$d changes are only on this phone. Connect to the internet and try again, or sign out now and lose them.</string>
+    <string name="profile_sign_out_anyway">Sign out and lose them</string>
+    <string name="profile_stay">Stay signed in</string>
+    <string name="profile_err_network">This needs internet. Please try again when you are online.</string>
+    <string name="profile_err_not_allowed">Only an admin can do this.</string>
+    <string name="profile_err_last_admin">A family needs at least one admin. Make someone else admin first.</string>
+    <string name="profile_err_name">Enter a name (up to 40 letters).</string>
+    <string name="profile_err_failed">Something went wrong. Please try again.</string>
 </resources>

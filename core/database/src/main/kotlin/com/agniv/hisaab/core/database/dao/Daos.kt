@@ -109,6 +109,9 @@ interface MemberDao {
     @Upsert
     suspend fun upsert(member: MemberEntity)
 
+    @Query("SELECT * FROM members WHERE id = :id")
+    suspend fun get(id: String): MemberEntity?
+
     @Upsert
     suspend fun upsertAll(members: List<MemberEntity>)
 

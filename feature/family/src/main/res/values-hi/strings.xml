@@ -29,4 +29,27 @@
     <string name="family_you">" (आप)"</string>
     <string name="family_admin">एडमिन</string>
     <string name="family_button">परिवार</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="profile_open">प्रोफ़ाइल खोलें</string>
+    <string name="profile_edit_name">नाम बदलें</string>
+    <string name="profile_save">सेव करें</string>
+    <string name="profile_picture">आपकी तस्वीर</string>
+    <string name="profile_use_initial">मेरा पहला अक्षर</string>
+    <string name="profile_make_admin">एडमिन बनाएँ</string>
+    <string name="profile_make_member">सदस्य बनाएँ</string>
+    <string name="profile_remove">परिवार से हटाएँ</string>
+    <string name="profile_remove_title">%1$s को हटाएँ?</string>
+    <string name="profile_remove_text">वे परिवार की एंट्री नहीं देख पाएँगे। उनकी जोड़ी हुई एंट्री परिवार के पास रहेंगी।</string>
+    <string name="profile_sign_out">साइन आउट</string>
+    <string name="profile_sign_out_title">Kinly से साइन आउट करें?</string>
+    <string name="profile_sign_out_text">आपकी एंट्री परिवार के खाते में सुरक्षित हैं। इस फ़ोन की कॉपी साफ़ हो जाएगी, और दोबारा साइन इन करने पर सब वापस मिल जाएगा।</string>
+    <string name="profile_pending_title">कुछ एंट्री अपलोड नहीं हुईं</string>
+    <string name="profile_pending_text">%1$d बदलाव सिर्फ़ इसी फ़ोन पर हैं। इंटरनेट से जुड़कर फिर कोशिश करें, या अभी साइन आउट करके उन्हें खो दें।</string>
+    <string name="profile_sign_out_anyway">साइन आउट करें, उन्हें खो दें</string>
+    <string name="profile_stay">साइन इन रहें</string>
+    <string name="profile_err_network">इसके लिए इंटरनेट चाहिए। इंटरनेट होने पर फिर कोशिश करें।</string>
+    <string name="profile_err_not_allowed">यह सिर्फ़ एडमिन कर सकता है।</string>
+    <string name="profile_err_last_admin">परिवार में कम से कम एक एडमिन ज़रूरी है। पहले किसी और को एडमिन बनाएँ।</string>
+    <string name="profile_err_name">नाम लिखें (40 अक्षर तक)।</string>
+    <string name="profile_err_failed">कुछ गड़बड़ हो गई। फिर कोशिश करें।</string>
 </resources>
