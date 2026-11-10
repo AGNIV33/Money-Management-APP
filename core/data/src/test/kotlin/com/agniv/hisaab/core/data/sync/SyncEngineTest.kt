@@ -6,11 +6,14 @@ import com.agniv.hisaab.core.common.dispatcher.DispatcherProvider
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Loan
 import com.agniv.hisaab.core.domain.model.LoanType
 import com.agniv.hisaab.core.domain.model.PayMode
+import com.agniv.hisaab.core.domain.model.RecurRule
+import com.agniv.hisaab.core.domain.model.Recurring
 import com.agniv.hisaab.core.domain.model.Session
 import com.agniv.hisaab.core.domain.model.Source
 import com.agniv.hisaab.core.domain.model.Visibility
@@ -19,11 +22,13 @@ import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.ExpenseRemote
 import com.agniv.hisaab.core.network.LoanRemote
+import com.agniv.hisaab.core.network.RecurringRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
 import com.agniv.hisaab.core.network.dto.FamilyDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
+import com.agniv.hisaab.core.network.dto.RecurringDto
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -68,9 +73,10 @@ class SyncEngineTest {
         }
     private val server = FakeRemote(userId = "u1")
     private val loanServer = FakeLoanRemote()
+    private val recurringServer = FakeRecurringRemote()
     private val state = MemoryState()
     private val repo = OfflineFirstExpenseRepository(db, dispatchers, time) {}
-    private val engine = SyncEngine(db, server, loanServer, sessions, state, dispatchers)
+    private val engine = SyncEngine(db, server, loanServer, recurringServer, sessions, state, dispatchers)
 
     @After fun close() = db.close()
 
@@ -252,9 +258,60 @@ class SyncEngineTest {
         }
 
     @Test
+    fun `repeating expenses sync both ways and private ones stay private`() =
+        runTest {
+            val recurring = OfflineFirstRecurringRepository(db, dispatchers, time) {}
+            val mine =
+                Recurring(
+                    "r1",
+                    "f1",
+                    "u1",
+                    "m1",
+                    Money.ofRupees(12_000),
+                    "c1",
+                    PayMode.UPI,
+                    "Rent",
+                    Visibility.FAMILY,
+                    RecurRule.MONTHLY,
+                    LocalDate.of(2026, 11, 5),
+                    LocalDate.of(2026, 11, 5),
+                    time.now(),
+                )
+            recurring.upsert(mine).getOrThrow()
+            recurring.upsert(mine.copy(amount = Money.ofRupees(13_000))).getOrThrow() // edited offline: one upload
+            recurring.upsert(mine.copy(id = "r2", visibility = Visibility.PRIVATE)).getOrThrow()
+            recurringServer.rows +=
+                RecurringDto(
+                    "r3",
+                    "f1",
+                    "u2",
+                    "m2",
+                    50_000,
+                    "c1",
+                    "CASH",
+                    "Maid",
+                    "FAMILY",
+                    "DAILY",
+                    "2026-11-01",
+                    "2026-11-09",
+                    false,
+                    "2026-11-09T12:00:00+00:00",
+                )
+
+            engine.sync().getOrThrow()
+
+            assertThat(recurringServer.pushed.map { it.id }).containsExactly("r1", "r2")
+            assertThat(recurringServer.pushed.first { it.id == "r1" }.amountPaise).isEqualTo(1_300_000)
+            assertThat(db.recurringDao().get("r3")?.note).isEqualTo("Maid")
+            assertThat(db.syncQueueDao().peek(10)).isEmpty()
+            // u2 sees the shared ones but not u1's private one.
+            assertThat(recurring.observe("f1", "u2").first().map { it.id }).containsExactly("r1", "r3")
+        }
+
+    @Test
     fun `nothing syncs while the family is still phone-only`() =
         runTest {
-            val notLinked = SyncEngine(db, FakeRemote(userId = "someone-else"), loanServer, sessions, state, dispatchers)
+            val notLinked = SyncEngine(db, FakeRemote(userId = "someone-else"), loanServer, recurringServer, sessions, state, dispatchers)
             repo.upsert(expense("e1")).getOrThrow()
             notLinked.sync().getOrThrow()
             assertThat(db.syncQueueDao().peek(10)).hasSize(1)
@@ -339,4 +396,19 @@ private class FakeLoanRemote : LoanRemote {
         sinceIso: String?,
         limit: Int,
     ): List<LoanPaymentDto> = emptyList()
+}
+
+private class FakeRecurringRemote : RecurringRemote {
+    val pushed = mutableListOf<RecurringDto>()
+    val rows = mutableListOf<RecurringDto>()
+
+    override suspend fun upsert(rows: List<RecurringDto>) {
+        pushed += rows
+    }
+
+    override suspend fun changedSince(
+        familyId: String,
+        sinceIso: String?,
+        limit: Int,
+    ): List<RecurringDto> = rows.filter { sinceIso == null || it.updatedAt.orEmpty() > sinceIso }.take(limit)
 }

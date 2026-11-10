@@ -4,6 +4,7 @@ import com.agniv.hisaab.core.data.auth.SupabaseAuthRepository
 import com.agniv.hisaab.core.data.family.LinkingFamilyRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.repository.RoomCategoryRepository
 import com.agniv.hisaab.core.data.repository.RoomMemberRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
@@ -17,6 +18,7 @@ import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.LoanRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
+import com.agniv.hisaab.core.domain.repository.RecurringRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.util.IdGenerator
 import com.agniv.hisaab.core.domain.util.SystemTimeProvider
@@ -34,6 +36,8 @@ internal abstract class DataModule {
     @Binds abstract fun expenseRepository(impl: OfflineFirstExpenseRepository): ExpenseRepository
 
     @Binds abstract fun loanRepository(impl: OfflineFirstLoanRepository): LoanRepository
+
+    @Binds abstract fun recurringRepository(impl: OfflineFirstRecurringRepository): RecurringRepository
 
     @Binds abstract fun categoryRepository(impl: RoomCategoryRepository): CategoryRepository
 

@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.agniv.hisaab.core.data.budget.BudgetAlertMonitor
 import com.agniv.hisaab.core.data.loan.EmiReminderScheduler
+import com.agniv.hisaab.core.data.recurring.RecurringScheduler
 import com.agniv.hisaab.core.data.sync.SyncScheduler
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +25,8 @@ class HisaabApplication :
 
     @Inject lateinit var emiReminders: EmiReminderScheduler
 
+    @Inject lateinit var recurring: RecurringScheduler
+
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override val workManagerConfiguration: Configuration
@@ -37,5 +40,7 @@ class HisaabApplication :
         budgetAlerts.start(appScope)
         // EMI reminders 3 days / 1 day before and on the due day; also works when the app is closed.
         emiReminders.start()
+        // Rent, maid, milk and other repeating expenses are made on their day, even with the app closed.
+        recurring.start()
     }
 }

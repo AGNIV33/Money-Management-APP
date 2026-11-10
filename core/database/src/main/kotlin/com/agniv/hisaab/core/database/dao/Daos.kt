@@ -9,6 +9,7 @@ import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.LoanEntity
 import com.agniv.hisaab.core.database.entity.LoanPaymentEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
+import com.agniv.hisaab.core.database.entity.RecurringEntity
 import com.agniv.hisaab.core.database.entity.SyncQueueEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -195,5 +196,55 @@ interface LoanDao {
         oldFamilyId: String,
         newFamilyId: String,
         newOwner: String,
+    )
+}
+
+@Dao
+interface RecurringDao {
+    /** PRIVATE rows only for their owner (CLAUDE.md rule 7), same as Supabase RLS. */
+    @Query(
+        """
+        SELECT * FROM recurring
+        WHERE family_id = :familyId AND deleted = 0
+          AND (visibility = 'FAMILY' OR owner_user = :viewerUserId)
+        ORDER BY start_date
+        """,
+    )
+    fun observeVisible(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<RecurringEntity>>
+
+    @Query("SELECT * FROM recurring WHERE family_id = :familyId AND owner_user = :userId AND deleted = 0")
+    suspend fun owned(
+        familyId: String,
+        userId: String,
+    ): List<RecurringEntity>
+
+    @Query("SELECT * FROM recurring WHERE id = :id")
+    suspend fun get(id: String): RecurringEntity?
+
+    @Upsert
+    suspend fun upsert(row: RecurringEntity)
+
+    @Query("SELECT * FROM recurring WHERE family_id = :familyId")
+    suspend fun allForFamily(familyId: String): List<RecurringEntity>
+
+    /** Moves phone-only rows into a real family when the user signs in (see AccountLinker). */
+    @Query(
+        """
+        UPDATE recurring SET
+          family_id = :newFamilyId,
+          owner_user = :newOwner,
+          paid_by = CASE WHEN paid_by = :oldMemberId THEN :newMemberId ELSE paid_by END
+        WHERE family_id = :oldFamilyId
+        """,
+    )
+    suspend fun reassign(
+        oldFamilyId: String,
+        newFamilyId: String,
+        newOwner: String,
+        oldMemberId: String,
+        newMemberId: String,
     )
 }

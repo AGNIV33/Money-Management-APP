@@ -7,6 +7,7 @@ import com.agniv.hisaab.core.data.mapper.toEntity
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository.Companion.TABLE_EXPENSES
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository.Companion.TABLE_LOANS
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository.Companion.TABLE_LOAN_PAYMENTS
+import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository.Companion.TABLE_RECURRING
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.FamilyEntity
 import com.agniv.hisaab.core.database.entity.MemberEntity
@@ -15,9 +16,11 @@ import com.agniv.hisaab.core.domain.model.Session
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.network.ExpenseRemote
 import com.agniv.hisaab.core.network.LoanRemote
+import com.agniv.hisaab.core.network.RecurringRemote
 import com.agniv.hisaab.core.network.dto.ExpenseDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
+import com.agniv.hisaab.core.network.dto.RecurringDto
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -59,6 +62,7 @@ class SyncEngine
         private val db: HisaabDatabase,
         private val remote: ExpenseRemote,
         private val loanRemote: LoanRemote,
+        private val recurringRemote: RecurringRemote,
         private val sessions: SessionRepository,
         private val state: SyncStateStore,
         private val dispatchers: DispatcherProvider,
@@ -79,6 +83,7 @@ class SyncEngine
                         resultOf {
                             pull(session)
                             pullLoans(session)
+                            pullRecurring(session)
                             pullMembers(session)
                             pullFamily(session)
                         }
@@ -109,6 +114,7 @@ class SyncEngine
                     // Loans before payments: a payment row points at its loan on the server.
                     batch.latest(TABLE_LOANS, LoanDto.serializer())?.let { loanRemote.upsertLoans(it) }
                     batch.latest(TABLE_LOAN_PAYMENTS, LoanPaymentDto.serializer())?.let { loanRemote.upsertPayments(it) }
+                    batch.latest(TABLE_RECURRING, RecurringDto.serializer())?.let { recurringRemote.upsert(it) }
                 }.onFailure { batch.forEach { queue.markAttempt(it.id) } }
                     .getOrThrow()
                 batch.forEach { queue.remove(it.id) }
@@ -156,6 +162,16 @@ class SyncEngine
                 stamp = { it.updatedAt },
             ) { row, time ->
                 if (!db.syncQueueDao().hasPending(TABLE_LOAN_PAYMENTS, row.id)) db.loanDao().upsertPayment(row.toEntity(time))
+            }
+        }
+
+        private suspend fun pullRecurring(session: Session) {
+            pullTable(
+                key = session.familyId + RECURRING_KEY,
+                fetch = { since -> recurringRemote.changedSince(session.familyId, since, PULL_PAGE) },
+                stamp = { it.updatedAt },
+            ) { row, time ->
+                if (!db.syncQueueDao().hasPending(TABLE_RECURRING, row.id)) db.recurringDao().upsert(row.toEntity(time))
             }
         }
 
@@ -211,5 +227,6 @@ class SyncEngine
             // Loans keep their own pull clock next to the expenses one (same store, keyed per family).
             private const val LOANS_KEY = ":loans"
             private const val PAYMENTS_KEY = ":loan_payments"
+            private const val RECURRING_KEY = ":recurring"
         }
     }

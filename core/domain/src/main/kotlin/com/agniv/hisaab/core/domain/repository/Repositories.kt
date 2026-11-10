@@ -5,6 +5,7 @@ import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Loan
 import com.agniv.hisaab.core.domain.model.LoanPayment
 import com.agniv.hisaab.core.domain.model.Member
+import com.agniv.hisaab.core.domain.model.Recurring
 import com.agniv.hisaab.core.domain.model.Session
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -63,4 +64,23 @@ interface LoanRepository {
 
     /** Marks (or with deleted = true, un-marks) one month's EMI as paid. */
     suspend fun savePayment(payment: LoanPayment): Result<Unit>
+}
+
+interface RecurringRepository {
+    /** Non-deleted repeating expenses [viewerUserId] may see (PRIVATE only for the owner). */
+    fun observe(
+        familyId: String,
+        viewerUserId: String,
+    ): Flow<List<Recurring>>
+
+    /** The viewer's own, for making expenses: only the owner's phone does that. */
+    suspend fun getOwned(
+        familyId: String,
+        userId: String,
+    ): List<Recurring>
+
+    suspend fun upsert(recurring: Recurring): Result<Unit>
+
+    /** Soft delete: stops future expenses; the ones already made stay. */
+    suspend fun delete(id: String): Result<Unit>
 }

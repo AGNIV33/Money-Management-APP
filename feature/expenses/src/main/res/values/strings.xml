@@ -61,4 +61,17 @@
     <string name="delete_expense">Delete expense</string>
     <string name="delete_expense_title">Delete this expense?</string>
     <string name="delete_expense_text">It will be removed for everyone in the family.</string>
+    <string name="repeat_title">Repeat</string>
+    <string name="repeat_never">One time</string>
+    <string name="repeat_daily">Every day</string>
+    <string name="repeat_weekly">Every week</string>
+    <string name="repeat_monthly">Every month</string>
+    <string name="repeating_button">Repeating</string>
+    <string name="repeating_title">Repeating expenses</string>
+    <string name="repeating_empty">Nothing repeats yet. When you add an expense, choose Every day, week or month.</string>
+    <string name="repeating_untitled">Repeating expense</string>
+    <string name="repeating_next">next %1$s</string>
+    <string name="repeating_delete">Stop</string>
+    <string name="repeating_delete_title">Stop this repeating expense?</string>
+    <string name="repeating_delete_text">No new expenses will be added. The ones already added stay; delete them from the list if they were a mistake.</string>
 </resources>

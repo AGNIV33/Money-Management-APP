@@ -130,3 +130,25 @@ data class LoanPaymentEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     val deleted: Boolean = false,
 )
+
+@Entity(
+    tableName = "recurring",
+    indices = [Index("family_id")],
+)
+data class RecurringEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "family_id") val familyId: String,
+    @ColumnInfo(name = "owner_user") val ownerUser: String,
+    @ColumnInfo(name = "paid_by") val paidBy: String,
+    @ColumnInfo(name = "amount_paise") val amountPaise: Long,
+    @ColumnInfo(name = "category_id") val categoryId: String,
+    val mode: String,
+    val note: String?,
+    val visibility: String,
+    val rule: String,
+    /** Epoch days. */
+    @ColumnInfo(name = "start_date") val startDate: Long,
+    @ColumnInfo(name = "last_generated") val lastGenerated: Long,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val deleted: Boolean = false,
+)

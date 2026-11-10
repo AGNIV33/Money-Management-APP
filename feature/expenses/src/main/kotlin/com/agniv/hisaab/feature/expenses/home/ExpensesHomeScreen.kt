@@ -32,6 +32,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,6 +63,7 @@ import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.add.AddExpenseSheet
 import com.agniv.hisaab.feature.expenses.add.labelRes
+import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
 import kotlinx.coroutines.launch
@@ -78,6 +80,7 @@ fun ExpensesHomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     // null = closed, "" = adding, otherwise the id being edited.
     var sheetFor by rememberSaveable { mutableStateOf<String?>(null) }
+    var showRepeating by rememberSaveable { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     // Android 13+ needs the user's OK before budget alerts can show; asked right after a budget is set.
@@ -120,6 +123,7 @@ fun ExpensesHomeScreen(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f),
                     )
+                    TextButton(onClick = { showRepeating = true }) { Text("🔁 " + stringResource(R.string.repeating_button)) }
                     headerAction()
                 }
             }
@@ -167,6 +171,7 @@ fun ExpensesHomeScreen(
         }
     }
 
+    if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
     sheetFor?.let { id -> AddExpenseSheet(onDismiss = { sheetFor = null }, editId = id.ifEmpty { null }) }
 }
 

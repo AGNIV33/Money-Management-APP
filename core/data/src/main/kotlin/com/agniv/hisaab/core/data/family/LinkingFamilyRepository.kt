@@ -7,6 +7,7 @@ import com.agniv.hisaab.core.common.result.resultOf
 import com.agniv.hisaab.core.data.mapper.toDto
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
+import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
 import com.agniv.hisaab.core.data.sync.BudgetChange
 import com.agniv.hisaab.core.data.sync.SyncRequester
@@ -25,6 +26,7 @@ import com.agniv.hisaab.core.network.dto.FamilyDto
 import com.agniv.hisaab.core.network.dto.LoanDto
 import com.agniv.hisaab.core.network.dto.LoanPaymentDto
 import com.agniv.hisaab.core.network.dto.MemberDto
+import com.agniv.hisaab.core.network.dto.RecurringDto
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.RestException
 import kotlinx.coroutines.flow.Flow
@@ -146,6 +148,7 @@ class LinkingFamilyRepository
                     oldMemberId = local.memberId,
                     newMemberId = me.id,
                 )
+                db.recurringDao().reassign(local.familyId, family.id, me.userId, local.memberId, me.id)
                 db.loanDao().reassign(local.familyId, family.id, me.userId)
                 db.loanDao().reassignPayments(local.familyId, family.id, me.userId)
                 if (local.familyId != family.id) {
@@ -186,6 +189,9 @@ class LinkingFamilyRepository
             // Loans before payments, the order the server needs.
             db.loanDao().allForFamily(familyId).forEach {
                 add(OfflineFirstLoanRepository.TABLE_LOANS, it.id, json.encodeToString(LoanDto.serializer(), it.toDto()))
+            }
+            db.recurringDao().allForFamily(familyId).forEach {
+                add(OfflineFirstRecurringRepository.TABLE_RECURRING, it.id, json.encodeToString(RecurringDto.serializer(), it.toDto()))
             }
             db.loanDao().allPaymentsForFamily(familyId).forEach {
                 add(OfflineFirstLoanRepository.TABLE_LOAN_PAYMENTS, it.id, json.encodeToString(LoanPaymentDto.serializer(), it.toDto()))

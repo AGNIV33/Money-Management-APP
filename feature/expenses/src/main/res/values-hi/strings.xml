@@ -61,4 +61,17 @@
     <string name="delete_expense">खर्च हटाएँ</string>
     <string name="delete_expense_title">यह खर्च हटाएँ?</string>
     <string name="delete_expense_text">यह परिवार में सबके लिए हट जाएगा।</string>
+    <string name="repeat_title">दोहराएँ</string>
+    <string name="repeat_never">एक बार</string>
+    <string name="repeat_daily">रोज़</string>
+    <string name="repeat_weekly">हर हफ़्ते</string>
+    <string name="repeat_monthly">हर महीने</string>
+    <string name="repeating_button">दोहराव</string>
+    <string name="repeating_title">दोहराए जाने वाले खर्च</string>
+    <string name="repeating_empty">अभी कुछ नहीं दोहराता। खर्च जोड़ते समय रोज़, हर हफ़्ते या हर महीने चुनें।</string>
+    <string name="repeating_untitled">दोहराया जाने वाला खर्च</string>
+    <string name="repeating_next">अगला %1$s</string>
+    <string name="repeating_delete">बंद करें</string>
+    <string name="repeating_delete_title">यह दोहराव बंद करें?</string>
+    <string name="repeating_delete_text">नए खर्च नहीं जुड़ेंगे। जो जुड़ चुके हैं वे रहेंगे; गलती हो तो सूची से हटाएँ।</string>
 </resources>

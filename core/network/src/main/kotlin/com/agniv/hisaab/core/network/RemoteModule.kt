@@ -11,4 +11,6 @@ internal abstract class RemoteModule {
     @Binds abstract fun expenseRemote(impl: SupabaseExpenseRemote): ExpenseRemote
 
     @Binds abstract fun loanRemote(impl: SupabaseLoanRemote): LoanRemote
+
+    @Binds abstract fun recurringRemote(impl: SupabaseRecurringRemote): RecurringRemote
 }

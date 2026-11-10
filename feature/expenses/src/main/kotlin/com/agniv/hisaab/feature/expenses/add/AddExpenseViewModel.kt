@@ -7,6 +7,7 @@ import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.designsystem.component.PadKey
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.PayMode
+import com.agniv.hisaab.core.domain.model.RecurRule
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
@@ -16,6 +17,8 @@ import com.agniv.hisaab.core.domain.usecase.AddExpense
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
 import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ExpenseError
+import com.agniv.hisaab.core.domain.usecase.RecurringDraft
+import com.agniv.hisaab.core.domain.usecase.SaveRecurring
 import com.agniv.hisaab.core.domain.usecase.UpdateExpense
 import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
@@ -53,6 +56,8 @@ data class AddExpenseUiState(
     val error: AddError? = null,
     /** Editing an expense the viewer may delete (creator or family admin). */
     val canDelete: Boolean = false,
+    /** Null = one time. Only offered for a new expense. */
+    val repeat: RecurRule? = null,
 ) {
     val amount: Money? get() = Money.parse(amountText)
 }
@@ -85,6 +90,10 @@ sealed interface AddExpenseEvent {
     data object Save : AddExpenseEvent
 
     data object Delete : AddExpenseEvent
+
+    data class PickRepeat(
+        val rule: RecurRule?,
+    ) : AddExpenseEvent
 }
 
 @HiltViewModel
@@ -98,6 +107,7 @@ class AddExpenseViewModel
         private val expenses: ExpenseRepository,
         private val members: MemberRepository,
         private val deleteExpense: DeleteExpense,
+        private val saveRecurring: SaveRecurring,
         private val time: TimeProvider,
     ) : ViewModel() {
         private val _state = MutableStateFlow(AddExpenseUiState(date = time.today(), today = time.today()))
@@ -167,6 +177,7 @@ class AddExpenseViewModel
                 is AddExpenseEvent.SetOnlyMe -> _state.update { it.copy(onlyMe = event.onlyMe) }
                 AddExpenseEvent.Save -> save()
                 AddExpenseEvent.Delete -> delete()
+                is AddExpenseEvent.PickRepeat -> _state.update { it.copy(repeat = event.rule) }
             }
         }
 
@@ -204,8 +215,13 @@ class AddExpenseViewModel
                         val result =
                             current.editingId?.let { updateExpense(it, draft) } ?: addExpense(session, draft)
                         result
-                            .onSuccess { saved.send(Unit) }
-                            .onFailure { e ->
+                            .onSuccess {
+                                // The expense just saved is the first one; the repeat carries on from the next date.
+                                if (current.editingId == null && current.repeat != null) {
+                                    saveRecurring(session, draft.toRecurring(current.repeat))
+                                }
+                                saved.send(Unit)
+                            }.onFailure { e ->
                                 val error = if (e == ExpenseError.NoteTooLong) AddError.NOTE else AddError.SAVE_FAILED
                                 _state.update { it.copy(saving = false, error = error) }
                             }
@@ -214,6 +230,9 @@ class AddExpenseViewModel
             }
         }
     }
+
+private fun ExpenseDraft.toRecurring(rule: RecurRule) =
+    RecurringDraft(amount, categoryId, mode, note, visibility, rule, date)
 
 /** 12550 paise -> "125.5", 12500 -> "125": what the keypad would have produced. */
 internal fun Money.toInputText(): String {

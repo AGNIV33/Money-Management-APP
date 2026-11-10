@@ -42,6 +42,7 @@ import com.agniv.hisaab.core.designsystem.component.HNumberPad
 import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.PayMode
+import com.agniv.hisaab.core.domain.model.RecurRule
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
@@ -132,6 +133,19 @@ internal fun AddExpenseContent(
                     onClick = { onEvent(AddExpenseEvent.PickMode(mode)) },
                     label = { Text(stringResource(mode.labelRes())) },
                 )
+            }
+        }
+
+        if (state.editingId == null) {
+            Text(stringResource(R.string.repeat_title), style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                listOf(null, RecurRule.DAILY, RecurRule.WEEKLY, RecurRule.MONTHLY).forEach { rule ->
+                    FilterChip(
+                        selected = state.repeat == rule,
+                        onClick = { onEvent(AddExpenseEvent.PickRepeat(rule)) },
+                        label = { Text(stringResource(rule.labelRes())) },
+                    )
+                }
             }
         }
 
@@ -257,4 +271,12 @@ internal fun PayMode.labelRes(): Int =
         PayMode.UPI -> R.string.mode_upi
         PayMode.CARD -> R.string.mode_card
         PayMode.OTHER -> R.string.mode_other
+    }
+
+internal fun RecurRule?.labelRes(): Int =
+    when (this) {
+        null -> R.string.repeat_never
+        RecurRule.DAILY -> R.string.repeat_daily
+        RecurRule.WEEKLY -> R.string.repeat_weekly
+        RecurRule.MONTHLY -> R.string.repeat_monthly
     }
