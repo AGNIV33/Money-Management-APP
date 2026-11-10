@@ -67,6 +67,7 @@ import com.agniv.hisaab.feature.expenses.add.ExpensePrefill
 import com.agniv.hisaab.feature.expenses.add.labelRes
 import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
 import com.agniv.hisaab.feature.expenses.scan.ScanBillSheet
+import com.agniv.hisaab.feature.expenses.statement.StatementImportSheet
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
 import com.agniv.hisaab.feature.expenses.voice.VoiceAddSheet
@@ -91,6 +92,7 @@ fun ExpensesHomeScreen(
     var showRepeating by rememberSaveable { mutableStateOf(false) }
     var showVoice by rememberSaveable { mutableStateOf(false) }
     var showScan by rememberSaveable { mutableStateOf(false) }
+    var showStatement by rememberSaveable { mutableStateOf(false) }
     // Set when the user picks Edit after speaking; opens the add sheet with the spoken values filled in.
     var voicePrefill by remember { mutableStateOf<ExpensePrefill?>(null) }
     val snackbar = remember { SnackbarHostState() }
@@ -100,6 +102,8 @@ fun ExpensesHomeScreen(
     val deletedText = stringResource(R.string.deleted)
     val voiceLabel = stringResource(R.string.voice_title)
     val scanLabel = stringResource(R.string.scan_title)
+    val statementLabel = stringResource(R.string.stmt_title)
+    val repeatingLabel = stringResource(R.string.repeating_title)
     val undoText = stringResource(R.string.undo)
 
     val onDelete: (Expense) -> Unit = { expense ->
@@ -145,7 +149,12 @@ fun ExpensesHomeScreen(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f),
                     )
-                    TextButton(onClick = { showRepeating = true }) { Text("🔁 " + stringResource(R.string.repeating_button)) }
+                    TextButton(onClick = { showStatement = true }) {
+                        Text("🧾", modifier = Modifier.semantics { contentDescription = statementLabel })
+                    }
+                    TextButton(onClick = { showRepeating = true }) {
+                        Text("🔁", modifier = Modifier.semantics { contentDescription = repeatingLabel })
+                    }
                     headerAction()
                 }
             }
@@ -194,6 +203,7 @@ fun ExpensesHomeScreen(
     }
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
+    if (showStatement) StatementImportSheet(onDismiss = { showStatement = false })
     if (showScan) {
         ScanBillSheet(
             onDismiss = { showScan = false },

@@ -100,4 +100,22 @@
     <string name="scan_hint">पूरे बिल की साफ़ फ़ोटो लें। यह इसी फ़ोन पर पढ़ा जाता है; तस्वीर कहीं नहीं भेजी जाती।</string>
     <string name="scan_reading">बिल पढ़ रहा हूँ…</string>
     <string name="scan_err_no_text">कोई लिखावट नहीं पढ़ पाया। बिल की साफ़, रोशनी वाली फ़ोटो लें।</string>
+    <string name="stmt_title">पासबुक या स्टेटमेंट जोड़ें</string>
+    <string name="stmt_hint">अपनी बैंक पासबुक या स्टेटमेंट की फ़ोटो या PDF डालें। Kinly दिखाएगा कि कौन से भुगतान पहले से जुड़े हैं और कौन से छूटे हैं, और आप चुनेंगे कि क्या जोड़ना है। यह इसी फ़ोन पर पढ़ा जाता है, कुछ अपलोड नहीं होता।</string>
+    <string name="stmt_pictures">तस्वीरें</string>
+    <string name="stmt_pdf">PDF चुनें</string>
+    <string name="stmt_reading">स्टेटमेंट पढ़ रहा हूँ…</string>
+    <string name="stmt_summary">%1$d पहले से जुड़े • %2$d जोड़ने हैं • %3$d पक्का नहीं</string>
+    <string name="stmt_to_add">जोड़ने हैं</string>
+    <string name="stmt_already">Kinly में पहले से हैं</string>
+    <string name="stmt_payment">भुगतान</string>
+    <string name="stmt_emi_mark">%1$s EMI: भरी हुई मार्क करें</string>
+    <string name="stmt_unsure">आपके जोड़े खर्च जैसा है, पर तारीख अलग है</string>
+    <string name="stmt_pick_category">कैटेगरी चुनें</string>
+    <string name="stmt_again">फिर से शुरू करें</string>
+    <string name="stmt_add_selected">चुने हुए %1$d जोड़ें</string>
+    <string name="stmt_done">हो गया। %1$d जुड़े।</string>
+    <string name="stmt_err_no_rows">कोई भुगतान नहीं मिला। साफ़ फ़ोटो या बैंक का PDF आज़माएँ।</string>
+    <string name="stmt_err_locked">इस PDF पर पासवर्ड है। इसे खोलकर पासवर्ड हटाएँ, या फ़ोटो इस्तेमाल करें।</string>
+    <string name="stmt_err_read">पढ़ नहीं पाया। फिर कोशिश करें।</string>
 </resources>

@@ -30,6 +30,15 @@ internal object TextScanner {
         uri: Uri,
     ): String {
         val bitmap = withContext(Dispatchers.IO) { loadScaled(context, uri) } ?: return ""
+        return try {
+            read(bitmap)
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    /** Reads one bitmap. The caller still owns it and recycles it. */
+    suspend fun read(bitmap: Bitmap): String {
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         return try {
             suspendCancellableCoroutine { cont ->
@@ -40,7 +49,6 @@ internal object TextScanner {
             }
         } finally {
             recognizer.close()
-            bitmap.recycle()
         }
     }
 

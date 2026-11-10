@@ -100,4 +100,22 @@
     <string name="scan_hint">Take a clear photo of the whole bill. It is read on this phone; the picture is not sent anywhere.</string>
     <string name="scan_reading">Reading the bill…</string>
     <string name="scan_err_no_text">I could not read any text. Try a clearer, well-lit photo of the bill.</string>
+    <string name="stmt_title">Import passbook or statement</string>
+    <string name="stmt_hint">Upload a photo or PDF of your bank passbook or statement. Kinly shows which payments are already added and which are missing, and you choose what to add. It is read on this phone and nothing is uploaded.</string>
+    <string name="stmt_pictures">Pictures</string>
+    <string name="stmt_pdf">Choose a PDF</string>
+    <string name="stmt_reading">Reading the statement…</string>
+    <string name="stmt_summary">%1$d already added • %2$d to add • %3$d not sure</string>
+    <string name="stmt_to_add">To add</string>
+    <string name="stmt_already">Already in Kinly</string>
+    <string name="stmt_payment">Payment</string>
+    <string name="stmt_emi_mark">%1$s EMI: tick it as paid</string>
+    <string name="stmt_unsure">Looks like one you added, but the date is different</string>
+    <string name="stmt_pick_category">Choose category</string>
+    <string name="stmt_again">Start again</string>
+    <string name="stmt_add_selected">Add %1$d selected</string>
+    <string name="stmt_done">Done. %1$d added.</string>
+    <string name="stmt_err_no_rows">I could not find any payments. Try a clearer photo, or the PDF from your bank.</string>
+    <string name="stmt_err_locked">This PDF has a password. Open it, remove the password, or use photos instead.</string>
+    <string name="stmt_err_read">Could not read it. Please try again.</string>
 </resources>
