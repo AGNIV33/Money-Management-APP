@@ -8,4 +8,10 @@
     <string name="budget_over_title">बजट पार हो गया</string>
     <string name="budget_over_text">आपने %1$s खर्च किए, जो %2$s के मासिक बजट से ज़्यादा है।</string>
     <string name="tab_home">होम</string>
+    <string name="emi_channel">EMI रिमाइंडर</string>
+    <string name="emi_soon_title">कुछ दिनों में EMI देनी है</string>
+    <string name="emi_tomorrow_title">कल EMI देनी है</string>
+    <string name="emi_today_title">आज EMI देनी है</string>
+    <string name="emi_text">%1$s: %3$s को %2$s</string>
+    <string name="emi_mark_paid">भर दी</string>
 </resources>

@@ -51,13 +51,19 @@ import java.time.ZoneOffset
 fun AddLoanSheet(
     onDismiss: () -> Unit,
     editId: String? = null,
+    onSaved: () -> Unit = {},
     /** Different for each opening, so a new sheet never shows the last one's typing. */
     instanceKey: String = editId.orEmpty(),
     viewModel: AddLoanViewModel = hiltViewModel(key = "add-loan-$instanceKey"),
 ) {
     LaunchedEffect(editId) { viewModel.start(editId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(viewModel) { viewModel.savedEvents.collect { onDismiss() } }
+    LaunchedEffect(viewModel) {
+        viewModel.savedEvents.collect {
+            onSaved()
+            onDismiss()
+        }
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),

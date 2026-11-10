@@ -1,6 +1,10 @@
 package com.agniv.hisaab.feature.loans
 
+import android.Manifest
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,7 +60,20 @@ fun LoansScreen(viewModel: LoansViewModel = hiltViewModel()) {
         LoansList(state, onOpen = { openId = it }, onAdd = { openSheet("") })
     }
 
-    sheetFor?.let { id -> AddLoanSheet(onDismiss = { sheetFor = null }, editId = id.ifEmpty { null }, instanceKey = "$sheetCount") }
+    // Android 13+ needs the user's OK before EMI reminders can show; asked right after a loan is saved.
+    val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    sheetFor?.let { id ->
+        AddLoanSheet(
+            onDismiss = { sheetFor = null },
+            editId = id.ifEmpty { null },
+            instanceKey = "$sheetCount",
+            onSaved = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            },
+        )
+    }
 }
 
 @Composable

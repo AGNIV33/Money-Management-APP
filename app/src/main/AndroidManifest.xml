@@ -28,6 +28,11 @@
             </intent-filter>
         </activity>
 
+        <!-- "Mark paid" button on EMI reminders. Not exported: only our own PendingIntent can reach it. -->
+        <receiver
+            android:name=".EmiPaidReceiver"
+            android:exported="false" />
+
         <!-- WorkManager is started by HisaabApplication (Hilt worker factory), not by the default initializer. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
