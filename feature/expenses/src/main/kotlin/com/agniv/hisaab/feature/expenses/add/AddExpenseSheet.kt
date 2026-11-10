@@ -55,9 +55,10 @@ import java.time.ZoneOffset
 fun AddExpenseSheet(
     onDismiss: () -> Unit,
     editId: String? = null,
+    prefill: ExpensePrefill? = null,
     viewModel: AddExpenseViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(editId) { viewModel.start(editId) }
+    LaunchedEffect(editId) { viewModel.start(editId, prefill) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel) { viewModel.savedEvents.collect { onDismiss() } }
     ModalBottomSheet(

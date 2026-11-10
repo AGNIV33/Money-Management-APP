@@ -96,6 +96,15 @@ sealed interface AddExpenseEvent {
     ) : AddExpenseEvent
 }
 
+/** Values a screen (voice) already worked out; the sheet opens with them filled in, ready to check. */
+data class ExpensePrefill(
+    val amountText: String,
+    val categoryId: String?,
+    val date: LocalDate,
+    val note: String,
+    val mode: PayMode?,
+)
+
 @HiltViewModel
 class AddExpenseViewModel
     @Inject
@@ -136,10 +145,24 @@ class AddExpenseViewModel
          * Call each time the sheet opens. The ViewModel outlives one sheet, so this clears the last entry
          * but keeps the last payment mode (DESIGN.md §7.4: "remembers last").
          */
-        fun start(editId: String?) {
+        fun start(
+            editId: String?,
+            prefill: ExpensePrefill? = null,
+        ) {
             val today = time.today()
             _state.update {
                 AddExpenseUiState(categories = it.categories, date = today, today = today, mode = it.mode)
+            }
+            if (prefill != null) {
+                _state.update {
+                    it.copy(
+                        amountText = prefill.amountText,
+                        categoryId = prefill.categoryId,
+                        date = prefill.date,
+                        note = prefill.note,
+                        mode = prefill.mode ?: it.mode,
+                    )
+                }
             }
             if (editId == null) return
             viewModelScope.launch {

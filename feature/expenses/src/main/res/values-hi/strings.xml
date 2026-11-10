@@ -74,4 +74,20 @@
     <string name="repeating_delete">बंद करें</string>
     <string name="repeating_delete_title">यह दोहराव बंद करें?</string>
     <string name="repeating_delete_text">नए खर्च नहीं जुड़ेंगे। जो जुड़ चुके हैं वे रहेंगे; गलती हो तो सूची से हटाएँ।</string>
+    <string name="voice_title">बोलकर खर्च जोड़ें</string>
+    <string name="voice_hint">माइक दबाएँ और बोलें, जैसे "आज 200 का दूध"</string>
+    <string name="voice_listening">सुन रहा हूँ…</string>
+    <string name="voice_heard">आपने कहा: %1$s</string>
+    <string name="voice_type_label">या यहाँ लिखें</string>
+    <string name="voice_read">पढ़ें</string>
+    <string name="voice_save">सेव करें</string>
+    <string name="voice_edit">बदलें</string>
+    <string name="voice_check">सेव करने से पहले जाँच लें।</string>
+    <string name="voice_err_no_speech">कुछ सुनाई नहीं दिया। माइक दबाकर फिर कोशिश करें।</string>
+    <string name="voice_err_network">इस फ़ोन पर बोलने के लिए इंटरनेट चाहिए। आप वाक्य लिख भी सकते हैं।</string>
+    <string name="voice_err_busy">माइक अभी व्यस्त है। थोड़ी देर में फिर कोशिश करें।</string>
+    <string name="voice_err_other">सुन नहीं पाया। आप वाक्य लिख सकते हैं।</string>
+    <string name="voice_err_unavailable">इस फ़ोन पर बोलकर लिखना उपलब्ध नहीं है। वाक्य लिखें।</string>
+    <string name="voice_err_permission">सुनने के लिए Kinly को माइक चाहिए। आप वाक्य लिख सकते हैं।</string>
+    <string name="voice_err_no_amount">रकम नहीं मिली। फिर बोलें, जैसे "आज 200 का दूध"।</string>
 </resources>

@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -62,10 +63,12 @@ import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.add.AddExpenseSheet
+import com.agniv.hisaab.feature.expenses.add.ExpensePrefill
 import com.agniv.hisaab.feature.expenses.add.labelRes
 import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
+import com.agniv.hisaab.feature.expenses.voice.VoiceAddSheet
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -81,11 +84,15 @@ fun ExpensesHomeScreen(
     // null = closed, "" = adding, otherwise the id being edited.
     var sheetFor by rememberSaveable { mutableStateOf<String?>(null) }
     var showRepeating by rememberSaveable { mutableStateOf(false) }
+    var showVoice by rememberSaveable { mutableStateOf(false) }
+    // Set when the user picks Edit after speaking; opens the add sheet with the spoken values filled in.
+    var voicePrefill by remember { mutableStateOf<ExpensePrefill?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     // Android 13+ needs the user's OK before budget alerts can show; asked right after a budget is set.
     val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
     val deletedText = stringResource(R.string.deleted)
+    val voiceLabel = stringResource(R.string.voice_title)
     val undoText = stringResource(R.string.undo)
 
     val onDelete: (Expense) -> Unit = { expense ->
@@ -100,11 +107,16 @@ fun ExpensesHomeScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { sheetFor = "" },
-                text = { Text(stringResource(R.string.add_expense_fab)) },
-                icon = { Text("+", style = MaterialTheme.typography.headlineSmall) },
-            )
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                SmallFloatingActionButton(onClick = { showVoice = true }) {
+                    Text("🎤", modifier = Modifier.semantics { contentDescription = voiceLabel })
+                }
+                ExtendedFloatingActionButton(
+                    onClick = { sheetFor = "" },
+                    text = { Text(stringResource(R.string.add_expense_fab)) },
+                    icon = { Text("+", style = MaterialTheme.typography.headlineSmall) },
+                )
+            }
         },
     ) { padding ->
         LazyColumn(
@@ -172,7 +184,26 @@ fun ExpensesHomeScreen(
     }
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
-    sheetFor?.let { id -> AddExpenseSheet(onDismiss = { sheetFor = null }, editId = id.ifEmpty { null }) }
+    if (showVoice) {
+        VoiceAddSheet(
+            onDismiss = { showVoice = false },
+            onEdit = {
+                voicePrefill = it
+                showVoice = false
+                sheetFor = ""
+            },
+        )
+    }
+    sheetFor?.let { id ->
+        AddExpenseSheet(
+            onDismiss = {
+                sheetFor = null
+                voicePrefill = null
+            },
+            editId = id.ifEmpty { null },
+            prefill = voicePrefill,
+        )
+    }
 }
 
 private fun LazyListScope.nextEmiItem(

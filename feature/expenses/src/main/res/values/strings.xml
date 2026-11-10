@@ -74,4 +74,20 @@
     <string name="repeating_delete">Stop</string>
     <string name="repeating_delete_title">Stop this repeating expense?</string>
     <string name="repeating_delete_text">No new expenses will be added. The ones already added stay; delete them from the list if they were a mistake.</string>
+    <string name="voice_title">Speak an expense</string>
+    <string name="voice_hint">Tap the mic and say, for example, "aaj 200 ka doodh"</string>
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_heard">You said: %1$s</string>
+    <string name="voice_type_label">Or type it here</string>
+    <string name="voice_read">Read</string>
+    <string name="voice_save">Save</string>
+    <string name="voice_edit">Edit</string>
+    <string name="voice_check">Please check before saving.</string>
+    <string name="voice_err_no_speech">I did not hear anything. Tap the mic and try again.</string>
+    <string name="voice_err_network">Voice needs internet on this phone. You can type the sentence instead.</string>
+    <string name="voice_err_busy">The microphone is busy. Try again in a moment.</string>
+    <string name="voice_err_other">Could not listen. You can type the sentence instead.</string>
+    <string name="voice_err_unavailable">Voice typing is not available on this phone. Type the sentence instead.</string>
+    <string name="voice_err_permission">Kinly needs the microphone to listen. You can type the sentence instead.</string>
+    <string name="voice_err_no_amount">I could not find an amount. Say it again, like "aaj 200 ka doodh".</string>
 </resources>

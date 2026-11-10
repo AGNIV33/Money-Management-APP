@@ -66,6 +66,7 @@ A family expense app for Indian homes. Every family member adds spending, EMIs a
 | F18 | AI Monthly Report Card | Once a month, cloud AI turns stats into 3–5 simple saving tips (in user's language). |
 | F19 | Saving goals | Goal name, target, date, progress jar. |
 | F20 | Recurring expenses | Rent, maid, milk, internet — auto-add monthly/daily. |
+| F22 | Udhaar (who owes whom) | Track money others owe the family ("you will get") and money the family owes, e.g. fish or groceries bought on credit ("you will give"): person/shop, amount, date, note, part payments, settled, optional due-date reminder, Family or Only me. "Bought on credit" in Add expense creates the entry. (Asked by Agniv 2026-11-10.) |
 | F21 | Passbook / statement import | Upload a bank passbook or statement as a photo or PDF. The app reads each line (date, amount, description), matches it against expenses and EMI payments already in Kinly, shows "already added" vs "missing", and lets the user review and add the missing ones. Never auto-saves. Account numbers are masked on the phone before anything leaves it. (Asked by Agniv 2026-11-10.) |
 
 ### P2 — Nice to have (later)
