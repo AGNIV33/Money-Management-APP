@@ -18,6 +18,11 @@ class AppSettings(
         get() = prefs.getString(KEY_LANGUAGE, null)
         set(value) = prefs.edit().putString(KEY_LANGUAGE, value).apply()
 
+    /** Optional app lock (fingerprint or phone PIN). */
+    var appLock: Boolean
+        get() = prefs.getBoolean(KEY_APP_LOCK, false)
+        set(value) = prefs.edit().putBoolean(KEY_APP_LOCK, value).apply()
+
     var onboardingDone: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDING, false)
         set(value) = prefs.edit().putBoolean(KEY_ONBOARDING, value).apply()
@@ -34,5 +39,6 @@ class AppSettings(
         const val NAME = "device_settings"
         const val KEY_LANGUAGE = "language"
         const val KEY_ONBOARDING = "onboarding_done"
+        const val KEY_APP_LOCK = "app_lock"
     }
 }

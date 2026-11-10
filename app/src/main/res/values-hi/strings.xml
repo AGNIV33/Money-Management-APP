@@ -19,4 +19,13 @@
     <string name="udhaar_due_today_title">आज उधार की तारीख है</string>
     <string name="udhaar_pay_text">%1$s को %2$s देने हैं</string>
     <string name="udhaar_collect_text">%1$s से %2$s लेने हैं</string>
+    <string name="lock_prompt_title">Kinly खोलें</string>
+    <string name="lock_prompt_subtitle">फ़िंगरप्रिंट, चेहरा या फ़ोन का PIN इस्तेमाल करें</string>
+    <string name="lock_title">Kinly लॉक है</string>
+    <string name="lock_unlock">खोलें</string>
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_lock">ऐप लॉक</string>
+    <string name="settings_lock_hint">Kinly खोलते समय फ़िंगरप्रिंट, चेहरा या फ़ोन का PIN माँगे</string>
+    <string name="settings_lock_missing">पहले फ़ोन की सेटिंग में स्क्रीन लॉक (PIN, पैटर्न या फ़िंगरप्रिंट) लगाएँ।</string>
+    <string name="settings_language">भाषा</string>
 </resources>

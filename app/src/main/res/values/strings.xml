@@ -20,4 +20,13 @@
     <string name="udhaar_due_today_title">Udhaar due today</string>
     <string name="udhaar_pay_text">Pay %2$s to %1$s</string>
     <string name="udhaar_collect_text">%1$s owes you %2$s</string>
+    <string name="lock_prompt_title">Unlock Kinly</string>
+    <string name="lock_prompt_subtitle">Use your fingerprint, face or phone PIN</string>
+    <string name="lock_title">Kinly is locked</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_lock">App lock</string>
+    <string name="settings_lock_hint">Ask for fingerprint, face or phone PIN when opening Kinly</string>
+    <string name="settings_lock_missing">Set a screen lock (PIN, pattern or fingerprint) in your phone settings first.</string>
+    <string name="settings_language">Language</string>
 </resources>
