@@ -272,7 +272,7 @@ class SyncEngine
             val now = System.currentTimeMillis()
             val members =
                 remote.members(session.familyId).map {
-                    MemberEntity(it.id, it.familyId, it.userId, it.name, it.role, now, it.deleted)
+                    MemberEntity(it.id, it.familyId, it.userId.orEmpty(), it.name, it.role, now, it.deleted)
                 }
             if (members.isNotEmpty()) db.memberDao().upsertAll(members)
         }

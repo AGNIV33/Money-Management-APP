@@ -105,7 +105,7 @@ fun ProfileButton(
 
 /**
  * Profile (IMPLEMENTATION_PLAN 4.10): who you are, your picture, the app's settings (passed in by the app), your
- * family with invite code and members, and sign out.
+ * family with invite code and members, export / delete account (5.6), and sign out.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,6 +115,7 @@ fun ProfileSheet(
     localFamilyName: String,
     localMemberName: String,
     onSignedOut: () -> Unit,
+    onAccountDeleted: () -> Unit,
     onDismiss: () -> Unit,
     settingsContent: @Composable () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(key = "profile-sheet"),
@@ -140,6 +141,12 @@ fun ProfileSheet(
             settingsContent()
             HorizontalDivider()
             FamilySection(state, viewModel)
+            HorizontalDivider()
+            PrivacySection(
+                busy = state.busy,
+                message = state.message,
+                onDelete = { viewModel.deleteAccount(localFamilyName, localMemberName, onAccountDeleted) },
+            )
             HorizontalDivider()
             OutlinedButton(onClick = { confirmSignOut = true }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.profile_sign_out))
@@ -246,6 +253,8 @@ private fun MessageLine(message: ProfileMessage?) {
             ProfileMessage.LAST_ADMIN -> R.string.profile_err_last_admin
             ProfileMessage.BAD_NAME -> R.string.profile_err_name
             ProfileMessage.FAILED -> R.string.profile_err_failed
+            // Shown next to the Delete account button instead (PrivacySection).
+            ProfileMessage.DELETE_OFFLINE, ProfileMessage.DELETE_LAST_ADMIN, ProfileMessage.DELETE_FAILED -> return
         }
     Text(stringResource(res), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
 }

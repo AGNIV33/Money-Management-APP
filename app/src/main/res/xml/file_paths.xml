@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Only the scans folder in the app's private cache is shared with the camera app. -->
+<!-- Only these folders in the app's private cache can be shared: scans with the camera app, exports with the share sheet. -->
 <paths>
     <cache-path name="scans" path="scans/" />
+    <!-- Expense exports (CSV/PDF), shared through the share sheet only when the user asks. -->
+    <cache-path name="exports" path="exports/" />
 </paths>

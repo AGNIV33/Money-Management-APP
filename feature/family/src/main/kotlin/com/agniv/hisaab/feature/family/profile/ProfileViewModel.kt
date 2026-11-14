@@ -13,6 +13,7 @@ import com.agniv.hisaab.core.domain.repository.AuthState
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
+import com.agniv.hisaab.core.domain.usecase.DeleteAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class ProfileMessage { NETWORK, NOT_ALLOWED, LAST_ADMIN, BAD_NAME, FAILED }
+enum class ProfileMessage { NETWORK, NOT_ALLOWED, LAST_ADMIN, BAD_NAME, FAILED, DELETE_OFFLINE, DELETE_LAST_ADMIN, DELETE_FAILED }
 
 @Immutable
 data class ProfileUiState(
@@ -52,6 +53,7 @@ class ProfileViewModel
         members: MemberRepository,
         auth: AuthRepository,
         private val account: AccountRepository,
+        private val deleteAccount: DeleteAccount,
     ) : ViewModel() {
         private val local = MutableStateFlow(ProfileUiState())
 
@@ -114,6 +116,34 @@ class ProfileViewModel
         }
 
         fun dismissPending() = local.update { it.copy(pendingOnSignOut = null) }
+
+        /**
+         * Deletes the account on the server, then everything on this phone (5.6). On failure nothing on the phone
+         * changes and the reason is shown.
+         */
+        fun deleteAccount(
+            localFamilyName: String,
+            localMemberName: String,
+            onDone: () -> Unit,
+        ) {
+            if (local.value.busy) return
+            local.update { it.copy(busy = true, message = null) }
+            viewModelScope.launch {
+                deleteAccount(localFamilyName, localMemberName)
+                    .onSuccess {
+                        local.update { it.copy(busy = false) }
+                        onDone()
+                    }.onFailure { e ->
+                        val why =
+                            when (e) {
+                                AccountError.Network -> ProfileMessage.DELETE_OFFLINE
+                                AccountError.LastAdmin -> ProfileMessage.DELETE_LAST_ADMIN
+                                else -> ProfileMessage.DELETE_FAILED
+                            }
+                        local.update { it.copy(busy = false, message = why) }
+                    }
+            }
+        }
 
         private fun run(block: suspend () -> Result<Unit>) {
             local.update { it.copy(busy = true, message = null) }

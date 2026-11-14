@@ -100,5 +100,13 @@ class FamilyApi
                     ).data,
             )
 
+        /**
+         * Deletes this login and its data on the server (migration 013). Refused with "a family needs at least one
+         * admin" when the caller is the last admin of a family that still has other members.
+         */
+        suspend fun deleteMyAccount() {
+            supabase.postgrest.rpc("delete_my_account")
+        }
+
         private fun decode(body: String): FamilyDto = json.decodeFromString(FamilyDto.serializer(), body)
     }

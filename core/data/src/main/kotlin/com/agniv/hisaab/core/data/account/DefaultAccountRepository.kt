@@ -76,6 +76,22 @@ class DefaultAccountRepository
                 Result.success(Unit)
             }
 
+        override suspend fun hasServerAccount(): Boolean = api.currentUserId() != null
+
+        override suspend fun deleteServerAccount(): Result<Unit> = change { api.deleteMyAccount() }
+
+        override suspend fun wipeThisPhone(
+            localFamilyName: String,
+            localMemberName: String,
+        ) {
+            withContext(dispatchers.io) {
+                // The login is already gone on the server, so this only drops the token kept on the phone.
+                auth.signOut()
+                db.clearAllTables()
+                session.resetLocal(localFamilyName, localMemberName)
+            }
+        }
+
         private suspend fun change(
             block: suspend () -> Unit,
         ): Result<Unit> =

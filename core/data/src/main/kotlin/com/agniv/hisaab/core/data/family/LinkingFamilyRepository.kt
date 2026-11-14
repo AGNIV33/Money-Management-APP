@@ -139,7 +139,7 @@ class LinkingFamilyRepository
                         MemberEntity(
                             it.id,
                             it.familyId,
-                            it.userId,
+                            it.userId.orEmpty(),
                             it.name,
                             it.role,
                             now,
@@ -150,17 +150,17 @@ class LinkingFamilyRepository
                 db.expenseDao().reassign(
                     oldFamilyId = local.familyId,
                     newFamilyId = family.id,
-                    newOwner = me.userId,
+                    newOwner = me.userId.orEmpty(),
                     oldMemberId = local.memberId,
                     newMemberId = me.id,
                 )
-                db.recurringDao().reassign(local.familyId, family.id, me.userId, local.memberId, me.id)
-                db.goalDao().reassign(local.familyId, family.id, me.userId)
-                db.goalDao().reassignContributions(local.familyId, family.id, me.userId)
-                db.udhaarDao().reassign(local.familyId, family.id, me.userId)
-                db.udhaarDao().reassignPayments(local.familyId, family.id, me.userId)
-                db.loanDao().reassign(local.familyId, family.id, me.userId)
-                db.loanDao().reassignPayments(local.familyId, family.id, me.userId)
+                db.recurringDao().reassign(local.familyId, family.id, me.userId.orEmpty(), local.memberId, me.id)
+                db.goalDao().reassign(local.familyId, family.id, me.userId.orEmpty())
+                db.goalDao().reassignContributions(local.familyId, family.id, me.userId.orEmpty())
+                db.udhaarDao().reassign(local.familyId, family.id, me.userId.orEmpty())
+                db.udhaarDao().reassignPayments(local.familyId, family.id, me.userId.orEmpty())
+                db.loanDao().reassign(local.familyId, family.id, me.userId.orEmpty())
+                db.loanDao().reassignPayments(local.familyId, family.id, me.userId.orEmpty())
                 if (local.familyId != family.id) {
                     db.memberDao().deleteForFamily(local.familyId)
                     db.familyDao().delete(local.familyId)
@@ -168,7 +168,7 @@ class LinkingFamilyRepository
                 // Old queue entries carry the phone-only owner id; queue everything again with the real one.
                 requeueAll(family.id, now)
             }
-            sessions.replace(Session(userId = me.userId, familyId = family.id, memberId = me.id))
+            sessions.replace(Session(userId = me.userId.orEmpty(), familyId = family.id, memberId = me.id))
             sync.requestSync()
         }
 

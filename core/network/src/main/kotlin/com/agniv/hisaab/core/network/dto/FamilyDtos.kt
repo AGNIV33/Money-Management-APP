@@ -17,7 +17,8 @@ data class FamilyDto(
 data class MemberDto(
     val id: String,
     @SerialName("family_id") val familyId: String,
-    @SerialName("user_id") val userId: String,
+    // Null once that person deleted their account (migration 013): only "Former member" is left.
+    @SerialName("user_id") val userId: String?,
     val name: String,
     val role: String,
     @SerialName("updated_at") val updatedAt: String? = null,

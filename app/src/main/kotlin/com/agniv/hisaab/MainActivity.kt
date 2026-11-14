@@ -129,6 +129,18 @@ class MainActivity : FragmentActivity() {
                         localFamilyName = getString(R.string.local_family_name),
                         localMemberName = getString(R.string.local_member_name),
                         onSignedOut = { showProfile = false },
+                        onAccountDeleted = {
+                            // The phone's own settings tied to this person go too; language stays so the app still reads right.
+                            settings.avatar = null
+                            avatar = null
+                            settings.assistantConsent = false
+                            assistantConsent = false
+                            settings.appLock = false
+                            // Exported files and bill photos waiting in the cache are personal data too.
+                            java.io.File(cacheDir, "exports").deleteRecursively()
+                            java.io.File(cacheDir, "scans").deleteRecursively()
+                            showProfile = false
+                        },
                         onDismiss = { showProfile = false },
                         settingsContent = {
                             SettingsSection(

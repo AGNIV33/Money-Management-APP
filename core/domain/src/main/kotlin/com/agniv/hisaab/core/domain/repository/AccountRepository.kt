@@ -46,4 +46,19 @@ interface AccountRepository {
         localFamilyName: String,
         localMemberName: String,
     ): Result<Unit>
+
+    /** True when this phone is signed in to a Kinly account (not just a phone-only family). */
+    suspend fun hasServerAccount(): Boolean
+
+    /**
+     * Deletes the login and its data on the server (supabase migration 013). Needs internet. Fails with
+     * [AccountError.LastAdmin] when someone else must be made admin first.
+     */
+    suspend fun deleteServerAccount(): Result<Unit>
+
+    /** Forgets everything on this phone (entries, queue, session) and starts a fresh phone-only family. */
+    suspend fun wipeThisPhone(
+        localFamilyName: String,
+        localMemberName: String,
+    )
 }
