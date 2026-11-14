@@ -19,6 +19,8 @@ import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.ml.insight.Insight
 import com.agniv.hisaab.core.ml.insight.InsightEngine
 import com.agniv.hisaab.core.ml.insight.InsightInput
+import com.agniv.hisaab.core.ml.insight.MonthlyReport
+import com.agniv.hisaab.core.ml.insight.MonthlyReportBuilder
 import com.agniv.hisaab.core.ml.report.ReportPayloadBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,6 +54,8 @@ data class ReportUiState(
 data class InsightsUiState(
     val insights: List<Insight> = emptyList(),
     val categories: Map<String, Category> = emptyMap(),
+    /** Null until the first calculation, or when there is nothing to show. */
+    val monthly: MonthlyReport? = null,
 )
 
 /** Runs the on-device [InsightEngine] on what the viewer can see; recalculates whenever an entry changes. */
@@ -120,14 +124,16 @@ class InsightsViewModel
                         observeLoans(session),
                     ) { list, cats, family, repeating, loans ->
                         val insights = InsightEngine.compute(InsightInput(today, list, family?.monthlyBudget, loans.monthlyEmi, repeating))
-                        InsightsUiState(insights, cats.associateBy { it.id })
+                        val monthly = MonthlyReportBuilder.build(today, list, family?.monthlyBudget).takeUnless { it.isEmpty }
+                        InsightsUiState(insights, cats.associateBy { it.id }, monthly)
                     }
                 }.flowOn(dispatchers.default)
                 .map { it }
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), InsightsUiState())
 
         private companion object {
-            const val HISTORY_MONTHS = 3L
+            // Six months for the report card trend; the engine itself looks at the last three full months.
+            const val HISTORY_MONTHS = MonthlyReportBuilder.TREND_MONTHS - 1L
             const val STOP_TIMEOUT_MS = 5_000L
         }
     }

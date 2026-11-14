@@ -43,24 +43,40 @@ internal fun InsightCard(
 ) {
     Card(modifier.fillMaxWidth()) {
         Row(Modifier.padding(Spacing.l), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
-            Text("💡", style = MaterialTheme.typography.titleLarge)
+            Text(if (insight.isAlert()) "⚠️" else "💡", style = MaterialTheme.typography.titleLarge)
             Text(insightText(insight, categories), style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
 
-/** Home card: the most important insight, tap for all. Hidden when there is nothing to say. */
+/** Needs a look now (in-app alert), rather than a friendly fact. */
+internal fun Insight.isAlert(): Boolean =
+    when (this) {
+        is Insight.BudgetPace -> alreadyOver || crossesOnDay != null
+        is Insight.BigExpense, is Insight.CategoryJump -> true
+        else -> false
+    }
+
+/**
+ * Home card: the most important insight, tap for all and the month's report card.
+ * With no insight yet but some spending, a plain link to the report card instead. Hidden when there is nothing.
+ */
 @Composable
 internal fun HomeInsightCard(
     state: InsightsUiState,
     onOpen: () -> Unit,
 ) {
-    val top = state.insights.firstOrNull() ?: return
+    val top = state.insights.firstOrNull()
+    if (top == null && state.monthly == null) return
     Column(Modifier.clickable(onClick = onOpen), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        InsightCard(top, state.categories)
-        if (state.insights.size > 1) {
+        if (top != null) InsightCard(top, state.categories)
+        if (top == null || state.insights.size > 1 || state.monthly != null) {
             Text(
-                stringResource(R.string.insights_see_all, state.insights.size),
+                if (state.insights.size > 1) {
+                    stringResource(R.string.insights_see_all, state.insights.size)
+                } else {
+                    stringResource(R.string.report_card_open)
+                },
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = Spacing.s),
@@ -87,6 +103,7 @@ internal fun InsightsSheet(
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
             Text(stringResource(R.string.insights_title), style = MaterialTheme.typography.headlineSmall)
+            state.monthly?.let { MonthlyReportCard(it, state.categories) }
             state.insights.forEach { InsightCard(it, state.categories) }
             ReportSection(report, onGetTips)
             Text(
