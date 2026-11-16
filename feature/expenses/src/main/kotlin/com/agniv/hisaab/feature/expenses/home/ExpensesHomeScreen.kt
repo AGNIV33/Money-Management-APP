@@ -34,8 +34,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,12 +63,12 @@ import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.usecase.CategoryBudget
 import com.agniv.hisaab.feature.expenses.R
-import com.agniv.hisaab.feature.expenses.statement.StatementImportSheet
 import com.agniv.hisaab.feature.expenses.ui.CategoryTile
 import com.agniv.hisaab.feature.expenses.ui.iconVector
 import com.agniv.hisaab.feature.expenses.ui.label
 
 /** Where Home's buttons lead; the app owns navigation so features stay apart. */
+@Suppress("LongParameterList") // One callback per button on Home; grouping them would only hide that.
 class HomeActions(
     val onAddExpense: () -> Unit,
     val onEditExpense: (String) -> Unit,
@@ -81,6 +79,7 @@ class HomeActions(
     val onEmi: () -> Unit,
     val onUdhaar: () -> Unit,
     val onTools: () -> Unit,
+    val onImport: () -> Unit,
 )
 
 /**
@@ -96,7 +95,6 @@ fun ExpensesHomeScreen(
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var showImport by rememberSaveable { mutableStateOf(false) }
     val firstName =
         state.members.values
             .firstOrNull { it.userId == state.viewerUserId }
@@ -119,12 +117,10 @@ fun ExpensesHomeScreen(
             item(key = "spend") { SpendCard(state) }
             item(key = "budgets") { CategoryBudgetsCard(state, actions.onBudgets) }
             item(key = "insight") { insightCard() }
-            item(key = "shortcuts") { Shortcuts(actions, onImport = { showImport = true }) }
+            item(key = "shortcuts") { Shortcuts(actions, onImport = actions.onImport) }
             item(key = "recent") { RecentExpenses(state, actions.onAllExpenses, onOpen = actions.onEditExpense) }
         }
     }
-
-    if (showImport) StatementImportSheet(onDismiss = { showImport = false })
 }
 
 private const val FAB_CLEARANCE = 96

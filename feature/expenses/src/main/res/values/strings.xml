@@ -125,7 +125,7 @@
     <string name="scan_hint">Take a clear photo of the whole bill. It is read on this phone; the picture is not sent anywhere.</string>
     <string name="scan_reading">Reading the bill…</string>
     <string name="scan_err_no_text">I could not read any text. Try a clearer, well-lit photo of the bill.</string>
-    <string name="stmt_title">Import passbook or statement</string>
+    <string name="stmt_title">Import Statement</string>
     <string name="stmt_hint">Upload a photo or PDF of your bank passbook or statement. Kinly shows which payments are already added and which are missing, and you choose what to add. It is read on this phone and nothing is uploaded.</string>
     <string name="stmt_pictures">Pictures</string>
     <string name="stmt_pdf">Choose a PDF</string>
@@ -193,4 +193,33 @@
     <string name="scan_save">Save expense</string>
     <string name="scan_unreadable_title">Couldn\'t read the bill</string>
     <string name="scan_unreadable_body">The image is not clear. Please retake with good lighting.</string>
+    <string name="stmt_import_title">Import Bank Statement</string>
+    <string name="stmt_import_body">Upload your bank statement or passbook (PDF or photos) to automatically add your expenses.</string>
+    <string name="stmt_bullet_formats">Supports PDF files and photos</string>
+    <string name="stmt_bullet_detect">We\'ll read and detect transactions</string>
+    <string name="stmt_bullet_review">Review, edit and import</string>
+    <string name="stmt_choose_file">Choose file</string>
+    <string name="stmt_reading_title">Reading your file...</string>
+    <string name="stmt_reading_body">Extracting transactions from your statement.</string>
+    <string name="stmt_reading_hint">This may take a few seconds depending on file size.</string>
+    <string name="stmt_found">%1$d transactions found</string>
+    <string name="stmt_selected_dupes">%1$d selected • %2$d possible duplicates</string>
+    <string name="stmt_select_all">Select all (%1$d)</string>
+    <string name="stmt_already_count">Already in Kinly (%1$d)</string>
+    <string name="stmt_possible_duplicate">Possible duplicate</string>
+    <string name="stmt_emi_chip">EMI</string>
+    <string name="stmt_n_selected">%1$d selected</string>
+    <string name="stmt_total">Total: %1$s</string>
+    <string name="stmt_import_selected">Import selected</string>
+    <string name="stmt_nothing_title">No transactions found</string>
+    <string name="stmt_nothing_body">We couldn\'t find any expense transactions in this file. Please try another statement.</string>
+    <string name="stmt_choose_another">Choose another file</string>
+    <string name="stmt_fail_title">Couldn\'t read the file</string>
+    <string name="stmt_fail_body">We couldn\'t process this file. It may be damaged or in a format Kinly can\'t read.</string>
+    <string name="stmt_try_again">Try again</string>
+    <string name="stmt_done_button">Done</string>
+    <plurals name="stmt_pictures_count">
+        <item quantity="one">%d picture</item>
+        <item quantity="other">%d pictures</item>
+    </plurals>
 </resources>

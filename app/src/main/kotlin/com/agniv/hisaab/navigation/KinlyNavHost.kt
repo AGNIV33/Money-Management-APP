@@ -50,6 +50,7 @@ import com.agniv.hisaab.feature.expenses.add.AddExpenseScreen
 import com.agniv.hisaab.feature.expenses.home.AllExpensesScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import com.agniv.hisaab.feature.expenses.home.HomeActions
+import com.agniv.hisaab.feature.expenses.statement.StatementImportScreen
 import com.agniv.hisaab.feature.goals.GoalsScreen
 import com.agniv.hisaab.feature.insights.InsightsHomeCard
 import com.agniv.hisaab.feature.insights.InsightsScreen
@@ -72,6 +73,9 @@ data class AddExpenseRoute(
 
 @Serializable
 data object EmiRoute
+
+@Serializable
+data object ImportRoute
 
 @Serializable
 data object UdhaarRoute
@@ -156,12 +160,14 @@ fun KinlyNavHost(
                 onBack = navController::popBackStack,
                 onAdd = { navController.navigate(AddExpenseRoute()) },
                 onEdit = { navController.navigate(AddExpenseRoute(it)) },
+                onImport = { navController.navigate(ImportRoute) },
             )
         }
         composable<AddExpenseRoute> { entry ->
             AddExpenseScreen(onDone = navController::popBackStack, editId = entry.toRoute<AddExpenseRoute>().editId)
         }
         composable<EmiRoute> { LoansScreen() }
+        composable<ImportRoute> { StatementImportScreen(onBack = navController::popBackStack) }
         composable<UdhaarRoute> { UdhaarScreen() }
         composable<ToolsRoute> { ToolsScreen() }
     }
@@ -199,6 +205,7 @@ private fun Tabs(
                                 onEmi = { navController.navigate(EmiRoute) },
                                 onUdhaar = { navController.navigate(UdhaarRoute) },
                                 onTools = { navController.navigate(ToolsRoute) },
+                                onImport = { navController.navigate(ImportRoute) },
                             ),
                         insightCard = { InsightsHomeCard(onOpen = { onTab(Tab.INSIGHTS) }) },
                     )

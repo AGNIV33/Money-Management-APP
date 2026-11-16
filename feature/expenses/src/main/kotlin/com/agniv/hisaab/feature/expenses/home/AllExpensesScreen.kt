@@ -66,7 +66,6 @@ import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.add.labelRes
 import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
-import com.agniv.hisaab.feature.expenses.statement.StatementImportSheet
 import com.agniv.hisaab.feature.expenses.ui.CategoryTile
 import com.agniv.hisaab.feature.expenses.ui.emoji
 import com.agniv.hisaab.feature.expenses.ui.label
@@ -84,11 +83,11 @@ fun AllExpensesScreen(
     onBack: () -> Unit,
     onAdd: () -> Unit,
     onEdit: (String) -> Unit,
+    onImport: () -> Unit,
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showRepeating by rememberSaveable { mutableStateOf(false) }
-    var showStatement by rememberSaveable { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     // Android 13+ needs the user's OK before budget alerts can show; asked right after a budget is set.
@@ -110,7 +109,7 @@ fun AllExpensesScreen(
     Scaffold(
         topBar = {
             KinlyTopBar(title = stringResource(R.string.all_expenses_title), onBack = onBack) {
-                IconButton(onClick = { showStatement = true }) {
+                IconButton(onClick = onImport) {
                     Icon(Icons.Outlined.UploadFile, contentDescription = statementLabel)
                 }
                 IconButton(onClick = { showRepeating = true }) {
@@ -183,7 +182,6 @@ fun AllExpensesScreen(
     }
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
-    if (showStatement) StatementImportSheet(onDismiss = { showStatement = false })
 }
 
 private fun LazyListScope.nextEmiItem(

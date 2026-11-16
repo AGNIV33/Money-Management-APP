@@ -3,6 +3,8 @@ package com.agniv.hisaab.feature.expenses.statement
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Session
@@ -60,6 +62,15 @@ data class StatementUiState(
     val addedCount: Int = 0,
 ) {
     val selectedCount: Int get() = rows.count { it.selected && it.actionable }
+    val actionableCount: Int get() = rows.count { it.actionable }
+    val selectedTotal: Money get() = rows.filter { it.selected && it.actionable }.map { it.matched.line.amount }.sum()
+
+    /** "3 / 5" pages read, as 0..1 for the progress bar; null while there is no page count (photos). */
+    val progressFraction: Float?
+        get() =
+            progress?.split('/')?.mapNotNull { it.trim().toIntOrNull() }?.takeIf { it.size == 2 && it[1] > 0 }?.let {
+                it[0].toFloat() / it[1]
+            }
 }
 
 /**
@@ -172,6 +183,8 @@ class StatementImportViewModel
                         },
                 )
             }
+
+        fun selectAll(on: Boolean) = _state.update { s -> s.copy(rows = s.rows.map { if (it.actionable) it.copy(selected = on) else it }) }
 
         fun setCategory(
             key: Int,
