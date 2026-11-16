@@ -1,5 +1,6 @@
 package com.agniv.hisaab.feature.expenses.insights
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,9 +18,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
@@ -39,11 +47,13 @@ import kotlin.math.abs
 private val BarHeight = 8.dp
 private val TrendHeight = 72.dp
 private val BarShape = RoundedCornerShape(4.dp)
-private const val UNFINISHED_ALPHA = 0.5f
+private val LineWidth = 2.dp
+private val DotRadius = 4.dp
+private const val DASH = 10f
 
 /**
- * DESIGN.md 7.10 Monthly Report Card. Bars are plain boxes, not a chart library: nothing to add to the APK
- * and cheap to draw on a 2 GB phone.
+ * DESIGN.md 7.10 Monthly Report Card. Bars are plain boxes and the trend a plain Canvas line, not a chart
+ * library: nothing to add to the APK and cheap to draw on a 2 GB phone.
  */
 @Composable
 internal fun MonthlyReportCard(
@@ -165,29 +175,70 @@ private fun Bar(
     }
 }
 
-/** Six month totals as small columns; this month is lighter because it is not finished yet. */
+/**
+ * Six month totals as a line (plain Canvas, no chart library). Each point sits over its month label.
+ * The step into this month is dashed and its dot hollow, because this month is not finished yet.
+ * TalkBack reads every month with its total instead of the drawing.
+ */
 @Composable
 private fun Trend(trend: List<MonthTotal>) {
+    if (trend.isEmpty()) return
     val locale = LocalConfiguration.current.locales[0]
     val fmt = DateTimeFormatter.ofPattern("MMM", locale)
-    val max = trend.maxOfOrNull { it.total.paise }?.coerceAtLeast(1) ?: 1
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-        trend.forEachIndexed { i, m ->
-            val primary = MaterialTheme.colorScheme.primary
-            val barColor = if (i == trend.lastIndex) primary.copy(alpha = UNFINISHED_ALPHA) else primary
-            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.height(TrendHeight).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
-                    val fraction = (m.total.paise.toFloat() / max).coerceIn(0f, 1f)
-                    if (fraction > 0f) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(fraction)
-                                .background(barColor, BarShape),
-                        )
-                    }
+    val max = trend.maxOf { it.total.paise }.coerceAtLeast(1)
+    val line = MaterialTheme.colorScheme.primary
+    val grid = MaterialTheme.colorScheme.outlineVariant
+    val surface = MaterialTheme.colorScheme.surface
+    val spoken = trend.joinToString { "${it.month.format(fmt)} ${it.total.formatted()}" }
+    Column(Modifier.semantics(mergeDescendants = true) { contentDescription = spoken }) {
+        Text(
+            trend.maxBy { it.total.paise }.total.formatted(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Canvas(
+            Modifier
+                .fillMaxWidth()
+                .height(TrendHeight)
+                .clearAndSetSemantics {},
+        ) {
+            val stroke = LineWidth.toPx()
+            val radius = DotRadius.toPx()
+            val slot = size.width / trend.size
+            val top = radius + stroke
+            val usable = size.height - 2 * top
+            val points =
+                trend.mapIndexed { i, m ->
+                    Offset(slot * i + slot / 2, top + usable * (1f - m.total.paise.toFloat() / max))
                 }
-                Text(m.month.format(fmt), style = MaterialTheme.typography.labelSmall, maxLines = 1)
+            // Base line for scale: where zero is.
+            drawLine(grid, Offset(0f, size.height - top), Offset(size.width, size.height - top), strokeWidth = 1f)
+            points.zipWithNext().forEachIndexed { i, (a, b) ->
+                val intoThisMonth = i == points.lastIndex - 1
+                drawLine(
+                    line,
+                    a,
+                    b,
+                    strokeWidth = stroke,
+                    cap = StrokeCap.Round,
+                    pathEffect = if (intoThisMonth) PathEffect.dashPathEffect(floatArrayOf(DASH, DASH)) else null,
+                )
+            }
+            points.forEachIndexed { i, p ->
+                drawCircle(line, radius, p)
+                // Hollow dot for the unfinished month.
+                if (i == points.lastIndex) drawCircle(surface, radius - stroke, p)
+            }
+        }
+        Row(Modifier.fillMaxWidth()) {
+            trend.forEach { m ->
+                Text(
+                    m.month.format(fmt),
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f).clearAndSetSemantics {},
+                )
             }
         }
     }
