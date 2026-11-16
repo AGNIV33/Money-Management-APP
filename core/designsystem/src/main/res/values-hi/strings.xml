@@ -4,4 +4,7 @@
     <string name="ds_spoken_paise">पैसे</string>
     <string name="ds_spoken_minus">माइनस</string>
     <string name="ds_progress_percent">%1$d प्रतिशत</string>
+    <string name="ds_back">वापस</string>
+    <string name="ds_more">और विकल्प</string>
+    <string name="ds_close">बंद करें</string>
 </resources>
