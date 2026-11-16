@@ -62,6 +62,7 @@ data class ExpensesHomeUiState(
     val nextEmi: LoanItem? = null,
     val viewerUserId: String = "",
     val isAdmin: Boolean = false,
+    val currentMonth: YearMonth = month,
 ) {
     fun canDelete(expense: Expense): Boolean =
         canDelete(expense.ownerUserId, viewerUserId, if (isAdmin) Role.ADMIN else Role.MEMBER)
@@ -71,6 +72,11 @@ sealed interface HomeEvent {
     data object PreviousMonth : HomeEvent
 
     data object NextMonth : HomeEvent
+
+    /** Month picker: jump straight to [month] (never past the current month). */
+    data class SetMonth(
+        val month: YearMonth,
+    ) : HomeEvent
 
     data class Search(
         val query: String,
@@ -168,6 +174,7 @@ class ExpensesHomeViewModel
                             viewerUserId = session.userId,
                             isAdmin = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
                             nextEmi = loans.items.firstOrNull { !it.progress.isClosed },
+                            currentMonth = thisMonth,
                         )
                     }
                 }.stateIn(
@@ -183,6 +190,7 @@ class ExpensesHomeViewModel
                 HomeEvent.PreviousMonth -> month.update { it.minusMonths(1) }
                 // No future months: nothing can be spent there yet.
                 HomeEvent.NextMonth -> month.update { if (it < thisMonth) it.plusMonths(1) else it }
+                is HomeEvent.SetMonth -> month.value = minOf(event.month, thisMonth)
                 is HomeEvent.Search -> filter.update { it.copy(query = event.query) }
                 is HomeEvent.FilterCategory -> filter.update { it.copy(categoryId = event.id) }
                 is HomeEvent.FilterMode -> filter.update { it.copy(mode = event.mode) }

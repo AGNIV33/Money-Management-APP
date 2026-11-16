@@ -222,4 +222,22 @@
         <item quantity="one">%d फ़ोटो</item>
         <item quantity="other">%d फ़ोटो</item>
     </plurals>
+    <string name="budgets_title">बजट</string>
+    <string name="budgets_set_total">कुल मासिक बजट तय करें</string>
+    <string name="budgets_set_limit">सीमा तय करें</string>
+    <string name="budgets_view_only">परिवार सदस्य (सिर्फ़ देख सकते हैं)</string>
+    <string name="budgets_total">कुल बजट</string>
+    <string name="budgets_no_total">अभी कोई सीमा तय नहीं</string>
+    <string name="budgets_empty_title">अभी कोई बजट नहीं</string>
+    <string name="budgets_empty_body">खर्च पर नज़र रखने के लिए कैटेगरी की मासिक सीमा तय करें।</string>
+    <string name="budgets_monthly_limit">मासिक सीमा</string>
+    <string name="budgets_save">सेव करें</string>
+    <string name="budgets_remove_limit">यह सीमा हटाएँ</string>
+    <string name="budget_detail_title">%1$s बजट</string>
+    <string name="budget_detail_spent">खर्च</string>
+    <string name="budget_detail_of">%1$s मासिक सीमा में से</string>
+    <string name="budget_detail_percent">सीमा का %1$d%%</string>
+    <string name="budget_detail_no_limit">इस कैटेगरी की कोई मासिक सीमा नहीं है।</string>
+    <string name="budget_detail_recent">हाल के खर्च</string>
+    <string name="budget_detail_empty">इस महीने इस कैटेगरी में कोई खर्च नहीं।</string>
 </resources>

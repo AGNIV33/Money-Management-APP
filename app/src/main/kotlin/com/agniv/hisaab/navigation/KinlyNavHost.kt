@@ -47,6 +47,8 @@ import com.agniv.hisaab.R
 import com.agniv.hisaab.core.designsystem.motion.Motion
 import com.agniv.hisaab.core.designsystem.motion.rememberReducedMotion
 import com.agniv.hisaab.feature.expenses.add.AddExpenseScreen
+import com.agniv.hisaab.feature.expenses.budgets.BudgetCategoryScreen
+import com.agniv.hisaab.feature.expenses.budgets.BudgetsScreen
 import com.agniv.hisaab.feature.expenses.home.AllExpensesScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import com.agniv.hisaab.feature.expenses.home.HomeActions
@@ -76,6 +78,16 @@ data object EmiRoute
 
 @Serializable
 data object ImportRoute
+
+@Serializable
+data object BudgetsRoute
+
+/** [month] is "2026-11". */
+@Serializable
+data class BudgetCategoryRoute(
+    val categoryId: String,
+    val month: String,
+)
 
 @Serializable
 data object UdhaarRoute
@@ -167,6 +179,21 @@ fun KinlyNavHost(
             AddExpenseScreen(onDone = navController::popBackStack, editId = entry.toRoute<AddExpenseRoute>().editId)
         }
         composable<EmiRoute> { LoansScreen() }
+        composable<BudgetsRoute> {
+            BudgetsScreen(
+                onBack = navController::popBackStack,
+                onCategory = { id, month -> navController.navigate(BudgetCategoryRoute(id, month)) },
+            )
+        }
+        composable<BudgetCategoryRoute> { entry ->
+            val route = entry.toRoute<BudgetCategoryRoute>()
+            BudgetCategoryScreen(
+                categoryId = route.categoryId,
+                month = route.month,
+                onBack = navController::popBackStack,
+                onEdit = { navController.navigate(AddExpenseRoute(it)) },
+            )
+        }
         composable<ImportRoute> { StatementImportScreen(onBack = navController::popBackStack) }
         composable<UdhaarRoute> { UdhaarScreen() }
         composable<ToolsRoute> { ToolsScreen() }
@@ -200,7 +227,7 @@ private fun Tabs(
                                 // places that hold them today.
                                 onAlerts = { onTab(Tab.INSIGHTS) },
                                 onFamily = { onTab(Tab.SETTINGS) },
-                                onBudgets = { navController.navigate(AllExpensesRoute) },
+                                onBudgets = { navController.navigate(BudgetsRoute) },
                                 onAllExpenses = { navController.navigate(AllExpensesRoute) },
                                 onEmi = { navController.navigate(EmiRoute) },
                                 onUdhaar = { navController.navigate(UdhaarRoute) },

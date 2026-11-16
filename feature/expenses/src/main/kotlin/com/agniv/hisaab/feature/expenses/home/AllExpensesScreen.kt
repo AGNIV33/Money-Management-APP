@@ -1,9 +1,5 @@
 package com.agniv.hisaab.feature.expenses.home
 
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -90,8 +86,6 @@ fun AllExpensesScreen(
     var showRepeating by rememberSaveable { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    // Android 13+ needs the user's OK before budget alerts can show; asked right after a budget is set.
-    val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
     val deletedText = stringResource(R.string.deleted)
     val statementLabel = stringResource(R.string.stmt_title)
     val repeatingLabel = stringResource(R.string.repeating_title)
@@ -130,25 +124,6 @@ fun AllExpensesScreen(
         ) {
             item(key = "month") { MonthSwitcher(state, viewModel::onEvent) }
             item(key = "summary") { Summary(state) }
-            if (state.isCurrentMonth && !state.filter.isActive) {
-                item(key = "budget") {
-                    BudgetCard(
-                        state,
-                        onSetBudget = { budget ->
-                            viewModel.onEvent(HomeEvent.SetBudget(budget))
-                            if (budget != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            }
-                        },
-                        onSetCategoryLimit = { id, limit ->
-                            viewModel.onEvent(HomeEvent.SetCategoryLimit(id, limit))
-                            if (limit != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            }
-                        },
-                    )
-                }
-            }
             nextEmiItem(state, viewModel::onEvent)
             if (!state.filter.isActive) {
                 item(key = "top-categories") { TopCategoriesCard(state) }

@@ -222,4 +222,22 @@
         <item quantity="one">%d picture</item>
         <item quantity="other">%d pictures</item>
     </plurals>
+    <string name="budgets_title">Budgets</string>
+    <string name="budgets_set_total">Set total monthly budget</string>
+    <string name="budgets_set_limit">Set limit</string>
+    <string name="budgets_view_only">Family Member (View only)</string>
+    <string name="budgets_total">Total Budget</string>
+    <string name="budgets_no_total">No limits set yet</string>
+    <string name="budgets_empty_title">No budgets yet</string>
+    <string name="budgets_empty_body">Set a monthly limit for categories to track and control spending.</string>
+    <string name="budgets_monthly_limit">Monthly Limit</string>
+    <string name="budgets_save">Save</string>
+    <string name="budgets_remove_limit">Remove this limit</string>
+    <string name="budget_detail_title">%1$s budget</string>
+    <string name="budget_detail_spent">spent</string>
+    <string name="budget_detail_of">of %1$s monthly limit</string>
+    <string name="budget_detail_percent">%1$d%% of your limit</string>
+    <string name="budget_detail_no_limit">No monthly limit for this category.</string>
+    <string name="budget_detail_recent">Recent expenses</string>
+    <string name="budget_detail_empty">Nothing spent in this category this month.</string>
 </resources>
