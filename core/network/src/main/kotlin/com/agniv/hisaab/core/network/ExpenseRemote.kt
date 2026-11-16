@@ -33,6 +33,20 @@ interface ExpenseRemote {
         familyId: String,
         paise: Long?,
     )
+
+    /** Admins only (RLS). Upserts the `budgets` row of [monthIso] (first day of the month). */
+    suspend fun setCategoryLimits(
+        familyId: String,
+        monthIso: String,
+        totalPaise: Long,
+        limits: Map<String, Long>,
+    )
+
+    /** Limits that apply in [monthIso]: the newest budgets row on or before it; null when none was ever set. */
+    suspend fun categoryLimits(
+        familyId: String,
+        monthIso: String,
+    ): Map<String, Long>?
 }
 
 class SupabaseExpenseRemote
@@ -80,6 +94,41 @@ class SupabaseExpenseRemote
             supabase.from("families").update(BudgetUpdate(paise)) { filter { eq("id", familyId) } }
         }
 
+        override suspend fun setCategoryLimits(
+            familyId: String,
+            monthIso: String,
+            totalPaise: Long,
+            limits: Map<String, Long>,
+        ) {
+            supabase.from(BUDGETS).upsert(BudgetRow(familyId, monthIso, totalPaise, limits)) { onConflict = "family_id,month" }
+        }
+
+        override suspend fun categoryLimits(
+            familyId: String,
+            monthIso: String,
+        ): Map<String, Long>? =
+            supabase
+                .from(BUDGETS)
+                .select {
+                    filter {
+                        eq("family_id", familyId)
+                        lte("month", monthIso)
+                        eq("deleted", false)
+                    }
+                    order("month", Order.DESCENDING)
+                    limit(1)
+                }.decodeList<BudgetRow>()
+                .firstOrNull()
+                ?.perCategory
+
+        @kotlinx.serialization.Serializable
+        private data class BudgetRow(
+            @kotlinx.serialization.SerialName("family_id") val familyId: String,
+            val month: String,
+            @kotlinx.serialization.SerialName("total_paise") val totalPaise: Long,
+            @kotlinx.serialization.SerialName("per_category") val perCategory: Map<String, Long> = emptyMap(),
+        )
+
         @kotlinx.serialization.Serializable
         private data class BudgetUpdate(
             @kotlinx.serialization.SerialName("monthly_budget_paise") val paise: Long?,
@@ -87,5 +136,6 @@ class SupabaseExpenseRemote
 
         private companion object {
             const val TABLE = "expenses"
+            const val BUDGETS = "budgets"
         }
     }

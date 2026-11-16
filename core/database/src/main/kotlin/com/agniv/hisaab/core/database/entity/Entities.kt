@@ -16,6 +16,8 @@ data class FamilyEntity(
     @ColumnInfo(name = "monthly_budget_paise") val monthlyBudgetPaise: Long?,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     val deleted: Boolean = false,
+    /** JSON {categoryId: paise}; per-category monthly limits (PRD F6). Synced to the server's budgets table. */
+    @ColumnInfo(name = "category_limits", defaultValue = "{}") val categoryLimits: String = "{}",
 )
 
 @Entity(

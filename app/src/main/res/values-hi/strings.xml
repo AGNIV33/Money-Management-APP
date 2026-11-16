@@ -55,4 +55,7 @@
     <string name="smart_pace_text">इसी रफ़्तार से %1$d तारीख को खत्म होगा। रोज़ करीब %2$s खर्च करने पर बजट में रहेंगे।</string>
     <string name="report_ready_title">आपकी %1$s की रिपोर्ट तैयार है</string>
     <string name="report_ready_text">देखें पैसा कहाँ गया और महीना कैसा रहा।</string>
+    <string name="cat_warning_title">%1$s: सीमा लगभग पूरी</string>
+    <string name="cat_over_title">%1$s: सीमा पार</string>
+    <string name="cat_limit_text">%2$s की महीने की सीमा में से %1$s खर्च हो चुके।</string>
 </resources>

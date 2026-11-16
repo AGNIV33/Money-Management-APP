@@ -179,12 +179,21 @@ fun ExpensesHomeScreen(
             item(key = "summary") { Summary(state) }
             if (state.isCurrentMonth && !state.filter.isActive) {
                 item(key = "budget") {
-                    BudgetCard(state) { budget ->
-                        viewModel.onEvent(HomeEvent.SetBudget(budget))
-                        if (budget != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                    }
+                    BudgetCard(
+                        state,
+                        onSetBudget = { budget ->
+                            viewModel.onEvent(HomeEvent.SetBudget(budget))
+                            if (budget != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        },
+                        onSetCategoryLimit = { id, limit ->
+                            viewModel.onEvent(HomeEvent.SetCategoryLimit(id, limit))
+                            if (limit != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        },
+                    )
                 }
             }
             nextEmiItem(state, viewModel::onEvent)

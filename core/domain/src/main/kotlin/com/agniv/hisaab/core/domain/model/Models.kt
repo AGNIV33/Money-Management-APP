@@ -17,6 +17,8 @@ data class Family(
     val name: String,
     val inviteCode: String?,
     val monthlyBudget: Money?,
+    /** Optional monthly limit per category id (PRD F6). Empty = none set. */
+    val categoryLimits: Map<String, Money> = emptyMap(),
 )
 
 data class Member(

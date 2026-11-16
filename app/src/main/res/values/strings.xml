@@ -56,4 +56,7 @@
     <string name="smart_pace_text">At this pace it runs out on day %1$d. About %2$s a day keeps you within it.</string>
     <string name="report_ready_title">Your %1$s report is ready</string>
     <string name="report_ready_text">See where the money went and how the month went.</string>
+    <string name="cat_warning_title">%1$s: limit almost used</string>
+    <string name="cat_over_title">%1$s: limit crossed</string>
+    <string name="cat_limit_text">Spent %1$s of the %2$s monthly limit.</string>
 </resources>

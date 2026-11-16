@@ -159,4 +159,12 @@
     <string name="goal_pick_title">किसी लक्ष्य में जोड़ें</string>
     <string name="goal_pick_hint">पैसे बचाकर रखे? यह उस लक्ष्य में भी जुड़ जाएगा</string>
     <string name="goal_pick_none">नहीं</string>
+    <string name="cat_limits_title">कैटेगरी की सीमा</string>
+    <string name="cat_limits_hint">ज़रूरी नहीं: किसी एक कैटेगरी, जैसे खाना या पेट्रोल, के लिए महीने की सीमा। 80% और 100% पर अलर्ट।</string>
+    <string name="cat_limit_of">%2$s में से %1$s</string>
+    <string name="cat_limit_over">%1$s %2$s ज़्यादा</string>
+    <string name="cat_limit_almost">ध्यान दें: सिर्फ़ %1$s बचे</string>
+    <string name="cat_limit_add">+ कैटेगरी की सीमा जोड़ें</string>
+    <string name="cat_limit_dialog_title">महीने की सीमा</string>
+    <string name="cat_limit_amount">सीमा</string>
 </resources>

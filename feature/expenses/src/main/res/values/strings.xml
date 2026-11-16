@@ -159,4 +159,12 @@
     <string name="goal_pick_title">Count towards a goal</string>
     <string name="goal_pick_hint">Put money aside? It also goes into that goal jar</string>
     <string name="goal_pick_none">No</string>
+    <string name="cat_limits_title">Category limits</string>
+    <string name="cat_limits_hint">Optional: a monthly limit for one category, like food or fuel. Alerts at 80% and 100%.</string>
+    <string name="cat_limit_of">%1$s of %2$s</string>
+    <string name="cat_limit_over">%1$s Over by %2$s</string>
+    <string name="cat_limit_almost">Careful: only %1$s left</string>
+    <string name="cat_limit_add">+ Add a category limit</string>
+    <string name="cat_limit_dialog_title">Monthly limit</string>
+    <string name="cat_limit_amount">Limit</string>
 </resources>
