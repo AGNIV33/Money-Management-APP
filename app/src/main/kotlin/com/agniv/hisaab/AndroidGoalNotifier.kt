@@ -7,7 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import com.agniv.hisaab.alerts.AlertKind
+import com.agniv.hisaab.alerts.AlertLog
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.data.loan.GoalReminderNotifier
 import com.agniv.hisaab.core.domain.usecase.GoalReminder
@@ -26,7 +27,7 @@ class AndroidGoalNotifier
     ) : GoalReminderNotifier {
         override fun notify(reminder: GoalReminder) {
             // Off when Android 13+ permission is missing or the user turned this type off in Settings.
-            val allowed = Notifications.allowed(context, NotifyType.GOALS)
+            val allowed = AlertLog.wanted(context, NotifyType.GOALS)
             if (!allowed) return
             ensureChannel()
             val item = reminder.item
@@ -60,7 +61,7 @@ class AndroidGoalNotifier
                     .setContentIntent(open)
                     .setAutoCancel(true)
                     .build()
-            NotificationManagerCompat.from(context).notify(id, notification)
+            AlertLog.deliver(context, AlertKind.GOAL, id, notification)
         }
 
         private fun ensureChannel() {

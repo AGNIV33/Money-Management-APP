@@ -7,7 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import com.agniv.hisaab.alerts.AlertKind
+import com.agniv.hisaab.alerts.AlertLog
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.data.loan.UdhaarReminderNotifier
 import com.agniv.hisaab.core.domain.loan.ReminderStage
@@ -25,7 +26,7 @@ class AndroidUdhaarNotifier
     ) : UdhaarReminderNotifier {
         override fun notify(reminder: UdhaarReminder) {
             // Off when Android 13+ permission is missing or the user turned this type off in Settings.
-            val allowed = Notifications.allowed(context, NotifyType.UDHAAR)
+            val allowed = AlertLog.wanted(context, NotifyType.UDHAAR)
             if (!allowed) return
             ensureChannel()
             val e = reminder.item.udhaar
@@ -48,7 +49,7 @@ class AndroidUdhaarNotifier
                     .setContentIntent(open)
                     .setAutoCancel(true)
                     .build()
-            NotificationManagerCompat.from(context).notify(id, notification)
+            AlertLog.deliver(context, AlertKind.UDHAAR, id, notification)
         }
 
         private fun ensureChannel() {

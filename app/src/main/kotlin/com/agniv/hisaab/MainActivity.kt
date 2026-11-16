@@ -98,6 +98,7 @@ class MainActivity : FragmentActivity() {
             RootScreen.FAMILY_SETUP -> FamilySetupScreen()
             RootScreen.HOME ->
                 KinlyNavHost(
+                    settings = settings,
                     content =
                         TabContent(
                             assistant = {

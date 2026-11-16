@@ -9,6 +9,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.agniv.hisaab.alerts.AlertKind
+import com.agniv.hisaab.alerts.AlertLog
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.data.loan.EmiReminderNotifier
 import com.agniv.hisaab.core.domain.loan.EmiReminder
@@ -36,7 +38,7 @@ class AndroidEmiNotifier
     ) : EmiReminderNotifier {
         override fun notify(reminder: EmiReminder) {
             // Off when Android 13+ permission is missing or the user turned this type off in Settings.
-            val allowed = Notifications.allowed(context, NotifyType.EMI)
+            val allowed = AlertLog.wanted(context, NotifyType.EMI)
             if (!allowed) return
             ensureChannel()
             val loan = reminder.loan
@@ -75,7 +77,7 @@ class AndroidEmiNotifier
                     .setAutoCancel(true)
                     .build()
             // One id per loan: the "tomorrow" reminder replaces the "3 days" one.
-            NotificationManagerCompat.from(context).notify(id, notification)
+            AlertLog.deliver(context, AlertKind.EMI, id, notification)
         }
 
         private fun ensureChannel() {

@@ -43,7 +43,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.agniv.hisaab.AppSettings
+import com.agniv.hisaab.NotifyType
 import com.agniv.hisaab.R
+import com.agniv.hisaab.alerts.AlertsScreen
+import com.agniv.hisaab.alerts.NotificationSettingsScreen
 import com.agniv.hisaab.core.designsystem.motion.Motion
 import com.agniv.hisaab.core.designsystem.motion.rememberReducedMotion
 import com.agniv.hisaab.feature.expenses.add.AddExpenseScreen
@@ -81,6 +85,12 @@ data object ImportRoute
 
 @Serializable
 data object BudgetsRoute
+
+@Serializable
+data object AlertsRoute
+
+@Serializable
+data object NotificationSettingsRoute
 
 /** [month] is "2026-11". */
 @Serializable
@@ -120,6 +130,7 @@ class TabContent(
  */
 @Composable
 fun KinlyNavHost(
+    settings: AppSettings,
     content: TabContent,
     openTab: Tab?,
     onTabOpened: () -> Unit,
@@ -194,6 +205,28 @@ fun KinlyNavHost(
                 onEdit = { navController.navigate(AddExpenseRoute(it)) },
             )
         }
+        composable<AlertsRoute> {
+            AlertsScreen(
+                onBack = navController::popBackStack,
+                onSettings = { navController.navigate(NotificationSettingsRoute) },
+                onOpen = { kind ->
+                    when (kind.type) {
+                        NotifyType.SMART, NotifyType.REPORT -> {
+                            navController.popBackStack(TabsRoute, inclusive = false)
+                            tab = Tab.INSIGHTS
+                        }
+                        NotifyType.GOALS -> {
+                            navController.popBackStack(TabsRoute, inclusive = false)
+                            tab = Tab.GOALS
+                        }
+                        NotifyType.BUDGET -> navController.navigate(BudgetsRoute)
+                        NotifyType.EMI -> navController.navigate(EmiRoute)
+                        NotifyType.UDHAAR -> navController.navigate(UdhaarRoute)
+                    }
+                },
+            )
+        }
+        composable<NotificationSettingsRoute> { NotificationSettingsScreen(settings, onBack = navController::popBackStack) }
         composable<ImportRoute> { StatementImportScreen(onBack = navController::popBackStack) }
         composable<UdhaarRoute> { UdhaarScreen() }
         composable<ToolsRoute> { ToolsScreen() }
@@ -225,7 +258,7 @@ private fun Tabs(
                                 onEditExpense = { navController.navigate(AddExpenseRoute(it)) },
                                 // Alerts and Family get their own screens in later steps; until then they open the
                                 // places that hold them today.
-                                onAlerts = { onTab(Tab.INSIGHTS) },
+                                onAlerts = { navController.navigate(AlertsRoute) },
                                 onFamily = { onTab(Tab.SETTINGS) },
                                 onBudgets = { navController.navigate(BudgetsRoute) },
                                 onAllExpenses = { navController.navigate(AllExpensesRoute) },

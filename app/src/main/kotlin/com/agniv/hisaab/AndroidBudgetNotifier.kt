@@ -6,7 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import com.agniv.hisaab.alerts.AlertKind
+import com.agniv.hisaab.alerts.AlertLog
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.data.budget.BudgetAlertNotifier
@@ -29,7 +30,7 @@ class AndroidBudgetNotifier
             budget: Money,
         ) {
             // Off when Android 13+ permission is missing or the user turned this type off in Settings.
-            val allowed = Notifications.allowed(context, NotifyType.BUDGET)
+            val allowed = AlertLog.wanted(context, NotifyType.BUDGET)
             if (!allowed || level == BudgetLevel.OK) return
             ensureChannel()
             val over = level == BudgetLevel.OVER
@@ -54,7 +55,12 @@ class AndroidBudgetNotifier
                     ).setContentIntent(open)
                     .setAutoCancel(true)
                     .build()
-            NotificationManagerCompat.from(context).notify(if (over) ID_OVER else ID_WARNING, notification)
+            AlertLog.deliver(
+                context,
+                if (over) AlertKind.BUDGET_OVER else AlertKind.BUDGET_WARNING,
+                if (over) ID_OVER else ID_WARNING,
+                notification,
+            )
         }
 
         override fun notifyCategory(
@@ -63,7 +69,7 @@ class AndroidBudgetNotifier
             spent: Money,
             limit: Money,
         ) {
-            if (!Notifications.allowed(context, NotifyType.BUDGET) || level == BudgetLevel.OK) return
+            if (!AlertLog.wanted(context, NotifyType.BUDGET) || level == BudgetLevel.OK) return
             ensureChannel()
             val settings = AppSettings(context)
             val words = settings.wrap(context)
@@ -93,7 +99,7 @@ class AndroidBudgetNotifier
                     .setContentIntent(open)
                     .setAutoCancel(true)
                     .build()
-            NotificationManagerCompat.from(context).notify(id, notification)
+            AlertLog.deliver(context, if (over) AlertKind.BUDGET_OVER else AlertKind.BUDGET_WARNING, id, notification)
         }
 
         private fun ensureChannel() {

@@ -7,13 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.agniv.hisaab.alerts.AlertKind
+import com.agniv.hisaab.alerts.AlertLog
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
@@ -66,8 +67,8 @@ class SmartAlertWorker
         private val time: TimeProvider,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
-            // Nothing could show; leave alerts unmarked so they can still show once the user allows notifications.
-            val session = sessions.session.first()?.takeIf { Notifications.permitted(applicationContext) } ?: return Result.success()
+            // Runs even when notifications are blocked: the in-app Alerts list still gets what it finds.
+            val session = sessions.session.first() ?: return Result.success()
             val today = time.today()
             val month = YearMonth.from(today)
             // Same window as the Insights sheet, so the notification and the sheet agree.
@@ -143,7 +144,7 @@ class SmartAlertNotifier
             categories: Map<String, Category>,
         ) {
             val type = if (alert is SmartAlert.ReportReady) NotifyType.REPORT else NotifyType.SMART
-            if (!Notifications.allowed(appContext, type)) return
+            if (!AlertLog.wanted(appContext, type)) return
             val settings = AppSettings(appContext)
             val context = settings.wrap(appContext)
             val hindi = (settings.language ?: Locale.getDefault().language) == "hi"
@@ -195,7 +196,7 @@ class SmartAlertNotifier
                     .setContentIntent(open)
                     .setAutoCancel(true)
                     .build()
-            NotificationManagerCompat.from(appContext).notify(id, notification)
+            AlertLog.deliver(appContext, alert.kind(), id, notification)
         }
 
         private fun channelOf(type: NotifyType) = if (type == NotifyType.REPORT) CHANNEL_REPORT else CHANNEL_SMART
@@ -219,4 +220,12 @@ class SmartAlertNotifier
             const val ID_BASE = 500_000
             const val ID_MASK = 0xFFFF
         }
+    }
+
+private fun SmartAlert.kind(): AlertKind =
+    when (this) {
+        is SmartAlert.CategoryJump -> AlertKind.CATEGORY_JUMP
+        is SmartAlert.BigExpense -> AlertKind.UNUSUAL
+        is SmartAlert.BudgetRunsOut -> AlertKind.BUDGET_PACE
+        is SmartAlert.ReportReady -> AlertKind.REPORT
     }

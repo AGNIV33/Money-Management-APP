@@ -34,7 +34,7 @@
     <string name="settings_crash_hint">Kinly बंद हो जाए तो गड़बड़ी की जानकारी भेजें ताकि उसे ठीक किया जा सके। आपके नाम, रकम या नोट कभी नहीं।</string>
     <string name="settings_lock_missing">पहले फ़ोन की सेटिंग में स्क्रीन लॉक (PIN, पैटर्न या फ़िंगरप्रिंट) लगाएँ।</string>
     <string name="settings_language">भाषा</string>
-    <string name="goal_channel">बचत लक्ष्य रिमाइंडर</string>
+    <string name="goal_channel">लक्ष्य रिमाइंडर</string>
     <string name="goal_month_title">%1$s के लिए बचत का समय</string>
     <string name="goal_month_text">समय पर पूरा करने के लिए इस महीने %1$s अलग रखें</string>
     <string name="goal_near_title">%1$s: तारीख पास है</string>
@@ -62,4 +62,23 @@
     <string name="cat_warning_title">%1$s: सीमा लगभग पूरी</string>
     <string name="cat_over_title">%1$s: सीमा पार</string>
     <string name="cat_limit_text">%2$s की महीने की सीमा में से %1$s खर्च हो चुके।</string>
+    <string name="alerts_title">अलर्ट</string>
+    <string name="alerts_all">सभी</string>
+    <string name="alerts_smart">स्मार्ट</string>
+    <string name="alerts_budget">बजट</string>
+    <string name="alerts_other">अन्य</string>
+    <string name="alerts_dismissed">अलर्ट हटाया गया</string>
+    <string name="alerts_undo">वापस लाएँ</string>
+    <string name="alerts_empty_title">सब देख लिया!</string>
+    <string name="alerts_empty_body">अभी कोई नया अलर्ट नहीं।</string>
+    <string name="alerts_today">आज</string>
+    <string name="alerts_earlier">पहले</string>
+    <string name="alerts_dismiss">हटाएँ</string>
+    <string name="alerts_yesterday">कल</string>
+    <string name="notify_settings_title">नोटिफ़िकेशन सेटिंग्स</string>
+    <string name="notify_types">अलर्ट के प्रकार</string>
+    <string name="notify_on">इस फ़ोन पर Kinly के नोटिफ़िकेशन चालू हैं।</string>
+    <string name="notify_card_body">इस फ़ोन पर बजट, EMI, लक्ष्य और बाकी के अलर्ट पाएँ।</string>
+    <string name="notify_off_title">नोटिफ़िकेशन बंद हैं।</string>
+    <string name="notify_off_body">ज़रूरी अलर्ट पाने के लिए नोटिफ़िकेशन चालू करें। अलर्ट सूची में ये फिर भी दिखेंगे।</string>
 </resources>

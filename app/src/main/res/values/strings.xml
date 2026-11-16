@@ -35,7 +35,7 @@
     <string name="settings_crash_hint">If Kinly crashes, send the error to help fix it. Never your names, amounts or notes.</string>
     <string name="settings_lock_missing">Set a screen lock (PIN, pattern or fingerprint) in your phone settings first.</string>
     <string name="settings_language">Language</string>
-    <string name="goal_channel">Savings goal reminders</string>
+    <string name="goal_channel">Goal reminders</string>
     <string name="goal_month_title">Time to save for %1$s</string>
     <string name="goal_month_text">Put aside %1$s this month to reach it on time</string>
     <string name="goal_near_title">%1$s: the date is near</string>
@@ -63,4 +63,23 @@
     <string name="cat_warning_title">%1$s: limit almost used</string>
     <string name="cat_over_title">%1$s: limit crossed</string>
     <string name="cat_limit_text">Spent %1$s of the %2$s monthly limit.</string>
+    <string name="alerts_title">Alerts</string>
+    <string name="alerts_all">All</string>
+    <string name="alerts_smart">Smart</string>
+    <string name="alerts_budget">Budget</string>
+    <string name="alerts_other">Other</string>
+    <string name="alerts_dismissed">Alert dismissed</string>
+    <string name="alerts_undo">Undo</string>
+    <string name="alerts_empty_title">You\'re all caught up!</string>
+    <string name="alerts_empty_body">No new alerts right now.</string>
+    <string name="alerts_today">Today</string>
+    <string name="alerts_earlier">Earlier</string>
+    <string name="alerts_dismiss">Dismiss</string>
+    <string name="alerts_yesterday">Yesterday</string>
+    <string name="notify_settings_title">Notification Settings</string>
+    <string name="notify_types">Alert Types</string>
+    <string name="notify_on">Notifications are on for Kinly on this phone.</string>
+    <string name="notify_card_body">Get alerts for budgets, EMIs, goals and more on this device.</string>
+    <string name="notify_off_title">Notifications are turned off.</string>
+    <string name="notify_off_body">Allow notifications to receive important alerts. You can still see them in Alerts.</string>
 </resources>
