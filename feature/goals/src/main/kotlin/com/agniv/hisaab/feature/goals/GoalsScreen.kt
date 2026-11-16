@@ -1,5 +1,9 @@
 package com.agniv.hisaab.feature.goals
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -123,7 +127,20 @@ fun GoalsScreen(viewModel: GoalsViewModel = hiltViewModel()) {
             onDismiss = { openId = null },
         )
     }
-    sheetFor?.let { id -> AddGoalSheet(onDismiss = { sheetFor = null }, editId = id.ifEmpty { null }, instanceKey = "$sheetCount") }
+    // Android 13+ needs the user's OK before goal reminders can show; asked right after a goal is saved.
+    val askNotifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    sheetFor?.let { id ->
+        AddGoalSheet(
+            onDismiss = { sheetFor = null },
+            editId = id.ifEmpty { null },
+            instanceKey = "$sheetCount",
+            onSaved = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            },
+        )
+    }
 }
 
 /** The jar: fills from the bottom up in green. Words as well as the bar (DESIGN.md: never colour alone). */

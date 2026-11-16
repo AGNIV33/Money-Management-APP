@@ -156,4 +156,7 @@
     <string name="report_err_offline">सुझावों के लिए इंटरनेट चाहिए। इंटरनेट होने पर फिर कोशिश करें।</string>
     <string name="report_err_signin">सुझाव पाने के लिए अपने परिवार के खाते से साइन इन करें।</string>
     <string name="report_err_failed">अभी सुझाव नहीं बन पाए, या पिछले महीने कोई खर्च नहीं है। बाद में फिर कोशिश करें।</string>
+    <string name="goal_pick_title">किसी लक्ष्य में जोड़ें</string>
+    <string name="goal_pick_hint">पैसे बचाकर रखे? यह उस लक्ष्य में भी जुड़ जाएगा</string>
+    <string name="goal_pick_none">नहीं</string>
 </resources>

@@ -29,4 +29,9 @@
     <string name="settings_lock_hint">Ask for fingerprint, face or phone PIN when opening Kinly</string>
     <string name="settings_lock_missing">Set a screen lock (PIN, pattern or fingerprint) in your phone settings first.</string>
     <string name="settings_language">Language</string>
+    <string name="goal_channel">Savings goal reminders</string>
+    <string name="goal_month_title">Time to save for %1$s</string>
+    <string name="goal_month_text">Put aside %1$s this month to reach it on time</string>
+    <string name="goal_near_title">%1$s: the date is near</string>
+    <string name="goal_near_text">%1$s still to go by %2$s</string>
 </resources>

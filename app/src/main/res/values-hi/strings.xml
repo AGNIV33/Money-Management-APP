@@ -28,4 +28,9 @@
     <string name="settings_lock_hint">Kinly खोलते समय फ़िंगरप्रिंट, चेहरा या फ़ोन का PIN माँगे</string>
     <string name="settings_lock_missing">पहले फ़ोन की सेटिंग में स्क्रीन लॉक (PIN, पैटर्न या फ़िंगरप्रिंट) लगाएँ।</string>
     <string name="settings_language">भाषा</string>
+    <string name="goal_channel">बचत लक्ष्य रिमाइंडर</string>
+    <string name="goal_month_title">%1$s के लिए बचत का समय</string>
+    <string name="goal_month_text">समय पर पूरा करने के लिए इस महीने %1$s अलग रखें</string>
+    <string name="goal_near_title">%1$s: तारीख पास है</string>
+    <string name="goal_near_text">%2$s तक %1$s और चाहिए</string>
 </resources>

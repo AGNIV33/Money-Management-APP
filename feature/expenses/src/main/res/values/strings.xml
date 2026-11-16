@@ -156,4 +156,7 @@
     <string name="report_err_offline">Tips need internet. Try again when you are online.</string>
     <string name="report_err_signin">Please sign in with your family account to get tips.</string>
     <string name="report_err_failed">Could not make tips right now, or there is no spending last month. Try again later.</string>
+    <string name="goal_pick_title">Count towards a goal</string>
+    <string name="goal_pick_hint">Put money aside? It also goes into that goal jar</string>
+    <string name="goal_pick_none">No</string>
 </resources>

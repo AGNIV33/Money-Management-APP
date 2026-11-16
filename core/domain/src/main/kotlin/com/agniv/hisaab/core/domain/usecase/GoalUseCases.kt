@@ -104,10 +104,11 @@ class AddGoalSavings
             session: Session,
             goal: Goal,
             amount: Money,
+            date: LocalDate = time.today(),
         ): Result<Unit> {
             if (amount.paise <= 0) return Result.failure(GoalError.BadAmount)
             return repository.saveContribution(
-                GoalContribution(ids.newId(), goal.id, goal.familyId, session.userId, amount, time.today(), time.now()),
+                GoalContribution(ids.newId(), goal.id, goal.familyId, session.userId, amount, date, time.now()),
             )
         }
     }

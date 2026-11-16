@@ -119,7 +119,7 @@ class UdhaarUseCasesTest {
         }
 }
 
-private class FakeUdhaarRepo : UdhaarRepository {
+internal class FakeUdhaarRepo : UdhaarRepository {
     private val entries = MutableStateFlow<Map<String, Udhaar>>(emptyMap())
     private val payments = MutableStateFlow<Map<String, UdhaarPayment>>(emptyMap())
     val rows: Map<String, Udhaar> get() = entries.value

@@ -162,11 +162,17 @@ internal fun AddGoalSheet(
     onDismiss: () -> Unit,
     editId: String?,
     instanceKey: String,
+    onSaved: () -> Unit = {},
     viewModel: AddGoalViewModel = hiltViewModel(key = "add-goal-$instanceKey"),
 ) {
     LaunchedEffect(editId) { viewModel.start(editId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(viewModel) { viewModel.savedEvents.collect { onDismiss() } }
+    LaunchedEffect(viewModel) {
+        viewModel.savedEvents.collect {
+            onSaved()
+            onDismiss()
+        }
+    }
     var pickDate by remember { mutableStateOf(false) }
     val locale = LocalConfiguration.current.locales[0]
 

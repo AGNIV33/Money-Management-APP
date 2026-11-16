@@ -177,6 +177,30 @@ internal fun AddExpenseContent(
                     )
                 }
             }
+            if (state.goals.isNotEmpty()) {
+                Text(stringResource(R.string.goal_pick_title), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.goal_pick_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                    item(key = "none") {
+                        FilterChip(
+                            selected = state.goalId == null,
+                            onClick = { onEvent(AddExpenseEvent.PickGoal(null)) },
+                            label = { Text(stringResource(R.string.goal_pick_none)) },
+                        )
+                    }
+                    items(state.goals, key = { it.id }) { goal ->
+                        FilterChip(
+                            selected = goal.id == state.goalId,
+                            onClick = { onEvent(AddExpenseEvent.PickGoal(goal.id)) },
+                            label = { Text("🎯 " + goal.name) },
+                        )
+                    }
+                }
+            }
         }
 
         OutlinedTextField(

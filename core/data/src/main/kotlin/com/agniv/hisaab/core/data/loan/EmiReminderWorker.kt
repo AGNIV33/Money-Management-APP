@@ -17,6 +17,9 @@ import androidx.work.WorkerParameters
 import com.agniv.hisaab.core.domain.loan.EmiReminder
 import com.agniv.hisaab.core.domain.loan.EmiReminders
 import com.agniv.hisaab.core.domain.repository.SessionRepository
+import com.agniv.hisaab.core.domain.usecase.GoalReminder
+import com.agniv.hisaab.core.domain.usecase.GoalReminders
+import com.agniv.hisaab.core.domain.usecase.ObserveGoals
 import com.agniv.hisaab.core.domain.usecase.ObserveLoans
 import com.agniv.hisaab.core.domain.usecase.ObserveUdhaar
 import com.agniv.hisaab.core.domain.usecase.UdhaarReminder
@@ -44,15 +47,22 @@ interface UdhaarReminderNotifier {
     fun notify(reminder: UdhaarReminder)
 }
 
+/** Shows a savings goal reminder. Implemented in :app. */
+interface GoalReminderNotifier {
+    fun notify(reminder: GoalReminder)
+}
+
 private val Context.reminderStore: DataStore<Preferences> by preferencesDataStore(name = "emi_reminders")
 private val SHOWN = stringSetPreferencesKey("shown")
 
 /**
- * Daily EMI and udhaar due-date check (ARCHITECTURE.md §7). Reads Room only, so it works offline and with the app closed.
+ * Daily EMI, udhaar and savings goal check (ARCHITECTURE.md §7). Reads Room only, so it works offline and with the app closed.
  * Every reminder shown is remembered, so running twice a day (app start + daily job) never repeats one.
  */
 @HiltWorker
 class EmiReminderWorker
+    // Injected by Hilt; one daily job reads loans, udhaar and goals so the phone wakes once, not three times.
+    @Suppress("LongParameterList")
     @AssistedInject
     constructor(
         @Assisted context: Context,
@@ -62,6 +72,8 @@ class EmiReminderWorker
         private val observeUdhaar: ObserveUdhaar,
         private val notifier: EmiReminderNotifier,
         private val udhaarNotifier: UdhaarReminderNotifier,
+        private val observeGoals: ObserveGoals,
+        private val goalNotifier: GoalReminderNotifier,
         private val time: TimeProvider,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
@@ -69,17 +81,20 @@ class EmiReminderWorker
             val today = time.today()
             val due = EmiReminders.due(observeLoans(session).first().items, session.userId)
             val udhaarDue = UdhaarReminders.due(observeUdhaar(session).first().items, session.userId, today)
+            val goalsDue = GoalReminders.due(observeGoals(session).first().items, session.userId, today)
             val store = applicationContext.reminderStore
             val shown = store.data.first()[SHOWN].orEmpty()
             val fresh = due.filter { it.key !in shown }
             val freshUdhaar = udhaarDue.filter { it.key !in shown }
+            val freshGoals = goalsDue.filter { it.key !in shown }
             fresh.forEach(notifier::notify)
             freshUdhaar.forEach(udhaarNotifier::notify)
+            freshGoals.forEach(goalNotifier::notify)
             // Forget keys older than last month so the set stays tiny.
             val oldest = YearMonth.from(today).minusMonths(1).toString()
             store.edit { prefs ->
                 prefs[SHOWN] =
-                    (shown + fresh.map { it.key } + freshUdhaar.map { it.key })
+                    (shown + fresh.map { it.key } + freshUdhaar.map { it.key } + freshGoals.map { it.key })
                         .filter {
                             it
                                 .split(
