@@ -130,7 +130,22 @@ class MainActivity : FragmentActivity() {
                         viewModel.finishOnboarding()
                     },
                 )
-            RootScreen.LOGIN -> LoginScreen()
+            RootScreen.LOGIN ->
+                LoginScreen(
+                    language =
+                        settings.language ?: if (java.util.Locale
+                                .getDefault()
+                                .language == "hi"
+                        ) {
+                            "hi"
+                        } else {
+                            "en"
+                        },
+                    onLanguage = {
+                        settings.language = it
+                        recreate()
+                    },
+                )
             RootScreen.FAMILY_SETUP -> FamilySetupScreen()
             RootScreen.HOME ->
                 KinlyNavHost(

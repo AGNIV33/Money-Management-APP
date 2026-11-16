@@ -2,17 +2,17 @@
 <resources>
     <string name="login_title">Welcome to Kinly</string>
     <string name="login_subtitle">Sign in to share expenses with your family. Your data stays safe.</string>
-    <string name="login_email">Email</string>
+    <string name="login_email">Email address</string>
     <string name="login_send_code">Send code</string>
-    <string name="login_sending">Sending…</string>
-    <string name="login_code_sent">We sent a code to %1$s. Check your inbox (and spam).</string>
-    <string name="login_code">Code from your email</string>
+    <string name="login_sending">Sending code...</string>
+    <string name="login_code_sent">Enter the six-digit code sent to %1$s</string>
+    <string name="login_code">Code</string>
     <string name="login_verify">Sign in</string>
-    <string name="login_resend">Send code again</string>
+    <string name="login_resend">Resend</string>
     <string name="login_change_email">Use a different email</string>
     <string name="login_google">Continue with Google</string>
     <string name="login_error_email">Please enter a valid email</string>
-    <string name="login_error_code">That code is wrong or expired. Try again or send a new one.</string>
+    <string name="login_error_code">The code doesn\'t match. Please try again.</string>
     <string name="login_error_too_many">Too many tries. Please wait a minute and try again.</string>
     <string name="login_error_network">No internet. Check your connection and try again.</string>
     <string name="login_error_google">Google sign-in didn\'t work. Try email instead.</string>
@@ -26,4 +26,15 @@
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get started</string>
+    <string name="login_tagline_start">Your family\'s money,</string>
+    <string name="login_tagline_end">together.</string>
+    <string name="login_tagline_sub">Track expenses. Plan better. Grow together.</string>
+    <string name="login_or">or</string>
+    <string name="login_privacy">Your financial information stays private and secure.</string>
+    <string name="login_welcome">Welcome to Kinly</string>
+    <string name="login_email_hint">Enter your email to get a secure sign-in code.</string>
+    <string name="login_verify_title">Verify your email</string>
+    <string name="login_continue">Continue</string>
+    <string name="login_verifying">Verifying...</string>
+    <string name="login_no_code">Didn\'t receive a code?</string>
 </resources>
