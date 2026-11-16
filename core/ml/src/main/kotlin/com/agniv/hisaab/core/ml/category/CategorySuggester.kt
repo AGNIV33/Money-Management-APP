@@ -10,6 +10,7 @@ import java.time.LocalDate
  *    Vegetables 4 times out of 5, it will be Vegetables again. Learns from your own entries, so a correction
  *    today shapes tomorrow's guess; it never leaves the phone.
  * 2. The built-in word list (doodh, petrol, swiggy ...) shared with voice and bill scan.
+ * 3. The small trained model ([CategoryClassifier]) for names and spellings the list does not know.
  * Only a suggestion: the screen shows it and the user can change it.
  */
 object CategorySuggester {
@@ -26,10 +27,13 @@ object CategorySuggester {
         history: List<Expense>,
         categoryIdByName: Map<String, String>,
         today: LocalDate,
+        model: CategoryClassifier? = null,
     ): String? {
         val words = tokens(note)
         if (words.isEmpty()) return null
-        return personal(words, history) ?: VoiceParser.parse(note, today).categoryName?.let(categoryIdByName::get)
+        return personal(words, history)
+            ?: VoiceParser.parse(note, today).categoryName?.let(categoryIdByName::get)
+            ?: model?.classify(note)?.categoryName?.let(categoryIdByName::get)
     }
 
     private fun tokens(text: String): List<String> =

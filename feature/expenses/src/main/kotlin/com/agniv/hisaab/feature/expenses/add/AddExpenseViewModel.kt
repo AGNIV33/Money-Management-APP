@@ -22,6 +22,7 @@ import com.agniv.hisaab.core.domain.usecase.ExpenseError
 import com.agniv.hisaab.core.domain.usecase.UpdateExpense
 import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
+import com.agniv.hisaab.core.ml.category.CategoryClassifier
 import com.agniv.hisaab.core.ml.category.CategorySuggester
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -121,6 +122,8 @@ data class ExpensePrefill(
 
 @HiltViewModel
 class AddExpenseViewModel
+    // Injected by Hilt; adding, editing, deleting, Udhaar/repeat extras and the category guess all meet here.
+    @Suppress("LongParameterList")
     @Inject
     constructor(
         private val sessions: SessionRepository,
@@ -132,9 +135,13 @@ class AddExpenseViewModel
         private val deleteExpense: DeleteExpense,
         private val extras: AddExpenseExtras,
         private val time: TimeProvider,
+        private val categoryModel: CategoryModelSource,
     ) : ViewModel() {
         /** Past expenses the category guess learns from; loaded once. */
         private var history: List<Expense> = emptyList()
+
+        /** On-device category model; null until loaded (or if the file is missing), then the guess just skips it. */
+        private var model: CategoryClassifier? = null
         private var userPickedCategory = false
 
         private val _state = MutableStateFlow(AddExpenseUiState(date = time.today(), today = time.today()))
@@ -162,6 +169,9 @@ class AddExpenseViewModel
 
         private fun loadHistory() {
             viewModelScope.launch {
+                model = categoryModel.get()
+            }
+            viewModelScope.launch {
                 val session = sessions.session.filterNotNull().first()
                 val today = time.today()
                 history = expenses.observeExpenses(session.familyId, session.userId, today.minusDays(HISTORY_DAYS), today).first()
@@ -175,7 +185,7 @@ class AddExpenseViewModel
                 _state.value.categories
                     .filter { it.isDefault }
                     .associate { it.name to it.id }
-            val id = CategorySuggester.suggest(note, history, byName, time.today()) ?: return
+            val id = CategorySuggester.suggest(note, history, byName, time.today(), model) ?: return
             _state.update { it.copy(categoryId = id, categoryAuto = true) }
         }
 

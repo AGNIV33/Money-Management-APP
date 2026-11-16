@@ -123,12 +123,12 @@ Service-role key is **never** in the app.
 ### 6.1 On-device (free, offline)
 | Part | How | Runs |
 |------|-----|------|
-| **Category classifier** | Small LiteRT text model (< 2 MB) trained on Indian merchant/note words (Swiggy→Food Outside, doodh→Milk). Plus **personal rules**: `ml_feedback` keyword map overrides model. | On save/typing, `Dispatchers.Default` |
+| **Category classifier** | Small Naive Bayes text model (`category_model.txt`, 67 KB, pure Kotlin, no LiteRT) trained on Indian merchant/note words (Dominos→Food Outside, Jio→Mobile/Internet). Order: **your habits** (past expenses with the same word) → built-in word list → model. | On save/typing, `Dispatchers.Default` |
 | **Insight engine** | Pure Kotlin stats: month-over-month change per category, z-score spike detection, recurring detection, 3-month moving average forecast, budget burn rate, EMI burden %. | `InsightWorker` daily + on month end |
 | **Voice parser** | Android `SpeechRecognizer` (en-IN / hi-IN) → rule parser: numbers (incl. "do sau", "200", "2k"), dates ("aaj", "kal", "yesterday"), category words. | On device |
 | **Receipt OCR** | ML Kit Text Recognition (bundled Latin model; Devanagari model optional) → regex for TOTAL/Grand Total/₹ amounts + dates. | On device |
 
-Model training (offline, on PC): small dataset CSV → TensorFlow/Keras text classifier → convert to `.tflite` → put in `core/ml/src/main/assets/`. Version the model file.
+Model training (offline, on PC, plain Python): `python ml/training/make_dataset.py` → `dataset.csv`; `python ml/training/train.py` → `core/ml/src/main/assets/category_model.txt`. Text clean-up in train.py and `CategoryClassifier.kt` must match; bump `MODEL_VERSION` on change.
 
 ### 6.2 Cloud AI (via Edge Functions)
 | Edge function | Input | Output |
