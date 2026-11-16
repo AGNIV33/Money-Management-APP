@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="assistant_open">Kinly से बात करें</string>
-    <string name="assistant_title">Kinly से बात करें</string>
+    <string name="assistant_title">AI असिस्टेंट</string>
     <string name="assistant_orb">Kinly से बात शुरू या बंद करें</string>
     <string name="assistant_tap">अपने पैसों के बारे में बात करने के लिए टैप करें</string>
     <string name="assistant_tap_again">फिर कोशिश करने के लिए टैप करें</string>
@@ -13,7 +13,7 @@
     <string name="assistant_tip">इयरफ़ोन लगाकर बेहतर काम करता है। Kinly सिर्फ़ पैसों की बात करता है और आपकी एंट्री बदल नहीं सकता।</string>
 
     <string name="assistant_consent_title">Kinly से बात करने से पहले</string>
-    <string name="assistant_consent_voice">बात करने के लिए आपकी आवाज़ सीधे Google के Gemini को भेजी जाती है, जो आवाज़ में जवाब देता है।</string>
+    <string name="assistant_consent_voice">जब आप बोलते या लिखते हैं, आपके शब्द सीधे Google के Gemini को जाते हैं, जो जवाब देता है।</string>
     <string name="assistant_consent_totals">जब आप अपने पैसों के बारे में पूछते हैं, तो सिर्फ़ कुल रकम भेजी जाती है, जैसे \"इस महीने का खर्च\"। नाम, नोट, फ़ोन नंबर या खाता नंबर कभी नहीं।</string>
     <string name="assistant_consent_nosave">आप जो बोलते या सुनते हैं, Kinly उसे सेव नहीं करता।</string>
     <string name="assistant_consent_free">यह Google की मुफ़्त सेवा है, इसलिए Google इन बातचीतों का उपयोग अपने प्रोडक्ट सुधारने में कर सकता है।</string>
@@ -28,7 +28,22 @@
     <string name="assistant_err_busy">आज Kinly की आवाज़ पर बहुत भीड़ है। कृपया कल फिर कोशिश करें।</string>
     <string name="assistant_err_not_configured">आवाज़ अभी चालू नहीं की गई है।</string>
     <string name="assistant_err_signed_in">Kinly से बात करने के लिए साइन इन करें।</string>
-    <string name="assistant_err_failed">कुछ गड़बड़ हो गई। फिर कोशिश करें।</string>
+    <string name="assistant_err_failed">अभी जवाब नहीं मिल पाया। फिर कोशिश करें।</string>
     <string name="assistant_err_lost">कनेक्शन टूट गया। दोबारा शुरू करने के लिए टैप करें।</string>
     <string name="assistant_stopped_quiet">शांति रहने के कारण मैंने सुनना बंद कर दिया। दोबारा शुरू करने के लिए टैप करें।</string>
+    <string name="assistant_clear">चैट साफ़ करें</string>
+    <string name="assistant_privacy">सिर्फ़ तारीख, कैटेगरी और रकम शेयर होती है, नाम या नोट नहीं।</string>
+    <string name="assistant_welcome_title">अपने पैसों के बारे में पूछें</string>
+    <string name="assistant_welcome_body">अपने खर्च, बजट, बचत और बाकी के बारे में जल्दी जवाब पाएँ।</string>
+    <string name="assistant_offline_title">आप ऑफ़लाइन हैं</string>
+    <string name="assistant_offline_body">इंटरनेट कनेक्शन देखें और फिर कोशिश करें।</string>
+    <string name="assistant_try_again">फिर कोशिश करें</string>
+    <string name="assistant_error_title">कुछ गड़बड़ हो गई</string>
+    <string name="assistant_voice_only">आवाज़ में जवाब दिया</string>
+    <string name="assistant_suggest_budget">मेरा कितना बजट बचा है?</string>
+    <string name="assistant_suggest_most">मैंने सबसे ज़्यादा कहाँ खर्च किया?</string>
+    <string name="assistant_mic_start">लिखने की जगह बोलें</string>
+    <string name="assistant_mic_stop">बोलना बंद करें</string>
+    <string name="assistant_ask_hint">कुछ पूछें...</string>
+    <string name="assistant_send">भेजें</string>
 </resources>

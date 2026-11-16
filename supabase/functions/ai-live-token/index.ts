@@ -135,6 +135,9 @@ Deno.serve(async (req: Request) => {
           },
           systemInstruction: { parts: [{ text: SYSTEM }] },
           tools: TOOLS,
+          // Text of both sides so the app's chat screen can show the conversation (nothing is stored).
+          inputAudioTranscription: {},
+          outputAudioTranscription: {},
         },
       }),
       signal: AbortSignal.timeout(15_000),

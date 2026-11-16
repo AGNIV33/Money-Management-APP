@@ -110,6 +110,10 @@ private class KtorLiveSession(
         outbox.trySend(LiveProtocol.toolAnswersMessage(answers))
     }
 
+    override fun sendText(text: String) {
+        outbox.trySend(LiveProtocol.textMessage(text))
+    }
+
     override fun close() {
         outbox.close()
         scope.launch {

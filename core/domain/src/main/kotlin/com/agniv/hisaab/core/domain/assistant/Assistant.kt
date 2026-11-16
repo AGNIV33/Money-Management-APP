@@ -39,6 +39,16 @@ sealed interface LiveEvent {
     /** The assistant finished its turn. */
     data object TurnComplete : LiveEvent
 
+    /** Words the user said, as text (a piece at a time). Only when the server sends transcripts. */
+    data class UserText(
+        val text: String,
+    ) : LiveEvent
+
+    /** Words the assistant said, as text (a piece at a time), shown in the chat. */
+    data class AssistantText(
+        val text: String,
+    ) : LiveEvent
+
     data class ToolCalls(
         val calls: List<ToolCall>,
     ) : LiveEvent
@@ -73,6 +83,9 @@ interface LiveSession {
     )
 
     fun sendToolAnswers(answers: List<ToolAnswer>)
+
+    /** A typed question. Only the words typed are sent; the answer comes back as voice (and text when available). */
+    fun sendText(text: String)
 
     fun close()
 }
