@@ -2,7 +2,6 @@ package com.agniv.hisaab.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -49,7 +51,7 @@ fun HProgressBar(
     color: Color = bandColor(bandOf(fraction)),
     trackColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
-    val shown by animateFill(fraction.coerceIn(0f, 1f))
+    val shown = animateFill(fraction.coerceIn(0f, 1f))
     val spoken = stringResource(R.string.ds_progress_percent, progressPercent(fraction))
     Box(
         modifier
@@ -57,15 +59,15 @@ fun HProgressBar(
             .semantics { stateDescription = spoken }
             .fillMaxWidth()
             .height(height)
-            .background(trackColor, CircleShape),
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth(shown)
-                .fillMaxHeight()
-                .background(color, CircleShape),
-        )
-    }
+            // The fill is drawn, not laid out: while it animates only the draw step runs each frame, with no
+            // recomposition or re-measure, so it stays smooth at 90/120 Hz.
+            .drawBehind {
+                val r = CornerRadius(size.height / 2)
+                drawRoundRect(trackColor, cornerRadius = r)
+                val w = size.width * shown.value
+                if (w > 0f) drawRoundRect(color, size = Size(w, size.height), cornerRadius = r)
+            },
+    )
 }
 
 @Composable

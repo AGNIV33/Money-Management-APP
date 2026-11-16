@@ -66,7 +66,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -351,25 +351,19 @@ private fun Typing() {
             },
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
+        // Read inside graphicsLayer so the dots fade on the GPU without recomposing every frame.
         val t =
             if (reduced) {
-                0f
+                null
             } else {
-                val transition = rememberInfiniteTransition(label = "typing")
-                val v by transition.animateFloat(
-                    0f,
-                    DOTS.toFloat(),
-                    infiniteRepeatable(tween(TYPING_MS), RepeatMode.Restart),
-                    label = "dot",
-                )
-                v
+                rememberInfiniteTransition(label = "typing")
+                    .animateFloat(0f, DOTS.toFloat(), infiniteRepeatable(tween(TYPING_MS), RepeatMode.Restart), label = "dot")
             }
         repeat(DOTS) { i ->
-            val on = !reduced && t.toInt() == i
             Box(
                 Modifier
                     .size(8.dp)
-                    .alpha(if (on || reduced) 1f else DIM)
+                    .graphicsLayer { alpha = if (t == null || t.value.toInt() == i) 1f else DIM }
                     .background(MaterialTheme.colorScheme.onSurfaceVariant, CircleShape),
             )
         }

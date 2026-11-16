@@ -63,6 +63,7 @@ class MainActivity : FragmentActivity() {
         installSplashScreen().setKeepOnScreenCondition { viewModel.screen.value == RootScreen.SPLASH }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        RefreshRate.requestHighest(this)
         openInsights = intent?.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false) == true
         themeMode = settings.theme
         viewModel.start(
