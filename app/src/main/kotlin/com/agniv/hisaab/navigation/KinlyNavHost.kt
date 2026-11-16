@@ -42,9 +42,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.agniv.hisaab.R
 import com.agniv.hisaab.core.designsystem.motion.Motion
 import com.agniv.hisaab.core.designsystem.motion.rememberReducedMotion
+import com.agniv.hisaab.feature.expenses.add.AddExpenseScreen
 import com.agniv.hisaab.feature.expenses.home.AllExpensesScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import com.agniv.hisaab.feature.expenses.home.HomeActions
@@ -61,6 +63,12 @@ data object TabsRoute
 
 @Serializable
 data object AllExpensesRoute
+
+/** [editId] null = adding a new expense. */
+@Serializable
+data class AddExpenseRoute(
+    val editId: String? = null,
+)
 
 @Serializable
 data object EmiRoute
@@ -143,7 +151,16 @@ fun KinlyNavHost(
         composable<TabsRoute> {
             Tabs(tab = tab, onTab = { tab = it }, content = content, navController = navController)
         }
-        composable<AllExpensesRoute> { AllExpensesScreen(onBack = navController::popBackStack) }
+        composable<AllExpensesRoute> {
+            AllExpensesScreen(
+                onBack = navController::popBackStack,
+                onAdd = { navController.navigate(AddExpenseRoute()) },
+                onEdit = { navController.navigate(AddExpenseRoute(it)) },
+            )
+        }
+        composable<AddExpenseRoute> { entry ->
+            AddExpenseScreen(onDone = navController::popBackStack, editId = entry.toRoute<AddExpenseRoute>().editId)
+        }
         composable<EmiRoute> { LoansScreen() }
         composable<UdhaarRoute> { UdhaarScreen() }
         composable<ToolsRoute> { ToolsScreen() }
@@ -171,6 +188,8 @@ private fun Tabs(
                     ExpensesHomeScreen(
                         actions =
                             HomeActions(
+                                onAddExpense = { navController.navigate(AddExpenseRoute()) },
+                                onEditExpense = { navController.navigate(AddExpenseRoute(it)) },
                                 // Alerts and Family get their own screens in later steps; until then they open the
                                 // places that hold them today.
                                 onAlerts = { onTab(Tab.INSIGHTS) },

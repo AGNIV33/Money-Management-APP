@@ -84,6 +84,11 @@ sealed interface AddExpenseEvent {
         val key: PadKey,
     ) : AddExpenseEvent
 
+    /** Text from the amount field (phone keyboard); cleaned to the same rules as the keypad. */
+    data class EditAmount(
+        val text: String,
+    ) : AddExpenseEvent
+
     data class PickCategory(
         val id: String,
     ) : AddExpenseEvent
@@ -272,6 +277,8 @@ class AddExpenseViewModel
             when (event) {
                 is AddExpenseEvent.Key ->
                     _state.update { it.copy(amountText = AmountInput.apply(it.amountText, event.key), error = null) }
+                is AddExpenseEvent.EditAmount ->
+                    _state.update { it.copy(amountText = AmountInput.sanitize(event.text), error = null) }
                 is AddExpenseEvent.PickCategory -> {
                     userPickedCategory = true
                     _state.update { it.copy(categoryId = event.id, categoryAuto = false, error = null) }

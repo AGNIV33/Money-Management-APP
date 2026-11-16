@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="add_expense_title">Add expense</string>
+    <string name="add_expense_title">Add Expense</string>
     <string name="add_expense_fab">Add</string>
     <string name="add_expense_category">Category</string>
     <string name="add_expense_note">Note (optional)</string>
     <string name="add_expense_only_me">Only me</string>
     <string name="add_expense_only_me_hint">Family won\'t see this expense</string>
-    <string name="add_expense_save">Save</string>
+    <string name="add_expense_save">Save Expense</string>
     <string name="keypad_backspace">Delete last digit</string>
     <string name="date_today">Today</string>
     <string name="date_yesterday">Yesterday</string>
@@ -119,7 +119,7 @@
     <string name="credit_hint">Adds to Udhaar under "You will give"</string>
     <string name="credit_from">Shop or person</string>
     <string name="error_credit_from">Enter the shop or person you owe</string>
-    <string name="scan_title">Scan a bill</string>
+    <string name="scan_title">Scan Bill</string>
     <string name="scan_take">Take photo</string>
     <string name="scan_pick">Choose picture</string>
     <string name="scan_hint">Take a clear photo of the whole bill. It is read on this phone; the picture is not sent anywhere.</string>
@@ -155,4 +155,42 @@
     <string name="cat_limit_add">+ Add a category limit</string>
     <string name="cat_limit_dialog_title">Monthly limit</string>
     <string name="cat_limit_amount">Limit</string>
+    <string name="add_choose_category">Choose a category</string>
+    <string name="add_note_hint">e.g., Dinner with family</string>
+    <string name="add_date">Date</string>
+    <string name="add_payment_mode">Payment mode</string>
+    <string name="goal_pick_title_optional">Count towards a goal (optional)</string>
+    <string name="goal_pick_select">Select a goal</string>
+    <string name="add_voice">Voice</string>
+    <string name="add_scan">Scan bill</string>
+    <string name="add_saving">Saving...</string>
+    <string name="add_amount">Amount</string>
+    <string name="add_more_options">More options</string>
+    <string name="date_today_full">Today, %1$s</string>
+    <string name="date_yesterday_full">Yesterday, %1$s</string>
+    <string name="voice_sheet_title">Add by voice</string>
+    <string name="voice_close">Close</string>
+    <string name="voice_idle_hint">Speak your expense and I\'ll fill the details.</string>
+    <string name="voice_example">e.g. "200 rupees chai"</string>
+    <string name="voice_start">Start listening</string>
+    <string name="voice_stop">Tap to stop</string>
+    <string name="voice_understood">Here\'s what I understood</string>
+    <string name="voice_note">Note</string>
+    <string name="voice_retry">Retry</string>
+    <string name="voice_confirm">Confirm</string>
+    <string name="voice_perm_title">Microphone permission is required</string>
+    <string name="voice_perm_body">Allow microphone access to add expenses by voice.</string>
+    <string name="voice_perm_allow">Allow permission</string>
+    <string name="scan_frame_hint">Place the bill inside the frame</string>
+    <string name="scan_capture">Take photo of the bill</string>
+    <string name="scan_preview">Photo of the bill</string>
+    <string name="scan_retake">Retake</string>
+    <string name="scan_process">Process</string>
+    <string name="scan_reading_title">Reading your bill...</string>
+    <string name="scan_reading_body">Extracting amount, date and shop name.</string>
+    <string name="scan_detected">Bill detected</string>
+    <string name="scan_shop">Shop name</string>
+    <string name="scan_save">Save expense</string>
+    <string name="scan_unreadable_title">Couldn\'t read the bill</string>
+    <string name="scan_unreadable_body">The image is not clear. Please retake with good lighting.</string>
 </resources>

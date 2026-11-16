@@ -65,7 +65,6 @@ import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.usecase.CategoryBudget
 import com.agniv.hisaab.feature.expenses.R
-import com.agniv.hisaab.feature.expenses.add.AddExpenseSheet
 import com.agniv.hisaab.feature.expenses.statement.StatementImportSheet
 import com.agniv.hisaab.feature.expenses.ui.CategoryTile
 import com.agniv.hisaab.feature.expenses.ui.iconVector
@@ -73,6 +72,8 @@ import com.agniv.hisaab.feature.expenses.ui.label
 
 /** Where Home's buttons lead; the app owns navigation so features stay apart. */
 class HomeActions(
+    val onAddExpense: () -> Unit,
+    val onEditExpense: (String) -> Unit,
     val onAlerts: () -> Unit,
     val onFamily: () -> Unit,
     val onBudgets: () -> Unit,
@@ -95,8 +96,6 @@ fun ExpensesHomeScreen(
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    // null = closed, "" = adding, otherwise the id being edited.
-    var sheetFor by rememberSaveable { mutableStateOf<String?>(null) }
     var showImport by rememberSaveable { mutableStateOf(false) }
     val firstName =
         state.members.values
@@ -106,7 +105,7 @@ fun ExpensesHomeScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = { AddFab(onClick = { sheetFor = "" }) },
+        floatingActionButton = { AddFab(onClick = actions.onAddExpense) },
     ) { padding ->
         LazyColumn(
             modifier =
@@ -121,13 +120,10 @@ fun ExpensesHomeScreen(
             item(key = "budgets") { CategoryBudgetsCard(state, actions.onBudgets) }
             item(key = "insight") { insightCard() }
             item(key = "shortcuts") { Shortcuts(actions, onImport = { showImport = true }) }
-            item(key = "recent") { RecentExpenses(state, actions.onAllExpenses, onOpen = { sheetFor = it }) }
+            item(key = "recent") { RecentExpenses(state, actions.onAllExpenses, onOpen = actions.onEditExpense) }
         }
     }
 
-    sheetFor?.let { id ->
-        AddExpenseSheet(onDismiss = { sheetFor = null }, editId = id.ifEmpty { null })
-    }
     if (showImport) StatementImportSheet(onDismiss = { showImport = false })
 }
 

@@ -64,7 +64,6 @@ import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.feature.expenses.R
-import com.agniv.hisaab.feature.expenses.add.AddExpenseSheet
 import com.agniv.hisaab.feature.expenses.add.labelRes
 import com.agniv.hisaab.feature.expenses.recurring.RecurringSheet
 import com.agniv.hisaab.feature.expenses.statement.StatementImportSheet
@@ -83,11 +82,11 @@ import java.time.format.FormatStyle
 @Composable
 fun AllExpensesScreen(
     onBack: () -> Unit,
+    onAdd: () -> Unit,
+    onEdit: (String) -> Unit,
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    // null = closed, "" = adding, otherwise the id being edited.
-    var sheetFor by rememberSaveable { mutableStateOf<String?>(null) }
     var showRepeating by rememberSaveable { mutableStateOf(false) }
     var showStatement by rememberSaveable { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
@@ -120,7 +119,7 @@ fun AllExpensesScreen(
             }
         },
         snackbarHost = { SnackbarHost(snackbar) },
-        floatingActionButton = { AddFab(onClick = { sheetFor = "" }) },
+        floatingActionButton = { AddFab(onClick = onAdd) },
     ) { padding ->
         LazyColumn(
             modifier =
@@ -174,7 +173,7 @@ fun AllExpensesScreen(
                         ExpenseRow(
                             expense = expense,
                             category = state.categories[expense.categoryId],
-                            onClick = { sheetFor = expense.id },
+                            onClick = { onEdit(expense.id) },
                         )
                     }
                     HorizontalDivider()
@@ -185,12 +184,6 @@ fun AllExpensesScreen(
 
     if (showRepeating) RecurringSheet(onDismiss = { showRepeating = false })
     if (showStatement) StatementImportSheet(onDismiss = { showStatement = false })
-    sheetFor?.let { id ->
-        AddExpenseSheet(
-            onDismiss = { sheetFor = null },
-            editId = id.ifEmpty { null },
-        )
-    }
 }
 
 private fun LazyListScope.nextEmiItem(
