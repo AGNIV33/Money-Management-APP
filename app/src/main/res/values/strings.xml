@@ -43,7 +43,7 @@
     <string name="notify_allow">Allow notifications</string>
     <string name="notify_budget_hint">At 80% and 100% of the family budget or a category limit</string>
     <string name="notify_smart_hint">Unusual payment, a category up a lot, budget running out early. Worked out on this phone.</string>
-    <string name="notify_report_hint">On the 1st: last month's report card is ready</string>
+    <string name="notify_report_hint">On the 1st: the report card for last month is ready</string>
     <string name="notify_emi_hint">3 days before, 1 day before and on the EMI date</string>
     <string name="notify_udhaar_hint">A day before and on the date money is due</string>
     <string name="notify_goals_hint">Monthly saving nudge and when a goal date is near</string>
