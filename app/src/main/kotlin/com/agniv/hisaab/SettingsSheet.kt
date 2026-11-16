@@ -3,14 +3,11 @@ package com.agniv.hisaab
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
 /** App lock and language, shown inside the profile. The full Settings screen (export, delete account) comes in Phase 5. */
@@ -94,22 +90,5 @@ fun SettingsSection(
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
         FilterChip(selected = language == "en", onClick = { if (language != "en") onLanguage("en") }, label = { Text("English") })
         FilterChip(selected = language == "hi", onClick = { if (language != "hi") onLanguage("hi") }, label = { Text("हिंदी") })
-    }
-}
-
-/** Shown instead of the app while it is locked. Amounts and names are not visible here. */
-@Composable
-fun LockScreen(onUnlock: () -> Unit) {
-    LaunchedEffect(Unit) { onUnlock() }
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(Spacing.xl),
-        verticalArrangement = Arrangement.spacedBy(Spacing.l, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("🔒", style = MaterialTheme.typography.displayMedium)
-        Text(stringResource(R.string.lock_title), style = MaterialTheme.typography.headlineSmall)
-        HButton(onClick = onUnlock) { Text(stringResource(R.string.lock_unlock)) }
     }
 }

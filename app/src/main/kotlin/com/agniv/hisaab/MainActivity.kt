@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
@@ -20,6 +21,10 @@ import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.auth.OnboardingScreen
 import com.agniv.hisaab.feature.family.profile.ProfileScreen
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
+import com.agniv.hisaab.lock.ForgotPinScreen
+import com.agniv.hisaab.lock.PinLockScreen
+import com.agniv.hisaab.lock.ResetBySignIn
+import com.agniv.hisaab.lock.SystemLockScreen
 import com.agniv.hisaab.navigation.KinlyNavHost
 import com.agniv.hisaab.navigation.Tab
 import com.agniv.hisaab.navigation.TabContent
@@ -62,11 +67,7 @@ class MainActivity : FragmentActivity() {
         )
         setContent {
             HisaabTheme {
-                if (lock.locked) {
-                    LockScreen(onUnlock = { lock.authenticate() })
-                } else {
-                    AppRoot()
-                }
+                if (lock.locked) LockGate() else AppRoot()
             }
         }
     }
@@ -74,6 +75,30 @@ class MainActivity : FragmentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false)) openInsights = true
+    }
+
+    /** What shows while the app is locked: the PIN keypad (or the old fingerprint-only prompt), and Forgot PIN. */
+    @Composable
+    private fun LockGate() {
+        if (!lock.usesPin) {
+            SystemLockScreen(onUnlock = { lock.authenticate() })
+            return
+        }
+        var forgot by rememberSaveable { mutableStateOf(false) }
+        var resetting by rememberSaveable { mutableStateOf(false) }
+        if (forgot) {
+            ForgotPinScreen(onBack = { forgot = false }, onSignIn = { resetting = true })
+        } else {
+            PinLockScreen(lock, onForgot = { forgot = true })
+        }
+        if (resetting) {
+            ResetBySignIn(
+                lock = lock,
+                localFamilyName = getString(R.string.local_family_name),
+                localMemberName = getString(R.string.local_member_name),
+                onCancel = { resetting = false },
+            )
+        }
     }
 
     @Composable
@@ -99,6 +124,7 @@ class MainActivity : FragmentActivity() {
             RootScreen.HOME ->
                 KinlyNavHost(
                     settings = settings,
+                    lock = lock,
                     content =
                         TabContent(
                             assistant = {

@@ -43,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.agniv.hisaab.AppLock
 import com.agniv.hisaab.AppSettings
 import com.agniv.hisaab.NotifyType
 import com.agniv.hisaab.R
@@ -64,6 +65,10 @@ import com.agniv.hisaab.feature.insights.report.MonthlyReportScreen
 import com.agniv.hisaab.feature.loans.LoansScreen
 import com.agniv.hisaab.feature.tools.ToolsScreen
 import com.agniv.hisaab.feature.udhaar.UdhaarScreen
+import com.agniv.hisaab.lock.ForgotPinScreen
+import com.agniv.hisaab.lock.ResetBySignIn
+import com.agniv.hisaab.lock.SecurityScreen
+import com.agniv.hisaab.lock.SetPinScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -92,6 +97,17 @@ data object AlertsRoute
 
 @Serializable
 data object ReportRoute
+
+@Serializable
+data object SecurityRoute
+
+@Serializable
+data class SetPinRoute(
+    val change: Boolean,
+)
+
+@Serializable
+data object ForgotPinRoute
 
 @Serializable
 data object NotificationSettingsRoute
@@ -135,6 +151,7 @@ class TabContent(
 @Composable
 fun KinlyNavHost(
     settings: AppSettings,
+    lock: AppLock,
     content: TabContent,
     openTab: Tab?,
     onTabOpened: () -> Unit,
@@ -231,6 +248,36 @@ fun KinlyNavHost(
             )
         }
         composable<NotificationSettingsRoute> { NotificationSettingsScreen(settings, onBack = navController::popBackStack) }
+        composable<SecurityRoute> {
+            SecurityScreen(
+                lock = lock,
+                settings = settings,
+                onBack = navController::popBackStack,
+                onCreatePin = { navController.navigate(SetPinRoute(change = false)) },
+                onChangePin = { navController.navigate(SetPinRoute(change = true)) },
+                onForgot = { navController.navigate(ForgotPinRoute) },
+            )
+        }
+        composable<SetPinRoute> { entry ->
+            SetPinScreen(
+                lock = lock,
+                change = entry.toRoute<SetPinRoute>().change,
+                onBack = navController::popBackStack,
+                onDone = navController::popBackStack,
+            )
+        }
+        composable<ForgotPinRoute> {
+            var resetting by rememberSaveable { mutableStateOf(false) }
+            ForgotPinScreen(onBack = navController::popBackStack, onSignIn = { resetting = true })
+            if (resetting) {
+                ResetBySignIn(
+                    lock = lock,
+                    localFamilyName = stringResource(R.string.local_family_name),
+                    localMemberName = stringResource(R.string.local_member_name),
+                    onCancel = { resetting = false },
+                )
+            }
+        }
         composable<ReportRoute> {
             MonthlyReportScreen(onBack = navController::popBackStack, onAddExpense = { navController.navigate(AddExpenseRoute()) })
         }
