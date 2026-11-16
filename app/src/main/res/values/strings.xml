@@ -36,4 +36,24 @@
     <string name="goal_month_text">Put aside %1$s this month to reach it on time</string>
     <string name="goal_near_title">%1$s: the date is near</string>
     <string name="goal_near_text">%1$s still to go by %2$s</string>
+    <string name="smart_channel">Smart alerts</string>
+    <string name="report_channel">Monthly report</string>
+    <string name="notify_title">Notifications</string>
+    <string name="notify_blocked">Notifications are off for Kinly on this phone, so no alerts or reminders can show.</string>
+    <string name="notify_allow">Allow notifications</string>
+    <string name="notify_budget_hint">At 80% and 100% of the family budget or a category limit</string>
+    <string name="notify_smart_hint">Unusual payment, a category up a lot, budget running out early. Worked out on this phone.</string>
+    <string name="notify_report_hint">On the 1st: last month's report card is ready</string>
+    <string name="notify_emi_hint">3 days before, 1 day before and on the EMI date</string>
+    <string name="notify_udhaar_hint">A day before and on the date money is due</string>
+    <string name="notify_goals_hint">Monthly saving nudge and when a goal date is near</string>
+    <string name="smart_this_category">This category</string>
+    <string name="smart_jump_title">%1$s spending is up</string>
+    <string name="smart_jump_text">Up %1$d%% on the same days last month: %2$s so far.</string>
+    <string name="smart_big_title">Unusual payment</string>
+    <string name="smart_big_text">%1$s: %2$s, much more than your usual %3$s. Please check it is right.</string>
+    <string name="smart_pace_title">Budget may run out early</string>
+    <string name="smart_pace_text">At this pace it runs out on day %1$d. About %2$s a day keeps you within it.</string>
+    <string name="report_ready_title">Your %1$s report is ready</string>
+    <string name="report_ready_text">See where the money went and how the month went.</string>
 </resources>

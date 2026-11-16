@@ -89,6 +89,7 @@ fun SettingsSection(
             },
         )
     }
+    NotificationSettings(settings)
     Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.titleMedium)
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
         FilterChip(selected = language == "en", onClick = { if (language != "en") onLanguage("en") }, label = { Text("English") })

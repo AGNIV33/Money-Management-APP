@@ -1,17 +1,14 @@
 package com.agniv.hisaab
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.data.loan.EmiReminderNotifier
 import com.agniv.hisaab.core.domain.loan.EmiReminder
@@ -38,11 +35,8 @@ class AndroidEmiNotifier
         @ApplicationContext private val context: Context,
     ) : EmiReminderNotifier {
         override fun notify(reminder: EmiReminder) {
-            // Android 13+: no permission, no notification. The Loans screen asks after the first loan is saved.
-            val allowed =
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED
+            // Off when Android 13+ permission is missing or the user turned this type off in Settings.
+            val allowed = Notifications.allowed(context, NotifyType.EMI)
             if (!allowed) return
             ensureChannel()
             val loan = reminder.loan

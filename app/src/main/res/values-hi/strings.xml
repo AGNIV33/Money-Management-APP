@@ -35,4 +35,24 @@
     <string name="goal_month_text">समय पर पूरा करने के लिए इस महीने %1$s अलग रखें</string>
     <string name="goal_near_title">%1$s: तारीख पास है</string>
     <string name="goal_near_text">%2$s तक %1$s और चाहिए</string>
+    <string name="smart_channel">स्मार्ट अलर्ट</string>
+    <string name="report_channel">महीने की रिपोर्ट</string>
+    <string name="notify_title">नोटिफ़िकेशन</string>
+    <string name="notify_blocked">इस फ़ोन पर Kinly के नोटिफ़िकेशन बंद हैं, इसलिए कोई अलर्ट या रिमाइंडर नहीं दिखेगा।</string>
+    <string name="notify_allow">नोटिफ़िकेशन चालू करें</string>
+    <string name="notify_budget_hint">परिवार के बजट या कैटेगरी की सीमा के 80% और 100% पर</string>
+    <string name="notify_smart_hint">असामान्य भुगतान, किसी कैटेगरी में बहुत बढ़ोतरी, बजट जल्दी खत्म होना। सब इसी फ़ोन पर निकाला जाता है।</string>
+    <string name="notify_report_hint">1 तारीख को: पिछले महीने का रिपोर्ट कार्ड तैयार</string>
+    <string name="notify_emi_hint">EMI की तारीख से 3 दिन पहले, 1 दिन पहले और उसी दिन</string>
+    <string name="notify_udhaar_hint">पैसे की तारीख से एक दिन पहले और उसी दिन</string>
+    <string name="notify_goals_hint">हर महीने बचत की याद और लक्ष्य की तारीख पास आने पर</string>
+    <string name="smart_this_category">यह कैटेगरी</string>
+    <string name="smart_jump_title">%1$s का खर्च बढ़ा</string>
+    <string name="smart_jump_text">पिछले महीने के इन्हीं दिनों से %1$d%% ज़्यादा: अब तक %2$s।</string>
+    <string name="smart_big_title">असामान्य भुगतान</string>
+    <string name="smart_big_text">%1$s: %2$s, आपके आम %3$s से बहुत ज़्यादा। कृपया जाँच लें कि सही है।</string>
+    <string name="smart_pace_title">बजट जल्दी खत्म हो सकता है</string>
+    <string name="smart_pace_text">इसी रफ़्तार से %1$d तारीख को खत्म होगा। रोज़ करीब %2$s खर्च करने पर बजट में रहेंगे।</string>
+    <string name="report_ready_title">आपकी %1$s की रिपोर्ट तैयार है</string>
+    <string name="report_ready_text">देखें पैसा कहाँ गया और महीना कैसा रहा।</string>
 </resources>

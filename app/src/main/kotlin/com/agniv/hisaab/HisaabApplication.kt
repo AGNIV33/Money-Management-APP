@@ -29,6 +29,8 @@ class HisaabApplication :
 
     @Inject lateinit var recurring: Lazy<RecurringScheduler>
 
+    @Inject lateinit var smartAlerts: Lazy<SmartAlertScheduler>
+
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override val workManagerConfiguration: Configuration
@@ -49,6 +51,8 @@ class HisaabApplication :
             emiReminders.get().start()
             // Rent, maid, milk and other repeating expenses are made on their day, even with the app closed.
             recurring.get().start()
+            // Evening check that turns on-device insights (unusual payment, category jump, budget running out) into notifications.
+            smartAlerts.get().start()
         }
     }
 }

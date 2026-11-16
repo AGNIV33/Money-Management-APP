@@ -1,15 +1,12 @@
 package com.agniv.hisaab
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.data.budget.BudgetAlertNotifier
@@ -29,11 +26,8 @@ class AndroidBudgetNotifier
             spent: Money,
             budget: Money,
         ) {
-            // Android 13+: no permission, no notification. The home screen asks for it when a budget is set.
-            val allowed =
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED
+            // Off when Android 13+ permission is missing or the user turned this type off in Settings.
+            val allowed = Notifications.allowed(context, NotifyType.BUDGET)
             if (!allowed || level == BudgetLevel.OK) return
             ensureChannel()
             val over = level == BudgetLevel.OVER

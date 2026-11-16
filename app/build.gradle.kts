@@ -45,6 +45,8 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
+    // Smart alerts run the same on-device insight engine as the Insights sheet.
+    implementation(projects.core.ml)
     implementation(projects.feature.expenses)
     implementation(projects.feature.auth)
     implementation(projects.feature.family)

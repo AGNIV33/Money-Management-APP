@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,6 +89,8 @@ import java.time.format.FormatStyle
 fun ExpensesHomeScreen(
     title: String,
     headerAction: @Composable () -> Unit = {},
+    openInsights: Boolean = false,
+    onInsightsOpened: () -> Unit = {},
     viewModel: ExpensesHomeViewModel = hiltViewModel(),
     insightsViewModel: InsightsViewModel = hiltViewModel(),
 ) {
@@ -99,6 +102,13 @@ fun ExpensesHomeScreen(
     var showScan by rememberSaveable { mutableStateOf(false) }
     var showStatement by rememberSaveable { mutableStateOf(false) }
     var showInsights by rememberSaveable { mutableStateOf(false) }
+    // A tapped smart alert / report notification lands here.
+    LaunchedEffect(openInsights) {
+        if (openInsights) {
+            showInsights = true
+            onInsightsOpened()
+        }
+    }
     val insights by insightsViewModel.state.collectAsStateWithLifecycle()
     // Set when the user picks Edit after speaking; opens the add sheet with the spoken values filled in.
     var voicePrefill by remember { mutableStateOf<ExpensePrefill?>(null) }

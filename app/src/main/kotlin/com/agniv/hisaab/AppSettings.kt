@@ -38,6 +38,14 @@ class AppSettings(
         get() = prefs.getBoolean(KEY_CRASH_REPORTS, true)
         set(value) = prefs.edit().putBoolean(KEY_CRASH_REPORTS, value).apply()
 
+    /** Per-kind notification switch from Settings. On by default: each kind was asked for when its feature was set up. */
+    fun notifyOn(type: NotifyType): Boolean = prefs.getBoolean(KEY_NOTIFY + type.key, true)
+
+    fun setNotify(
+        type: NotifyType,
+        on: Boolean,
+    ) = prefs.edit().putBoolean(KEY_NOTIFY + type.key, on).apply()
+
     var onboardingDone: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDING, false)
         set(value) = prefs.edit().putBoolean(KEY_ONBOARDING, value).apply()
@@ -58,5 +66,6 @@ class AppSettings(
         const val KEY_AVATAR = "avatar"
         const val KEY_ASSISTANT_CONSENT = "assistant_consent"
         const val KEY_CRASH_REPORTS = "crash_reports"
+        const val KEY_NOTIFY = "notify_"
     }
 }

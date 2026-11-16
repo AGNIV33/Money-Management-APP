@@ -1,6 +1,7 @@
 package com.agniv.hisaab
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +15,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +51,9 @@ class MainActivity : FragmentActivity() {
     private val settings by lazy { AppSettings(applicationContext) }
     private val lock by lazy { AppLock(this, settings) }
 
+    // Set when a smart alert or report notification is tapped; Home opens the Insights sheet, then clears it.
+    private var openInsights by mutableStateOf(false)
+
     override fun onStart() {
         super.onStart()
         lock.onStart()
@@ -69,6 +74,7 @@ class MainActivity : FragmentActivity() {
         installSplashScreen().setKeepOnScreenCondition { viewModel.screen.value == RootScreen.SPLASH }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        openInsights = intent?.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false) == true
         viewModel.start(
             familyName = getString(R.string.local_family_name),
             memberName = getString(R.string.local_member_name),
@@ -83,6 +89,11 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false)) openInsights = true
     }
 
     @Composable
@@ -108,7 +119,13 @@ class MainActivity : FragmentActivity() {
             RootScreen.LOGIN -> LoginScreen()
             RootScreen.FAMILY_SETUP -> FamilySetupScreen()
             RootScreen.HOME -> {
-                HomeTabs(avatar = avatar, onProfile = { showProfile = true }, onAssistant = { showAssistant = true })
+                HomeTabs(
+                    avatar = avatar,
+                    openInsights = openInsights,
+                    onInsightsOpened = { openInsights = false },
+                    onProfile = { showProfile = true },
+                    onAssistant = { showAssistant = true },
+                )
                 if (showAssistant) {
                     AssistantSheet(
                         consentGiven = assistantConsent,
@@ -157,16 +174,23 @@ class MainActivity : FragmentActivity() {
             }
         }
     }
+
+    companion object {
+        const val EXTRA_OPEN_INSIGHTS = "open_insights"
+    }
 }
 
 /** Home with the bottom tab bar. Inner screens have their own Scaffolds; this one only adds the bar. */
 @Composable
 private fun HomeTabs(
     avatar: String?,
+    openInsights: Boolean,
+    onInsightsOpened: () -> Unit,
     onProfile: () -> Unit,
     onAssistant: () -> Unit,
 ) {
     var tab by rememberSaveable { mutableStateOf(HomeTab.HOME) }
+    LaunchedEffect(openInsights) { if (openInsights) tab = HomeTab.HOME }
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         bottomBar = {
@@ -187,6 +211,8 @@ private fun HomeTabs(
                 HomeTab.HOME ->
                     ExpensesHomeScreen(
                         title = stringResource(R.string.app_name),
+                        openInsights = openInsights,
+                        onInsightsOpened = onInsightsOpened,
                         headerAction = {
                             Row {
                                 AssistantButton(onClick = onAssistant)
