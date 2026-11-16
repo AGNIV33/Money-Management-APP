@@ -1,16 +1,26 @@
 package com.agniv.hisaab.feature.loans
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Devices
+import androidx.compose.material.icons.outlined.DirectionsCar
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Savings
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.TwoWheeler
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +28,16 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.designsystem.component.HCard
+import com.agniv.hisaab.core.designsystem.component.HProgressBar
+import com.agniv.hisaab.core.designsystem.component.IconTile
+import com.agniv.hisaab.core.designsystem.motion.popIn
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.DueStatus
@@ -83,7 +98,24 @@ internal fun dueColor(status: DueStatus): Color =
         DueStatus.LATER -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
-/** DESIGN.md `HLoanCard`: type icon, lender, EMI, next due badge, paid/total bar. */
+/** Board icon for each kind of loan. */
+internal fun LoanType.icon(): ImageVector =
+    when (this) {
+        LoanType.HOME -> Icons.Outlined.Home
+        LoanType.CAR -> Icons.Outlined.DirectionsCar
+        LoanType.BIKE -> Icons.Outlined.TwoWheeler
+        LoanType.PERSONAL -> Icons.Outlined.Person
+        LoanType.EDUCATION -> Icons.Outlined.School
+        LoanType.GOLD -> Icons.Outlined.Savings
+        LoanType.CONSUMER -> Icons.Outlined.Devices
+        LoanType.CREDIT_CARD -> Icons.Outlined.CreditCard
+        LoanType.OTHER -> Icons.Outlined.Description
+    }
+
+/**
+ * Board EMI card: icon, name, "₹4,000 / month", next due line, paid bar with "6 / 12". Due within a week turns the
+ * card gold, overdue turns it red, a finished loan says "Completed ✓" - always in words, never colour alone.
+ */
 @Composable
 internal fun LoanCard(
     item: LoanItem,
@@ -91,74 +123,97 @@ internal fun LoanCard(
 ) {
     val loan = item.loan
     val progress = item.progress
+    val next = progress.next
+    val colors = HisaabTheme.extendedColors
+    val (container, onContainer) =
+        when (next?.status) {
+            DueStatus.OVERDUE -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+            DueStatus.TODAY, DueStatus.SOON -> colors.goldContainer to colors.onGoldContainer
+            else -> MaterialTheme.colorScheme.surface to MaterialTheme.colorScheme.onSurfaceVariant
+        }
     HCard(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick),
+        containerColor = container,
     ) {
-        Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(loan.type.emoji(), style = MaterialTheme.typography.headlineSmall)
-                Column(
-                    Modifier
-                        .weight(1f)
-                        .padding(start = Spacing.m),
-                ) {
-                    Text(loan.lender, style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        stringResource(loan.type.labelRes()) +
-                            if (loan.visibility == Visibility.PRIVATE) "  " + stringResource(R.string.loan_private) else "",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+        Column(
+            Modifier
+                .padding(Spacing.l)
+                .semantics(mergeDescendants = true) {},
+            verticalArrangement = Arrangement.spacedBy(Spacing.s),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                IconTile(loan.type.icon())
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                        Text(loan.lender, style = MaterialTheme.typography.titleSmall)
+                        if (loan.visibility == Visibility.PRIVATE) {
+                            Icon(
+                                Icons.Outlined.Lock,
+                                contentDescription = stringResource(R.string.loan_private),
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
+                    }
+                    Text(stringResource(R.string.emi_per_month, loan.emi.formatted()), style = MaterialTheme.typography.bodyMedium)
+                    when {
+                        next == null ->
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                                Text(
+                                    stringResource(R.string.emi_completed, progress.paidCount, progress.tenureMonths),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = colors.success,
+                                )
+                                Icon(
+                                    Icons.Filled.CheckCircle,
+                                    contentDescription = null,
+                                    tint = colors.success,
+                                    modifier = Modifier.size(14.dp).popIn(),
+                                )
+                            }
+                        next.status == DueStatus.LATER ->
+                            Text(
+                                stringResource(R.string.emi_next_due, next.date.shortText()),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = onContainer,
+                            )
+                        else ->
+                            Text(
+                                dueText(next) + " (" + next.date.shortText() + ")",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (next.status == DueStatus.OVERDUE) MaterialTheme.colorScheme.error else onContainer,
+                            )
+                    }
                 }
-                Text(
-                    stringResource(R.string.loan_emi_line, loan.emi.formatted()),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.tertiary,
-                )
             }
-            PaidBar(progress.paidFraction)
-            Row {
-                Text(
-                    stringResource(R.string.loan_paid_of, progress.paidCount, progress.tenureMonths),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                )
-                val next = progress.next
-                if (next == null) {
-                    Text(
-                        stringResource(R.string.loans_closed),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = HisaabTheme.extendedColors.success,
-                    )
-                } else {
-                    Text(dueText(next), style = MaterialTheme.typography.bodyMedium, color = dueColor(next.status))
-                }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                PaidBar(progress.paidFraction, Modifier.weight(1f), status = next?.status)
+                Text("${progress.paidCount} / ${progress.tenureMonths}", style = MaterialTheme.typography.labelMedium)
             }
         }
     }
 }
 
 /**
- * Paid share of a loan. Not HProgressBar: that one warns as it fills (budgets), but a loan filling up
- * is good news, so this stays green.
+ * Paid share of a loan. Green as it fills (a loan filling up is good news); gold when the next EMI is near and red
+ * when one is overdue, matching the card. Fills from empty the first time it is shown.
  */
 @Composable
-internal fun PaidBar(fraction: Float) {
-    val shape = RoundedCornerShape(5.dp)
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(10.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, shape),
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth(fraction.coerceIn(0f, 1f))
-                .height(10.dp)
-                .background(HisaabTheme.extendedColors.success, shape),
-        )
-    }
+internal fun PaidBar(
+    fraction: Float,
+    modifier: Modifier = Modifier,
+    status: DueStatus? = null,
+) {
+    HProgressBar(
+        fraction = fraction,
+        modifier = modifier,
+        color =
+            when (status) {
+                DueStatus.OVERDUE -> HisaabTheme.extendedColors.over
+                DueStatus.TODAY, DueStatus.SOON -> HisaabTheme.extendedColors.gold
+                else -> MaterialTheme.colorScheme.primary
+            },
+    )
 }

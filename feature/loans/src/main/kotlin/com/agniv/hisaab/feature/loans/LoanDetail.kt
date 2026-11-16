@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -26,10 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.component.HCard
+import com.agniv.hisaab.core.designsystem.component.IconTile
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.EmiMath
@@ -62,15 +64,12 @@ internal fun LoanDetail(
     LazyColumn(
         modifier =
             Modifier
-                .fillMaxSize()
-                .statusBarsPadding(),
+                .fillMaxSize(),
         contentPadding = PaddingValues(Spacing.screen),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         item(key = "top") {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = onBack) { Text("◀ " + stringResource(R.string.loan_back)) }
-                Text("", Modifier.weight(1f))
+            KinlyTopBar(title = loan.lender, onBack = onBack) {
                 TextButton(onClick = onEdit) { Text(stringResource(R.string.loan_edit)) }
                 if (canDelete) {
                     TextButton(onClick = { confirmDelete = true }) {
@@ -80,10 +79,10 @@ internal fun LoanDetail(
             }
         }
         item(key = "head") {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(loan.type.emoji(), style = MaterialTheme.typography.headlineMedium)
-                Column(Modifier.padding(start = Spacing.m)) {
-                    Text(loan.lender, style = MaterialTheme.typography.headlineSmall)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                IconTile(loan.type.icon(), size = 52.dp)
+                Column {
+                    Text(stringResource(R.string.emi_per_month, loan.emi.formatted()), style = MaterialTheme.typography.titleLarge)
                     Text(
                         stringResource(loan.type.labelRes()),
                         style = MaterialTheme.typography.bodyMedium,

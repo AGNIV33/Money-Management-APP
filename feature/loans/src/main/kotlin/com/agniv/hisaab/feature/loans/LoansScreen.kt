@@ -11,7 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.EventRepeat
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,15 +29,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.formatted
-import com.agniv.hisaab.core.designsystem.component.HSummaryCard
+import com.agniv.hisaab.core.designsystem.component.EmptyState
+import com.agniv.hisaab.core.designsystem.component.HAmountText
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
+import com.agniv.hisaab.core.designsystem.component.TintSummaryCard
+import com.agniv.hisaab.core.designsystem.theme.CardAmount
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
-/** Loans tab (DESIGN.md §7.8): summary, loan cards, and a loan's detail in place of the list. */
+/** Board "EMI": total monthly EMI, one card per EMI with its status, and a loan's detail in place of the list. */
 @Composable
-fun LoansScreen(viewModel: LoansViewModel = hiltViewModel()) {
+fun LoansScreen(
+    onBack: () -> Unit,
+    viewModel: LoansViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var openId by rememberSaveable { mutableStateOf<String?>(null) }
     // null = closed, "" = adding, otherwise the id being edited.
@@ -58,7 +72,7 @@ fun LoansScreen(viewModel: LoansViewModel = hiltViewModel()) {
             onSetPaid = { month, paid -> viewModel.onEvent(LoansEvent.SetPaid(open.loan.id, month, paid)) },
         )
     } else {
-        LoansList(state, onOpen = { openId = it }, onAdd = { openSheet("") })
+        LoansList(state, onBack = onBack, onOpen = { openId = it }, onAdd = { openSheet("") })
     }
 
     // Android 13+ needs the user's OK before EMI reminders can show; asked right after a loan is saved.
@@ -80,52 +94,61 @@ fun LoansScreen(viewModel: LoansViewModel = hiltViewModel()) {
 @Composable
 private fun LoansList(
     state: LoansUiState,
+    onBack: () -> Unit,
     onOpen: (String) -> Unit,
     onAdd: () -> Unit,
 ) {
+    val overview = state.overview
+    val hasLoans = overview != null && overview.items.isNotEmpty()
     Scaffold(
+        topBar = { KinlyTopBar(title = stringResource(R.string.emi_title), onBack = onBack) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAdd,
-                text = { Text(stringResource(R.string.loans_add_fab)) },
-                icon = { Text("+", style = MaterialTheme.typography.headlineSmall) },
-            )
+            if (hasLoans) {
+                FloatingActionButton(
+                    onClick = onAdd,
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.emi_add)) }
+            }
         },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         LazyColumn(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(padding),
-            contentPadding = PaddingValues(Spacing.screen),
+            contentPadding = PaddingValues(start = Spacing.screen, end = Spacing.screen, top = Spacing.s, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
-            item(key = "title") {
-                Text(
-                    stringResource(R.string.loans_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-            val overview = state.overview
-            if (overview != null && overview.items.isNotEmpty()) {
+            if (overview != null && hasLoans) {
                 item(key = "summary") {
-                    HSummaryCard(
-                        title = stringResource(R.string.loans_monthly_emi),
-                        amount = overview.monthlyEmi,
-                        subtitle = stringResource(R.string.loans_outstanding, overview.outstanding.formatted()),
-                    )
+                    TintSummaryCard(icon = Icons.Outlined.Payments) {
+                        Text(
+                            stringResource(R.string.emi_total_monthly),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        HAmountText(overview.monthlyEmi, style = CardAmount, countUp = true)
+                        Text(
+                            stringResource(R.string.loans_outstanding, overview.outstanding.formatted()),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
                 }
                 items(overview.items, key = { it.loan.id }) { item ->
                     LoanCard(item, onClick = { onOpen(item.loan.id) })
                 }
             } else if (!state.loading) {
                 item(key = "empty") {
-                    Text(
-                        stringResource(R.string.loans_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = Spacing.xl),
+                    EmptyState(
+                        icon = Icons.Outlined.EventRepeat,
+                        title = stringResource(R.string.emi_empty_title),
+                        body = stringResource(R.string.emi_empty_body),
+                        action = stringResource(R.string.emi_add),
+                        onAction = onAdd,
                     )
                 }
             }

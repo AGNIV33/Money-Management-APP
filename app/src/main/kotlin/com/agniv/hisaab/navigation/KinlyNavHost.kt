@@ -189,7 +189,7 @@ fun KinlyNavHost(
         composable<AddExpenseRoute> { entry ->
             AddExpenseScreen(onDone = navController::popBackStack, editId = entry.toRoute<AddExpenseRoute>().editId)
         }
-        composable<EmiRoute> { LoansScreen() }
+        composable<EmiRoute> { LoansScreen(onBack = navController::popBackStack) }
         composable<BudgetsRoute> {
             BudgetsScreen(
                 onBack = navController::popBackStack,

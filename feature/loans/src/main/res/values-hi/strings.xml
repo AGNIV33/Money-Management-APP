@@ -88,4 +88,12 @@
     <string name="ai_fill_err_failed">कुछ गड़बड़ हो गई। फिर कोशिश करें।</string>
     <string name="ai_fill_err_locked">इस PDF पर पासवर्ड है। पहले उसे हटाएँ, फिर कोशिश करें।</string>
     <string name="ai_fill_err_read">वह फ़ाइल पढ़ी नहीं जा सकी। साफ़ फ़ोटो चुनें या जानकारी खुद लिखें।</string>
+    <string name="emi_title">EMI</string>
+    <string name="emi_add">EMI जोड़ें</string>
+    <string name="emi_total_monthly">कुल मासिक EMI</string>
+    <string name="emi_empty_title">अभी कोई EMI नहीं</string>
+    <string name="emi_empty_body">भुगतान पर नज़र रखने और समय पर याद दिलाने के लिए अपने लोन या खरीद की EMI जोड़ें।</string>
+    <string name="emi_per_month">%1$s / महीना</string>
+    <string name="emi_next_due">अगली किस्त: %1$s</string>
+    <string name="emi_completed">पूरा हुआ (%1$d / %2$d)</string>
 </resources>
