@@ -46,7 +46,8 @@ enum class UdhaarFilter(
 data class UdhaarUiState(
     val loading: Boolean = true,
     val overview: UdhaarOverview = UdhaarOverview(emptyList(), Money.ZERO, Money.ZERO),
-    val filter: UdhaarFilter = UdhaarFilter.ALL,
+    // Boards open on "I gave" (money others owe you).
+    val filter: UdhaarFilter = UdhaarFilter.GET,
     val viewerUserId: String = "",
     val isAdmin: Boolean = false,
     val today: LocalDate,
@@ -93,7 +94,7 @@ class UdhaarViewModel
         time: TimeProvider,
     ) : ViewModel() {
         private val today = time.today()
-        private val filter = MutableStateFlow(UdhaarFilter.ALL)
+        private val filter = MutableStateFlow(UdhaarFilter.GET)
 
         @OptIn(ExperimentalCoroutinesApi::class)
         val state: StateFlow<UdhaarUiState> =

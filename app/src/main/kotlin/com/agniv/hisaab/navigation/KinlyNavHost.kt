@@ -228,7 +228,7 @@ fun KinlyNavHost(
         }
         composable<NotificationSettingsRoute> { NotificationSettingsScreen(settings, onBack = navController::popBackStack) }
         composable<ImportRoute> { StatementImportScreen(onBack = navController::popBackStack) }
-        composable<UdhaarRoute> { UdhaarScreen() }
+        composable<UdhaarRoute> { UdhaarScreen(onBack = navController::popBackStack) }
         composable<ToolsRoute> { ToolsScreen() }
     }
 }
