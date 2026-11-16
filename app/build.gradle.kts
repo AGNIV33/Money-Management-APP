@@ -55,6 +55,7 @@ dependencies {
     implementation(projects.feature.udhaar)
     implementation(projects.feature.goals)
     implementation(projects.feature.assistant)
+    implementation(projects.feature.insights)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)

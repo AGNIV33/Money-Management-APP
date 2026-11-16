@@ -36,6 +36,7 @@ import com.agniv.hisaab.feature.family.profile.ProfileButton
 import com.agniv.hisaab.feature.family.profile.ProfileSheet
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
 import com.agniv.hisaab.feature.goals.GoalsScreen
+import com.agniv.hisaab.feature.insights.InsightsHomeCard
 import com.agniv.hisaab.feature.loans.LoansScreen
 import com.agniv.hisaab.feature.tools.ToolsScreen
 import com.agniv.hisaab.feature.udhaar.UdhaarScreen
@@ -211,8 +212,7 @@ private fun HomeTabs(
                 HomeTab.HOME ->
                     ExpensesHomeScreen(
                         title = stringResource(R.string.app_name),
-                        openInsights = openInsights,
-                        onInsightsOpened = onInsightsOpened,
+                        insightsCard = { InsightsHomeCard(openRequest = openInsights, onOpenHandled = onInsightsOpened) },
                         headerAction = {
                             Row {
                                 AssistantButton(onClick = onAssistant)
