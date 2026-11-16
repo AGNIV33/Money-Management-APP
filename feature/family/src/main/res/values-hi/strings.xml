@@ -25,7 +25,7 @@
     <string name="family_invite_hint">परिवार के सदस्य साइन इन के बाद यह कोड डालें</string>
     <string name="family_share">कोड भेजें</string>
     <string name="family_share_text">Kinly पर हमारे परिवार से जुड़ें! साइन इन के बाद \"परिवार से जुड़ें\" चुनें और यह कोड डालें: %1$s</string>
-    <string name="family_members">सदस्य (%1$d)</string>
+    <string name="family_members">%1$d सदस्य</string>
     <string name="family_you">" (आप)"</string>
     <string name="family_admin">एडमिन</string>
     <string name="family_button">परिवार</string>
@@ -95,4 +95,23 @@
     <string name="delete_err_offline">अकाउंट डिलीट करने के लिए इंटरनेट चाहिए। कुछ भी डिलीट नहीं हुआ।</string>
     <string name="delete_err_last_admin">आप अकेले एडमिन हैं। पहले किसी और को एडमिन बनाएँ, फिर अकाउंट डिलीट करें। कुछ भी डिलीट नहीं हुआ।</string>
     <string name="delete_err_failed">अभी अकाउंट डिलीट नहीं हो पाया। कुछ भी डिलीट नहीं हुआ। फिर से कोशिश करें।</string>
+    <string name="family_members_title">परिवार के सदस्य</string>
+    <string name="invite_member">सदस्य को बुलाएँ</string>
+    <string name="invite_admin_after">न्योता तैयार। जुड़ने के बाद उनके नाम के आगे ⋮ दबाकर उन्हें एडमिन बनाएँ।</string>
+    <string name="family_empty_title">अभी परिवार में कोई और सदस्य नहीं</string>
+    <string name="family_empty_body">खर्च, बजट, EMI और लक्ष्य साथ में संभालने के लिए परिवार को बुलाएँ।</string>
+    <string name="family_member">सदस्य</string>
+    <string name="family_you_member">आप सदस्य हैं</string>
+    <string name="family_you_member_body">सिर्फ़ एडमिन सदस्यों को बुला या हटा सकते हैं।</string>
+    <string name="invite_title">परिवार के सदस्य को बुलाएँ</string>
+    <string name="invite_contact">ईमेल या मोबाइल नंबर</string>
+    <string name="invite_role">भूमिका</string>
+    <string name="invite_send">न्योता भेजें</string>
+    <string name="invite_subject">Kinly पर हमारे परिवार से जुड़ें</string>
+    <string name="profile_title">प्रोफ़ाइल</string>
+    <string name="privacy_screen_title">प्राइवेसी</string>
+    <string name="privacy_point_family">परिवार वाली चीज़ें सिर्फ़ आपके परिवार के सदस्यों के साथ शेयर होती हैं।</string>
+    <string name="privacy_point_private">"सिर्फ़ मैं" वाली चीज़ें किसी और को कभी नहीं दिखतीं।</string>
+    <string name="privacy_point_income">आपकी मासिक आय और ऐप PIN सिर्फ़ इसी फ़ोन पर रहते हैं।</string>
+    <string name="privacy_point_ai">AI को सिर्फ़ तारीख, कैटेगरी और कुल रकम मिलती है: नाम, नोट या खाता नंबर नहीं।</string>
 </resources>

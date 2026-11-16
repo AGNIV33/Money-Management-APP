@@ -58,6 +58,9 @@ import com.agniv.hisaab.feature.expenses.home.AllExpensesScreen
 import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
 import com.agniv.hisaab.feature.expenses.home.HomeActions
 import com.agniv.hisaab.feature.expenses.statement.StatementImportScreen
+import com.agniv.hisaab.feature.family.profile.FamilyMembersScreen
+import com.agniv.hisaab.feature.family.profile.PrivacyScreen
+import com.agniv.hisaab.feature.family.profile.ProfileDetailsScreen
 import com.agniv.hisaab.feature.goals.GoalsScreen
 import com.agniv.hisaab.feature.insights.InsightsHomeCard
 import com.agniv.hisaab.feature.insights.InsightsScreen
@@ -69,6 +72,7 @@ import com.agniv.hisaab.lock.ForgotPinScreen
 import com.agniv.hisaab.lock.ResetBySignIn
 import com.agniv.hisaab.lock.SecurityScreen
 import com.agniv.hisaab.lock.SetPinScreen
+import com.agniv.hisaab.settings.SettingsActions
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -100,6 +104,15 @@ data object ReportRoute
 
 @Serializable
 data object SecurityRoute
+
+@Serializable
+data object FamilyRoute
+
+@Serializable
+data object ProfileRoute
+
+@Serializable
+data object PrivacyRoute
 
 @Serializable
 data class SetPinRoute(
@@ -141,7 +154,7 @@ enum class Tab(
 /** Screens the app shell supplies to the tabs (they need app-level state such as settings or the lock). */
 class TabContent(
     val assistant: @Composable () -> Unit,
-    val settings: @Composable () -> Unit,
+    val settings: @Composable (SettingsActions) -> Unit,
 )
 
 /**
@@ -152,6 +165,11 @@ class TabContent(
 fun KinlyNavHost(
     settings: AppSettings,
     lock: AppLock,
+    avatar: String?,
+    onAvatar: (String?) -> Unit,
+    onLanguage: (String) -> Unit,
+    onTheme: (String?) -> Unit,
+    onAccountDeleted: () -> Unit,
     content: TabContent,
     openTab: Tab?,
     onTabOpened: () -> Unit,
@@ -197,7 +215,17 @@ fun KinlyNavHost(
         popExitTransition = popOut,
     ) {
         composable<TabsRoute> {
-            Tabs(tab = tab, onTab = { tab = it }, content = content, navController = navController)
+            val settingsActions =
+                SettingsActions(
+                    onProfile = { navController.navigate(ProfileRoute) },
+                    onFamily = { navController.navigate(FamilyRoute) },
+                    onSecurity = { navController.navigate(SecurityRoute) },
+                    onNotifications = { navController.navigate(NotificationSettingsRoute) },
+                    onPrivacy = { navController.navigate(PrivacyRoute) },
+                    onLanguage = onLanguage,
+                    onTheme = onTheme,
+                )
+            Tabs(tab = tab, onTab = { tab = it }, content = content, settingsActions = settingsActions, navController = navController)
         }
         composable<AllExpensesRoute> {
             AllExpensesScreen(
@@ -248,6 +276,24 @@ fun KinlyNavHost(
             )
         }
         composable<NotificationSettingsRoute> { NotificationSettingsScreen(settings, onBack = navController::popBackStack) }
+        composable<FamilyRoute> { FamilyMembersScreen(onBack = navController::popBackStack) }
+        composable<ProfileRoute> {
+            ProfileDetailsScreen(
+                avatar = avatar,
+                onAvatar = onAvatar,
+                localFamilyName = stringResource(R.string.local_family_name),
+                localMemberName = stringResource(R.string.local_member_name),
+                onBack = navController::popBackStack,
+            )
+        }
+        composable<PrivacyRoute> {
+            PrivacyScreen(
+                localFamilyName = stringResource(R.string.local_family_name),
+                localMemberName = stringResource(R.string.local_member_name),
+                onBack = navController::popBackStack,
+                onAccountDeleted = onAccountDeleted,
+            )
+        }
         composable<SecurityRoute> {
             SecurityScreen(
                 lock = lock,
@@ -292,6 +338,7 @@ private fun Tabs(
     tab: Tab,
     onTab: (Tab) -> Unit,
     content: TabContent,
+    settingsActions: SettingsActions,
     navController: NavHostController,
 ) {
     Scaffold(
@@ -313,7 +360,7 @@ private fun Tabs(
                                 // Alerts and Family get their own screens in later steps; until then they open the
                                 // places that hold them today.
                                 onAlerts = { navController.navigate(AlertsRoute) },
-                                onFamily = { onTab(Tab.SETTINGS) },
+                                onFamily = { navController.navigate(FamilyRoute) },
                                 onBudgets = { navController.navigate(BudgetsRoute) },
                                 onAllExpenses = { navController.navigate(AllExpensesRoute) },
                                 onEmi = { navController.navigate(EmiRoute) },
@@ -330,7 +377,7 @@ private fun Tabs(
                     )
                 Tab.GOALS -> GoalsScreen()
                 Tab.ASSISTANT -> content.assistant()
-                Tab.SETTINGS -> content.settings()
+                Tab.SETTINGS -> content.settings(settingsActions)
             }
         }
     }

@@ -46,6 +46,11 @@ class AppSettings(
         on: Boolean,
     ) = prefs.edit().putBoolean(KEY_NOTIFY + type.key, on).apply()
 
+    /** "light", "dark", or null = follow the phone (board Settings → Theme). */
+    var theme: String?
+        get() = prefs.getString(KEY_THEME, null)
+        set(value) = prefs.edit().putString(KEY_THEME, value).apply()
+
     var onboardingDone: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDING, false)
         set(value) = prefs.edit().putBoolean(KEY_ONBOARDING, value).apply()
@@ -67,5 +72,6 @@ class AppSettings(
         const val KEY_ASSISTANT_CONSENT = "assistant_consent"
         const val KEY_CRASH_REPORTS = "crash_reports"
         const val KEY_NOTIFY = "notify_"
+        const val KEY_THEME = "theme"
     }
 }

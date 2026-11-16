@@ -116,28 +116,6 @@ class AppLock(
         prompt.authenticate(info.build())
     }
 
-    /** Turn the lock on or off. Turning on asks once, so the user knows it works before relying on it. */
-    fun setEnabled(
-        on: Boolean,
-        onDone: (Boolean) -> Unit,
-    ) {
-        if (!on) {
-            settings.appLock = false
-            applySecureFlag()
-            onDone(false)
-            return
-        }
-        if (!available()) {
-            onDone(false)
-            return
-        }
-        authenticate {
-            settings.appLock = true
-            applySecureFlag()
-            onDone(true)
-        }
-    }
-
     private fun applySecureFlag() {
         if (settings.appLock) {
             activity.window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)

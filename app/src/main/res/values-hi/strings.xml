@@ -110,4 +110,17 @@
     <string name="pin_back_to_pin">वापस</string>
     <string name="lock_finger_body">Kinly खोलने के लिए फ़िंगरप्रिंट इस्तेमाल करें।</string>
     <string name="lock_use_pin">PIN इस्तेमाल करें</string>
+    <string name="settings_family">परिवार के सदस्य</string>
+    <string name="settings_theme">थीम</string>
+    <string name="settings_theme_light">लाइट</string>
+    <string name="settings_theme_dark">डार्क</string>
+    <string name="settings_theme_system">फ़ोन जैसा</string>
+    <string name="settings_on">चालू</string>
+    <string name="settings_off">बंद</string>
+    <string name="settings_crash_short">Kinly को बेहतर बनाने में मदद करें</string>
+    <string name="settings_export">डेटा एक्सपोर्ट</string>
+    <string name="settings_about">ऐप के बारे में</string>
+    <string name="settings_about_text">वर्शन %1$s। भारतीय परिवारों के लिए, मिलकर पैसा संभालने को।</string>
+    <string name="settings_privacy">प्राइवेसी</string>
+    <string name="settings_close">बंद करें</string>
 </resources>

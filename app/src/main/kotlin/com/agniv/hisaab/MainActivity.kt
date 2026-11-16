@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +20,6 @@ import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.feature.assistant.AssistantScreen
 import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.auth.OnboardingScreen
-import com.agniv.hisaab.feature.family.profile.ProfileScreen
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
 import com.agniv.hisaab.lock.ForgotPinScreen
 import com.agniv.hisaab.lock.PinLockScreen
@@ -28,6 +28,7 @@ import com.agniv.hisaab.lock.SystemLockScreen
 import com.agniv.hisaab.navigation.KinlyNavHost
 import com.agniv.hisaab.navigation.Tab
 import com.agniv.hisaab.navigation.TabContent
+import com.agniv.hisaab.settings.SettingsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -38,6 +39,9 @@ class MainActivity : FragmentActivity() {
 
     // Set when a smart alert or report notification is tapped; Home opens the Insights sheet, then clears it.
     private var openInsights by mutableStateOf(false)
+
+    // Settings → Theme; read here so the whole app switches at once.
+    private var themeMode by mutableStateOf<String?>(null)
 
     override fun onStart() {
         super.onStart()
@@ -60,13 +64,20 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         openInsights = intent?.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false) == true
+        themeMode = settings.theme
         viewModel.start(
             familyName = getString(R.string.local_family_name),
             memberName = getString(R.string.local_member_name),
             alreadySeenOnboarding = settings.onboardingDone,
         )
         setContent {
-            HisaabTheme {
+            val dark =
+                when (themeMode) {
+                    "light" -> false
+                    "dark" -> true
+                    else -> isSystemInDarkTheme()
+                }
+            HisaabTheme(darkTheme = dark) {
                 if (lock.locked) LockGate() else AppRoot()
             }
         }
@@ -125,6 +136,30 @@ class MainActivity : FragmentActivity() {
                 KinlyNavHost(
                     settings = settings,
                     lock = lock,
+                    avatar = avatar,
+                    onAvatar = {
+                        settings.avatar = it
+                        avatar = it
+                    },
+                    onLanguage = {
+                        settings.language = it
+                        recreate()
+                    },
+                    onTheme = {
+                        settings.theme = it
+                        themeMode = it
+                    },
+                    onAccountDeleted = {
+                        // The phone's own settings tied to this person go too; language stays so the app still reads right.
+                        settings.avatar = null
+                        avatar = null
+                        settings.assistantConsent = false
+                        assistantConsent = false
+                        lock.disable()
+                        // Exported files and bill photos waiting in the cache are personal data too.
+                        java.io.File(cacheDir, "exports").deleteRecursively()
+                        java.io.File(cacheDir, "scans").deleteRecursively()
+                    },
                     content =
                         TabContent(
                             assistant = {
@@ -138,37 +173,10 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             settings = {
-                                ProfileScreen(
+                                SettingsScreen(
+                                    settings = settings,
                                     avatar = avatar,
-                                    onAvatar = {
-                                        settings.avatar = it
-                                        avatar = it
-                                    },
-                                    localFamilyName = getString(R.string.local_family_name),
-                                    localMemberName = getString(R.string.local_member_name),
-                                    onSignedOut = {},
-                                    onAccountDeleted = {
-                                        // The phone's own settings tied to this person go too; language stays so the
-                                        // app still reads right.
-                                        settings.avatar = null
-                                        avatar = null
-                                        settings.assistantConsent = false
-                                        assistantConsent = false
-                                        settings.appLock = false
-                                        // Exported files and bill photos waiting in the cache are personal data too.
-                                        java.io.File(cacheDir, "exports").deleteRecursively()
-                                        java.io.File(cacheDir, "scans").deleteRecursively()
-                                    },
-                                    settingsContent = {
-                                        SettingsSection(
-                                            settings = settings,
-                                            lock = lock,
-                                            onLanguage = {
-                                                settings.language = it
-                                                recreate()
-                                            },
-                                        )
-                                    },
+                                    actions = it,
                                 )
                             },
                         ),
