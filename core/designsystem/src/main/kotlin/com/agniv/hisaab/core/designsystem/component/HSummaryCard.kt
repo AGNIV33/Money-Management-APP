@@ -4,15 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
@@ -31,11 +28,11 @@ fun HSummaryCard(
     subtitleStatus: AmountStatus = AmountStatus.NEUTRAL,
     footer: (@Composable () -> Unit)? = null,
 ) {
-    Card(
+    // Kinly spec: the headline total sits on the light-green tint. Small text there uses the deep green,
+    // because the regular grey and green drop under 4.5:1 on the tint.
+    HCard(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
     ) {
         Column(
             // One TalkBack stop for title + amount + sub-line, read together.
@@ -45,7 +42,7 @@ fun HSummaryCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             HAmountText(amount = amount, style = DisplayAmount)
             if (subtitle != null) {
@@ -54,7 +51,7 @@ fun HSummaryCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color =
                         when (subtitleStatus) {
-                            AmountStatus.NEUTRAL -> MaterialTheme.colorScheme.onSurfaceVariant
+                            AmountStatus.NEUTRAL -> MaterialTheme.colorScheme.onPrimaryContainer
                             AmountStatus.SUCCESS -> HisaabTheme.extendedColors.success
                             AmountStatus.WARNING -> HisaabTheme.extendedColors.warning
                             AmountStatus.ALERT -> MaterialTheme.colorScheme.error

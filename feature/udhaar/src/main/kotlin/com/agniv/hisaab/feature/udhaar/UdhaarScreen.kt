@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.UdhaarDirection
@@ -141,7 +141,7 @@ private fun TotalCard(
     color: androidx.compose.ui.graphics.Color,
     modifier: Modifier,
 ) {
-    Card(modifier) {
+    HCard(modifier) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
             Text(stringResource(label), style = MaterialTheme.typography.labelLarge)
             Text(amount, style = MaterialTheme.typography.headlineSmall, color = color)
@@ -156,7 +156,7 @@ internal fun UdhaarCard(
     onClick: () -> Unit,
 ) {
     val e = item.udhaar
-    Card(
+    HCard(
         modifier =
             Modifier
                 .fillMaxWidth()

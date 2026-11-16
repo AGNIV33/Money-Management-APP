@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.feature.family.R
 
@@ -114,7 +114,7 @@ fun FamilySetupScreen(viewModel: FamilySetupViewModel = hiltViewModel()) {
                     TextButton(onClick = { viewModel.onEvent(SetupEvent.Retry) }) { Text(stringResource(R.string.setup_retry)) }
                 }
             }
-            Button(
+            HButton(
                 onClick = { viewModel.onEvent(SetupEvent.Submit) },
                 enabled = !state.busy,
                 modifier =

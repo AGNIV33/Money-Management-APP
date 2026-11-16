@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -27,9 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.component.HProgressBar
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
@@ -57,10 +55,8 @@ internal fun BudgetCard(
     val budget = state.budget
     val spent = state.summary?.total ?: Money.ZERO
     if (budget == null && state.categoryBudgets.isEmpty() && !state.canEditBudget) return
-    Card(
+    HCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
             if (budget == null) {

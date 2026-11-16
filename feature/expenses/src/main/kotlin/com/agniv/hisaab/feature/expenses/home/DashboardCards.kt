@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +24,7 @@ import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.designsystem.component.DonutSlice
 import com.agniv.hisaab.core.designsystem.component.HAmountText
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.component.HDonut
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.usecase.Share
@@ -132,10 +131,8 @@ private fun DashboardCard(
     title: String,
     content: @Composable () -> Unit,
 ) {
-    Card(
+    HCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
             Text(title, style = MaterialTheme.typography.titleMedium)

@@ -18,9 +18,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +48,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Member
@@ -301,8 +300,8 @@ private fun FamilySection(
     val shareTitle = stringResource(R.string.family_share)
     Text(state.family?.name.orEmpty(), style = MaterialTheme.typography.titleLarge)
     code?.let {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        HCard(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(Modifier.padding(Spacing.l), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -311,7 +310,7 @@ private fun FamilySection(
                 Text(stringResource(R.string.family_invite_hint), style = MaterialTheme.typography.bodyMedium)
             }
         }
-        Button(
+        HButton(
             onClick = {
                 val send =
                     Intent(Intent.ACTION_SEND).apply {

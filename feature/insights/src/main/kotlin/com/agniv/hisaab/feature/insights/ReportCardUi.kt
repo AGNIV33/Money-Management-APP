@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.ml.insight.CategoryRow
@@ -60,7 +60,7 @@ internal fun MonthlyReportCard(
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val monthName = report.month.format(DateTimeFormatter.ofPattern("MMMM", locale))
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 Text(

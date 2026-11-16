@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -30,6 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.EmiMath
@@ -94,7 +94,7 @@ internal fun LoanDetail(
         }
         item(key = "next") { NextEmiCard(item, onSetPaid, lastMarked) }
         item(key = "facts") {
-            Card(Modifier.fillMaxWidth()) {
+            HCard(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                     PaidBar(progress.paidFraction)
                     Text(stringResource(R.string.loan_paid_of, progress.paidCount, progress.tenureMonths))
@@ -148,7 +148,7 @@ private fun NextEmiCard(
     lastMarked: YearMonth?,
 ) {
     val next = item.progress.next
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
             if (next == null) {
                 Text(
@@ -160,7 +160,7 @@ private fun NextEmiCard(
                 Text(stringResource(R.string.loan_next_emi), style = MaterialTheme.typography.titleMedium)
                 Text(item.loan.emi.formatted(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.tertiary)
                 Text(next.date.shortText() + " • " + dueText(next), color = dueColor(next.status))
-                Button(onClick = { onSetPaid(next.month, true) }, modifier = Modifier.fillMaxWidth()) {
+                HButton(onClick = { onSetPaid(next.month, true) }, modifier = Modifier.fillMaxWidth()) {
                     Text("✓ " + stringResource(R.string.mark_paid))
                 }
             }

@@ -22,6 +22,10 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="home_month_spent">This month spent</string>
+    <string name="home_greeting_morning">Good morning!</string>
+    <string name="home_greeting_afternoon">Good afternoon!</string>
+    <string name="home_greeting_evening">Good evening!</string>
+    <string name="home_dashboard_subtitle">Your family dashboard</string>
     <string name="home_empty">No expenses yet. Tap Add to note your first one.</string>
     <string name="home_less_than_last">▼ %1$s less than last month</string>
     <string name="home_more_than_last">▲ %1$s more than last month</string>

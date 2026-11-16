@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -23,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.feature.insights.R
 
@@ -36,7 +36,7 @@ internal fun IncomeCard(
     onSet: (Money?) -> Unit,
 ) {
     var editing by remember { mutableStateOf(false) }
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
             Text(stringResource(R.string.income_title), style = MaterialTheme.typography.titleMedium)
             if (income == null) {

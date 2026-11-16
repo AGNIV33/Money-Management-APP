@@ -15,8 +15,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
@@ -43,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.ml.voice.Confidence
@@ -204,7 +204,7 @@ private fun ResultCard(
     viewModel: VoiceAddViewModel,
 ) {
     val r = state.result ?: return
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
             Text(r.amount?.formatted() ?: "—", style = DisplayAmount, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             val date = r.date.format(DateTimeFormatter.ofPattern("d MMM yyyy", LocalConfiguration.current.locales[0]))
@@ -240,7 +240,7 @@ internal fun ParsedPreview(
     state.result?.takeIf { state.message != VoiceMessage.NO_AMOUNT || it.amount != null } ?: return
     ResultCard(state, viewModel)
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), modifier = Modifier.fillMaxWidth()) {
-        Button(
+        HButton(
             onClick = viewModel::save,
             enabled = state.canSave && !state.saving,
             modifier =

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Visibility
@@ -83,7 +83,7 @@ fun GoalsScreen(viewModel: GoalsViewModel = hiltViewModel()) {
             val overview = state.overview
             if (overview.items.isNotEmpty()) {
                 item(key = "total") {
-                    Card(Modifier.fillMaxWidth()) {
+                    HCard(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                             Text(stringResource(R.string.goals_saved_total), style = MaterialTheme.typography.labelLarge)
                             Text(
@@ -172,7 +172,7 @@ private fun GoalCard(
 ) {
     val g = item.goal
     val locale = LocalConfiguration.current.locales[0]
-    Card(
+    HCard(
         modifier =
             Modifier
                 .fillMaxWidth()

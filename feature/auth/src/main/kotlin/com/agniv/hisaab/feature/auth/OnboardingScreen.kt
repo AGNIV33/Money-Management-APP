@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
 private class Slide(
@@ -83,7 +83,7 @@ fun OnboardingScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(onClick = onFinish) { Text(stringResource(R.string.onboarding_skip)) }
-                    Button(
+                    HButton(
                         onClick = { if (step < slides.size) step += 1 else onFinish() },
                         modifier = Modifier.heightIn(min = 56.dp),
                     ) {
@@ -104,7 +104,7 @@ private fun LanguagePick(onLanguage: (String) -> Unit) {
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Button(
+        HButton(
             onClick = { onLanguage("en") },
             modifier =
                 Modifier

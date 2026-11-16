@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,6 +32,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.export.ExportLabels
 import com.agniv.hisaab.core.domain.export.ExportRange
@@ -152,10 +152,18 @@ private fun ExportDialog(
                     state.failed -> Text(stringResource(R.string.export_failed), color = MaterialTheme.colorScheme.error)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                    Button(onClick = { viewModel.export(ExportFormat.CSV, texts) }, enabled = !state.busy, modifier = Modifier.weight(1f)) {
+                    HButton(
+                        onClick = { viewModel.export(ExportFormat.CSV, texts) },
+                        enabled = !state.busy,
+                        modifier = Modifier.weight(1f),
+                    ) {
                         Text(stringResource(R.string.export_csv))
                     }
-                    Button(onClick = { viewModel.export(ExportFormat.PDF, texts) }, enabled = !state.busy, modifier = Modifier.weight(1f)) {
+                    HButton(
+                        onClick = { viewModel.export(ExportFormat.PDF, texts) },
+                        enabled = !state.busy,
+                        modifier = Modifier.weight(1f),
+                    ) {
                         Text(stringResource(R.string.export_pdf))
                     }
                 }

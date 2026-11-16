@@ -161,6 +161,7 @@ fun ExpensesHomeScreen(
                     headerAction()
                 }
             }
+            item(key = "greeting") { Greeting() }
             item(key = "month") { MonthSwitcher(state, viewModel::onEvent) }
             item(key = "summary") { Summary(state) }
             if (state.isCurrentMonth && !state.filter.isActive) {

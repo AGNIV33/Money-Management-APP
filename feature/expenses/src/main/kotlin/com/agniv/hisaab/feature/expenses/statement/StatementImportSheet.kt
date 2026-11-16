@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -45,6 +44,7 @@ import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Category
@@ -154,7 +154,7 @@ fun StatementImportSheet(
                 StatementPhase.REVIEW -> ReviewStep(state, viewModel)
                 StatementPhase.DONE -> {
                     Text(stringResource(R.string.stmt_done, state.addedCount), style = MaterialTheme.typography.titleMedium)
-                    Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ok)) }
+                    HButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ok)) }
                 }
             }
         }
@@ -256,7 +256,7 @@ private fun ReviewStep(
             onClick = viewModel::reset,
             modifier = Modifier.weight(1f).heightIn(min = 52.dp),
         ) { Text(stringResource(R.string.stmt_again)) }
-        Button(
+        HButton(
             onClick = viewModel::addSelected,
             enabled = state.selectedCount > 0 && !state.saving,
             modifier = Modifier.weight(1f).heightIn(min = 52.dp),

@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.usecase.GoalItem
@@ -117,7 +117,7 @@ internal fun GoalDetailSheet(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
             )
-            Button(
+            HButton(
                 onClick = {
                     amount?.let { onEvent(GoalsEvent.Add(g.id, it)) }
                     addText = ""
@@ -236,7 +236,7 @@ internal fun AddGoalSheet(
                 Switch(checked = state.onlyMe, onCheckedChange = viewModel::setOnlyMe)
             }
             ErrorLine(state.error)
-            Button(
+            HButton(
                 onClick = viewModel::save,
                 enabled = !state.saving,
                 modifier =

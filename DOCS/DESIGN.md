@@ -13,6 +13,8 @@
 6. **Light on phone** — flat colors, vectors, small shadows, minimal animation.
 
 ## 2. Color tokens
+
+> 2026-11-16: the light theme now follows the Kinly design spec, and `Color.kt` is the source of truth. Primary `#1B7F5B`, primaryContainer `#E6F3EC`, background `#FAFAF6`, onSurface `#17251F`, onSurfaceVariant `#68766F`, outlineVariant (card borders) `#E5EAE6`, outline (field borders) `#7D8983`, secondary/accent `#E9B872` (never as text), error `#B84040`, warning `#8F5E12`, success `#1E7A4B`. Shapes: cards 20, sheets 28, chips 10, buttons 12. Cards are flat with a 1 dp border (`HCard`). The table below is the older palette; its dark-theme values are still in use.
 | Token | Light | Dark | Use |
 |-------|-------|------|-----|
 | `primary` | `#1B7F5C` (deep green) | `#6FD6AE` | Main actions, FAB, active tab |

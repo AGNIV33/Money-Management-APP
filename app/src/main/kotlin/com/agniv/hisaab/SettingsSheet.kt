@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -20,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
 /** App lock and language, shown inside the profile. The full Settings screen (export, delete account) comes in Phase 5. */
@@ -110,6 +110,6 @@ fun LockScreen(onUnlock: () -> Unit) {
     ) {
         Text("🔒", style = MaterialTheme.typography.displayMedium)
         Text(stringResource(R.string.lock_title), style = MaterialTheme.typography.headlineSmall)
-        Button(onClick = onUnlock) { Text(stringResource(R.string.lock_unlock)) }
+        HButton(onClick = onUnlock) { Text(stringResource(R.string.lock_unlock)) }
     }
 }

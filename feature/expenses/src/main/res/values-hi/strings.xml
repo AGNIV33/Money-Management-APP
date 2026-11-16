@@ -22,6 +22,10 @@
     <string name="ok">ठीक है</string>
     <string name="cancel">रद्द करें</string>
     <string name="home_month_spent">इस महीने का खर्च</string>
+    <string name="home_greeting_morning">सुप्रभात!</string>
+    <string name="home_greeting_afternoon">नमस्ते!</string>
+    <string name="home_greeting_evening">शुभ संध्या!</string>
+    <string name="home_dashboard_subtitle">आपके परिवार का डैशबोर्ड</string>
     <string name="home_empty">अभी कोई खर्च नहीं। पहला खर्च लिखने के लिए जोड़ें दबाएँ।</string>
     <string name="home_less_than_last">▼ पिछले महीने से %1$s कम</string>
     <string name="home_more_than_last">▲ पिछले महीने से %1$s ज़्यादा</string>

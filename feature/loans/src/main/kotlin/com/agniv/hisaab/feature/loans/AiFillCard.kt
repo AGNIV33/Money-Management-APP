@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -22,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.ml.scan.PdfLockedException
 import com.agniv.hisaab.core.ml.scan.PdfReader
@@ -72,7 +72,7 @@ internal fun AiFillCard(
         }
         return
     }
-    Card(modifier = Modifier.fillMaxWidth()) {
+    HCard(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.m), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
             Text(stringResource(R.string.ai_fill_title), style = MaterialTheme.typography.titleMedium)
             Text(
@@ -97,7 +97,7 @@ internal fun AiFillCard(
                 Text(stringResource(it.textRes()), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                Button(onClick = { onEvent(AddLoanEvent.AiRun) }, enabled = !state.aiBusy) {
+                HButton(onClick = { onEvent(AddLoanEvent.AiRun) }, enabled = !state.aiBusy) {
                     if (state.aiBusy) CircularProgressIndicator(Modifier.padding(end = Spacing.s).heightIn(max = 20.dp))
                     Text(stringResource(if (state.aiBusy) R.string.ai_fill_reading else R.string.ai_fill_run))
                 }

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
 private const val ORB_SIZE_DP = 140
@@ -230,7 +230,7 @@ private fun Consent(
     Text(stringResource(R.string.assistant_consent_never), style = MaterialTheme.typography.bodyMedium)
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), modifier = Modifier.padding(bottom = Spacing.l)) {
         OutlinedButton(onClick = onCancel) { Text(stringResource(R.string.assistant_consent_no)) }
-        Button(onClick = onAgree) { Text(stringResource(R.string.assistant_consent_yes)) }
+        HButton(onClick = onAgree) { Text(stringResource(R.string.assistant_consent_yes)) }
     }
 }
 

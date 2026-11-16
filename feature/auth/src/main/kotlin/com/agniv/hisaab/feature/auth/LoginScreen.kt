@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import kotlinx.coroutines.launch
 
@@ -100,7 +100,7 @@ private fun EmailStep(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Send),
         modifier = Modifier.fillMaxWidth(),
     )
-    Button(
+    HButton(
         onClick = { onEvent(LoginEvent.SendCode) },
         enabled = !state.busy && state.email.isNotBlank(),
         modifier =
@@ -124,7 +124,7 @@ private fun CodeStep(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
         modifier = Modifier.fillMaxWidth(),
     )
-    Button(
+    HButton(
         onClick = { onEvent(LoginEvent.Verify) },
         enabled = !state.busy && state.code.length >= LoginViewModel.MIN_CODE_LENGTH,
         modifier =

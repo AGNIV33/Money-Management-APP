@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +43,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.UdhaarDirection
 import com.agniv.hisaab.core.domain.usecase.UdhaarItem
@@ -128,7 +128,7 @@ internal fun UdhaarDetailSheet(
                                 .weight(1f)
                                 .heightIn(min = 52.dp),
                     ) { Text(stringResource(R.string.udhaar_add_payment)) }
-                    Button(
+                    HButton(
                         onClick = { onEvent(UdhaarEvent.Settle(e.id)) },
                         modifier =
                             Modifier
@@ -272,7 +272,7 @@ internal fun AddUdhaarSheet(
                 Switch(checked = state.onlyMe, onCheckedChange = { viewModel.onEvent(AddUdhaarEvent.OnlyMe(it)) })
             }
             ErrorLine(state.error)
-            Button(
+            HButton(
                 onClick = { viewModel.onEvent(AddUdhaarEvent.Save) },
                 enabled = !state.saving,
                 modifier =

@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +22,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.AiReportFailure
@@ -41,7 +41,7 @@ internal fun InsightCard(
     categories: Map<String, Category>,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier.fillMaxWidth()) {
+    HCard(modifier.fillMaxWidth()) {
         Row(Modifier.padding(Spacing.l), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
             Text(if (insight.isAlert()) "⚠️" else "💡", style = MaterialTheme.typography.titleLarge)
             Text(insightText(insight, categories), style = MaterialTheme.typography.bodyLarge)
@@ -234,7 +234,7 @@ private fun ReportSection(
                     }
                 Text(stringResource(res), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             }
-            Button(onClick = { onGetTips(locale.language) }, modifier = Modifier.fillMaxWidth()) {
+            HButton(onClick = { onGetTips(locale.language) }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.report_get))
             }
         }
@@ -243,7 +243,7 @@ private fun ReportSection(
 
 @Composable
 private fun TipCard(tip: AiTip) {
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
             Text("✨ " + tip.title, style = MaterialTheme.typography.titleMedium)
             Text(tip.detail, style = MaterialTheme.typography.bodyMedium)
