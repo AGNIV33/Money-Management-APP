@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
@@ -54,6 +55,8 @@ internal fun Insight.isAlert(): Boolean =
     when (this) {
         is Insight.BudgetPace -> alreadyOver || crossesOnDay != null
         is Insight.BigExpense, is Insight.CategoryJump -> true
+        is Insight.SavingsRate -> saved.paise < 0
+        is Insight.EmiLoad -> ofIncome && percent > Insight.HIGH_EMI_PERCENT
         else -> false
     }
 
@@ -91,6 +94,7 @@ internal fun InsightsSheet(
     state: InsightsUiState,
     report: ReportUiState,
     onGetTips: (String) -> Unit,
+    onSetIncome: (Money?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
@@ -105,6 +109,7 @@ internal fun InsightsSheet(
             Text(stringResource(R.string.insights_title), style = MaterialTheme.typography.headlineSmall)
             state.monthly?.let { MonthlyReportCard(it, state.categories) }
             state.insights.forEach { InsightCard(it, state.categories) }
+            IncomeCard(state.income, onSetIncome)
             ReportSection(report, onGetTips)
             Text(
                 stringResource(R.string.insights_footer),
@@ -175,11 +180,29 @@ private fun insightText(
             }
         is Insight.EmiLoad ->
             stringResource(
-                R.string.insight_emi_load,
+                if (insight.ofIncome) R.string.insight_emi_income else R.string.insight_emi_load,
                 insight.percent,
                 insight.emi.formatted(),
-                insight.averageMonthly.formatted(),
+                insight.base.formatted(),
             )
+        is Insight.SavingsRate -> savingsText(insight)
+    }
+}
+
+@Composable
+private fun savingsText(insight: Insight.SavingsRate): String {
+    val spent = insight.spent.formatted()
+    val income = insight.income.formatted()
+    return when {
+        insight.saved.paise < 0 ->
+            stringResource(
+                if (insight.lastMonth) R.string.insight_savings_minus_last else R.string.insight_savings_minus,
+                spent,
+                income,
+                (-insight.saved).formatted(),
+            )
+        insight.lastMonth -> stringResource(R.string.insight_savings_last, insight.saved.formatted(), insight.percent, income)
+        else -> stringResource(R.string.insight_savings_pace, insight.saved.formatted(), insight.percent, income)
     }
 }
 

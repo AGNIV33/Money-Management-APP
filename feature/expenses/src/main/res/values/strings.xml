@@ -167,4 +167,16 @@
     <string name="cat_limit_add">+ Add a category limit</string>
     <string name="cat_limit_dialog_title">Monthly limit</string>
     <string name="cat_limit_amount">Limit</string>
+    <string name="insight_emi_income">EMIs take %1$d%% of your monthly income (%2$s of %3$s). Above 40%% is a lot to carry.</string>
+    <string name="insight_savings_pace">At this pace you will keep %1$s this month: %2$d%% of your %3$s income.</string>
+    <string name="insight_savings_last">Last month you kept %1$s: %2$d%% of your %3$s income.</string>
+    <string name="insight_savings_minus">At this pace spending (%1$s) will be more than your %2$s income, by %3$s.</string>
+    <string name="insight_savings_minus_last">Last month spending (%1$s) was more than your %2$s income, by %3$s.</string>
+    <string name="income_title">Monthly income (optional)</string>
+    <string name="income_hint">Add your monthly take-home to see how much you save each month and how heavy your EMIs are.</string>
+    <string name="income_add">Add income</string>
+    <string name="income_saved">Income: %1$s a month</string>
+    <string name="income_forget">Forget it</string>
+    <string name="income_amount">Take-home a month</string>
+    <string name="income_privacy">Stays only on this phone. Not shared with your family, never uploaded, never sent to AI.</string>
 </resources>

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.common.dispatcher.DispatcherProvider
+import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.domain.model.AiReportException
 import com.agniv.hisaab.core.domain.model.AiReportFailure
 import com.agniv.hisaab.core.domain.model.AiTip
@@ -12,6 +13,7 @@ import com.agniv.hisaab.core.domain.repository.AiReportRepository
 import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
+import com.agniv.hisaab.core.domain.repository.IncomeRepository
 import com.agniv.hisaab.core.domain.repository.RecurringRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.ObserveLoans
@@ -56,11 +58,15 @@ data class InsightsUiState(
     val categories: Map<String, Category> = emptyMap(),
     /** Null until the first calculation, or when there is nothing to show. */
     val monthly: MonthlyReport? = null,
+    /** Private income saved on this phone; null = not shared (the default). */
+    val income: Money? = null,
 )
 
 /** Runs the on-device [InsightEngine] on what the viewer can see; recalculates whenever an entry changes. */
 @HiltViewModel
 class InsightsViewModel
+    // Injected by Hilt; the sheet really reads all of these (same set as the smart alert job, plus AI tips and income).
+    @Suppress("LongParameterList")
     @Inject
     constructor(
         recurring: RecurringRepository,
@@ -70,12 +76,18 @@ class InsightsViewModel
         private val expenses: ExpenseRepository,
         private val categories: CategoryRepository,
         private val families: FamilyRepository,
+        private val incomes: IncomeRepository,
         dispatchers: DispatcherProvider,
         private val time: TimeProvider,
     ) : ViewModel() {
         private val reportMonth = YearMonth.from(time.today()).minusMonths(1)
         private val _report = MutableStateFlow(ReportUiState(month = reportMonth))
         val report: StateFlow<ReportUiState> = _report
+
+        /** Saves or (null) forgets the private income. Only on this phone. */
+        fun setIncome(income: Money?) {
+            viewModelScope.launch { incomes.set(income) }
+        }
 
         /** Asks the server for last month's tips. Sends only category totals (see ReportPayloadBuilder). */
         fun requestTips(language: String) {
@@ -121,11 +133,11 @@ class InsightsViewModel
                         categories.observeCategories(session.familyId),
                         families.observeFamily(session.familyId),
                         recurring.observe(session.familyId, session.userId),
-                        observeLoans(session),
-                    ) { list, cats, family, repeating, loans ->
-                        val insights = InsightEngine.compute(InsightInput(today, list, family?.monthlyBudget, loans.monthlyEmi, repeating))
+                        combine(observeLoans(session), incomes.income) { loans, income -> loans.monthlyEmi to income },
+                    ) { list, cats, family, repeating, (emi, income) ->
+                        val insights = InsightEngine.compute(InsightInput(today, list, family?.monthlyBudget, emi, repeating, income))
                         val monthly = MonthlyReportBuilder.build(today, list, family?.monthlyBudget).takeUnless { it.isEmpty }
-                        InsightsUiState(insights, cats.associateBy { it.id }, monthly)
+                        InsightsUiState(insights, cats.associateBy { it.id }, monthly, income)
                     }
                 }.flowOn(dispatchers.default)
                 .map { it }

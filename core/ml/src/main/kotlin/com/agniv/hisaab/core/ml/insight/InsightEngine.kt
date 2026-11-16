@@ -21,6 +21,8 @@ data class InsightInput(
     val monthlyEmi: Money,
     /** Repeating expenses already set up, so they are not suggested again. */
     val repeating: List<Recurring>,
+    /** Optional private monthly income from this phone (off by default). Never leaves the phone. */
+    val income: Money? = null,
 )
 
 /**
@@ -100,13 +102,36 @@ sealed interface Insight {
         override val priority get() = if (alreadyOver || crossesOnDay != null) 100 else 35
     }
 
-    /** How much of a normal month's spending goes to EMIs. */
+    /**
+     * How much goes to EMIs: of [base] = monthly income when the user saved one ([ofIncome], PRD debt burden),
+     * else of a normal month's spending.
+     */
     data class EmiLoad(
         val emi: Money,
-        val averageMonthly: Money,
+        val base: Money,
         val percent: Int,
+        val ofIncome: Boolean = false,
     ) : Insight {
-        override val priority get() = 55
+        override val priority get() = if (ofIncome && percent > HIGH_EMI_PERCENT) 85 else 55
+    }
+
+    /**
+     * What is left of the saved monthly income after spending: this month at the current pace, or last month in the
+     * first days when this month says too little yet ([lastMonth]). [saved] is negative when spending is more than income.
+     */
+    data class SavingsRate(
+        val income: Money,
+        val spent: Money,
+        val saved: Money,
+        val percent: Int,
+        val lastMonth: Boolean,
+    ) : Insight {
+        override val priority get() = if (saved.paise < 0) 90 else 45
+    }
+
+    companion object {
+        /** PRD: warn when EMIs take more than 40% of income. */
+        const val HIGH_EMI_PERCENT = 40
     }
 }
 
@@ -148,7 +173,8 @@ object InsightEngine {
         if (input.budget == null) results += monthEnd(spent, projected, today)
         val past = pastMonthTotals(live, month)
         results += nextMonth(past)
-        results += emiLoad(input.monthlyEmi, past, projected)
+        results += emiLoad(input.monthlyEmi, past, projected, input.income)
+        results += savingsRate(input.income, projected, past.firstOrNull().takeIf { hasLastMonth(live, month) }, today)
         return results.sortedByDescending { it.priority }.take(MAX_INSIGHTS)
     }
 
@@ -299,10 +325,37 @@ object InsightEngine {
         emi: Money,
         past: List<Money>,
         projected: Money,
+        income: Money?,
     ): List<Insight> {
-        val average = if (past.isNotEmpty()) Money(past.map { it.paise }.sum() / past.size) else projected
-        if (emi.paise <= 0 || average.paise <= 0) return emptyList()
-        val p = (emi.paise * 100 / average.paise).toInt()
-        return if (p >= EMI_NOTICE_PERCENT) listOf(Insight.EmiLoad(emi, average, p)) else emptyList()
+        val ofIncome = income != null && income.paise > 0
+        val base =
+            when {
+                ofIncome -> income
+                past.isNotEmpty() -> Money(past.map { it.paise }.sum() / past.size)
+                else -> projected
+            }
+        if (emi.paise <= 0 || base == null || base.paise <= 0) return emptyList()
+        val p = (emi.paise * 100 / base.paise).toInt()
+        return if (p >= EMI_NOTICE_PERCENT) listOf(Insight.EmiLoad(emi, base, p, ofIncome)) else emptyList()
+    }
+
+    private fun hasLastMonth(
+        live: List<Expense>,
+        month: YearMonth,
+    ): Boolean = live.any { YearMonth.from(it.date) == month.minusMonths(1) }
+
+    /** Only with an income saved. Early in the month the pace is a guess, so last month speaks instead. */
+    private fun savingsRate(
+        income: Money?,
+        projected: Money,
+        lastMonthTotal: Money?,
+        today: LocalDate,
+    ): List<Insight> {
+        val early = today.dayOfMonth < MIN_PACE_DAY
+        val spent = if (early) lastMonthTotal else projected.takeIf { it.paise > 0 }
+        if (income == null || income.paise <= 0 || spent == null) return emptyList()
+        val saved = Money(income.paise - spent.paise)
+        val p = (saved.paise * 100 / income.paise).toInt()
+        return listOf(Insight.SavingsRate(income, spent, saved, p, lastMonth = early))
     }
 }

@@ -4,6 +4,7 @@ import com.agniv.hisaab.core.data.account.DefaultAccountRepository
 import com.agniv.hisaab.core.data.assistant.DefaultAssistantRepository
 import com.agniv.hisaab.core.data.auth.SupabaseAuthRepository
 import com.agniv.hisaab.core.data.family.LinkingFamilyRepository
+import com.agniv.hisaab.core.data.income.DataStoreIncomeRepository
 import com.agniv.hisaab.core.data.loan.RemoteLoanExtractRepository
 import com.agniv.hisaab.core.data.report.RemoteAiReportRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
@@ -27,6 +28,7 @@ import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.GoalRepository
+import com.agniv.hisaab.core.domain.repository.IncomeRepository
 import com.agniv.hisaab.core.domain.repository.LoanRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.RecurringRepository
@@ -74,6 +76,8 @@ internal abstract class DataModule {
     @Binds abstract fun familyRepository(impl: LinkingFamilyRepository): FamilyRepository
 
     @Binds abstract fun syncState(impl: DataStoreSyncState): SyncStateStore
+
+    @Binds abstract fun incomeRepository(impl: DataStoreIncomeRepository): IncomeRepository
 
     @Binds abstract fun syncRequester(impl: SyncScheduler): SyncRequester
 

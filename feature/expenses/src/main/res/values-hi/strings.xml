@@ -167,4 +167,16 @@
     <string name="cat_limit_add">+ कैटेगरी की सीमा जोड़ें</string>
     <string name="cat_limit_dialog_title">महीने की सीमा</string>
     <string name="cat_limit_amount">सीमा</string>
+    <string name="insight_emi_income">EMI में आपकी महीने की कमाई का %1$d%% जाता है (%3$s में से %2$s)। 40%% से ज़्यादा भारी है।</string>
+    <string name="insight_savings_pace">इसी रफ़्तार से इस महीने %1$s बचेंगे: आपकी %3$s कमाई का %2$d%%।</string>
+    <string name="insight_savings_last">पिछले महीने %1$s बचे: आपकी %3$s कमाई का %2$d%%।</string>
+    <string name="insight_savings_minus">इसी रफ़्तार से खर्च (%1$s) आपकी %2$s कमाई से %3$s ज़्यादा होगा।</string>
+    <string name="insight_savings_minus_last">पिछले महीने खर्च (%1$s) आपकी %2$s कमाई से %3$s ज़्यादा था।</string>
+    <string name="income_title">महीने की कमाई (ज़रूरी नहीं)</string>
+    <string name="income_hint">अपनी महीने की हाथ में आने वाली कमाई जोड़ें, ताकि दिखे कि हर महीने कितना बचता है और EMI कितनी भारी है।</string>
+    <string name="income_add">कमाई जोड़ें</string>
+    <string name="income_saved">कमाई: %1$s महीना</string>
+    <string name="income_forget">हटा दें</string>
+    <string name="income_amount">महीने की कमाई</string>
+    <string name="income_privacy">सिर्फ़ इसी फ़ोन पर रहती है। परिवार के साथ शेयर नहीं होती, अपलोड नहीं होती, AI को कभी नहीं भेजी जाती।</string>
 </resources>

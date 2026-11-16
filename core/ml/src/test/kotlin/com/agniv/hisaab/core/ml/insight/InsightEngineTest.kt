@@ -44,7 +44,9 @@ class InsightEngineTest {
         budget: Money? = null,
         emi: Money = Money.ZERO,
         repeating: List<Recurring> = emptyList(),
-    ) = InsightEngine.compute(InsightInput(today, expenses, budget, emi, repeating))
+        income: Money? = null,
+        day: LocalDate = today,
+    ) = InsightEngine.compute(InsightInput(day, expenses, budget, emi, repeating, income))
 
     private inline fun <reified T : Insight> List<Insight>.one(): T? = filterIsInstance<T>().firstOrNull()
 
@@ -201,5 +203,39 @@ class InsightEngineTest {
         assertThat(compute(months, emi = Money.ofRupees(4_000)).one<Insight.EmiLoad>()?.percent).isEqualTo(40)
         assertThat(compute(months, emi = Money.ofRupees(1_000)).one<Insight.EmiLoad>()).isNull()
         assertThat(compute(months).one<Insight.EmiLoad>()).isNull()
+    }
+
+    @Test
+    fun `with an income the emi share is of income and over 40 percent ranks high`() {
+        val months = listOf(e(LocalDate.of(2026, 11, 2), 1_000))
+        val load = compute(months, emi = Money.ofRupees(25_000), income = Money.ofRupees(50_000)).one<Insight.EmiLoad>()
+        assertThat(load?.percent).isEqualTo(50)
+        assertThat(load?.ofIncome).isTrue()
+        assertThat(load?.priority).isEqualTo(85)
+    }
+
+    @Test
+    fun `no income saved means no savings rate`() {
+        assertThat(compute(listOf(e(today, 5_000))).one<Insight.SavingsRate>()).isNull()
+    }
+
+    @Test
+    fun `savings rate uses this month's pace`() {
+        // Nov 20: 20,000 so far -> 30,000 by month end; 50,000 income leaves 20,000 = 40%.
+        val rate = compute(listOf(e(LocalDate.of(2026, 11, 3), 20_000)), income = Money.ofRupees(50_000)).one<Insight.SavingsRate>()
+        assertThat(rate?.spent).isEqualTo(Money.ofRupees(30_000))
+        assertThat(rate?.saved).isEqualTo(Money.ofRupees(20_000))
+        assertThat(rate?.percent).isEqualTo(40)
+        assertThat(rate?.lastMonth).isFalse()
+    }
+
+    @Test
+    fun `spending more than income is flagged high and early in the month last month speaks`() {
+        val data = listOf(e(LocalDate.of(2026, 10, 10), 60_000), e(LocalDate.of(2026, 11, 1), 500))
+        val rate = compute(data, income = Money.ofRupees(50_000), day = LocalDate.of(2026, 11, 2)).one<Insight.SavingsRate>()
+        assertThat(rate?.lastMonth).isTrue()
+        assertThat(rate?.saved).isEqualTo(Money.ofRupees(-10_000))
+        assertThat(rate?.percent).isEqualTo(-20)
+        assertThat(rate?.priority).isEqualTo(90)
     }
 }
