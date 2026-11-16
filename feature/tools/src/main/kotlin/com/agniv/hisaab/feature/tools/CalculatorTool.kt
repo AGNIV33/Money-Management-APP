@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.FilledTonalButton
@@ -89,7 +89,7 @@ internal fun CalculatorTool(onBack: () -> Unit) {
                         modifier =
                             Modifier
                                 .weight(if (key == '0') 2f else 1f)
-                                .height(64.dp)
+                                .heightIn(min = 64.dp)
                                 .semantics { if (key == BACK) contentDescription = backspace },
                     ) {
                         Text(key.toString(), style = MaterialTheme.typography.titleLarge)

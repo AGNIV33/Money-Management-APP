@@ -7,10 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.MoneyFormatter
+import com.agniv.hisaab.core.designsystem.R
 import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 
@@ -23,13 +27,21 @@ fun HAmountText(
     paise: MoneyFormatter.Paise = MoneyFormatter.Paise.WHEN_NEEDED,
 ) {
     val text = remember(amount, paise) { MoneyFormatter.format(amount, paise) }
+    val words =
+        MoneyFormatter.SpokenWords(
+            rupees = stringResource(R.string.ds_spoken_rupees),
+            paise = stringResource(R.string.ds_spoken_paise),
+            minus = stringResource(R.string.ds_spoken_minus),
+        )
+    val spoken = remember(amount, words) { MoneyFormatter.spoken(amount, words) }
     Text(
         text = text,
-        modifier = modifier,
+        // TalkBack says "250 rupees" instead of reading the ₹ sign and commas (DESIGN.md §10).
+        modifier = modifier.semantics { contentDescription = spoken },
         color = amountColor(status),
         // Tabular digits keep columns of amounts aligned.
         style = style.merge(TextStyle(fontFeatureSettings = "tnum")),
-        maxLines = 1,
+        // No maxLines: at 200% font a big amount wraps instead of being cut off; money must never be hidden.
     )
 }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_spoken_rupees">रुपये</string>
+    <string name="ds_spoken_paise">पैसे</string>
+    <string name="ds_spoken_minus">माइनस</string>
+    <string name="ds_progress_percent">%1$d प्रतिशत</string>
+</resources>

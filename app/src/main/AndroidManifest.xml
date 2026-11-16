@@ -27,6 +27,9 @@
         android:usesCleartextTraffic="false"
         android:theme="@style/Theme.Hisaab">
 
+        <!-- Crash reports start from HisaabApplication, only if the user allows it (Settings) and a DSN is set. -->
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

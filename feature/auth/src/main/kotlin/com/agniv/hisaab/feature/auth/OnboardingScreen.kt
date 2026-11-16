@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -85,7 +85,7 @@ fun OnboardingScreen(
                     TextButton(onClick = onFinish) { Text(stringResource(R.string.onboarding_skip)) }
                     Button(
                         onClick = { if (step < slides.size) step += 1 else onFinish() },
-                        modifier = Modifier.height(56.dp),
+                        modifier = Modifier.heightIn(min = 56.dp),
                     ) {
                         Text(stringResource(if (step < slides.size) R.string.onboarding_next else R.string.onboarding_start))
                     }
@@ -109,14 +109,14 @@ private fun LanguagePick(onLanguage: (String) -> Unit) {
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
+                    .heightIn(min = 64.dp),
         ) { Text("English", style = MaterialTheme.typography.titleMedium) }
         OutlinedButton(
             onClick = { onLanguage("hi") },
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
+                    .heightIn(min = 64.dp),
         ) { Text("हिंदी", style = MaterialTheme.typography.titleMedium) }
     }
 }

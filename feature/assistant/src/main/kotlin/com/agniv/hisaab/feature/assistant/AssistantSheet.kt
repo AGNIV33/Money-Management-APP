@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -184,16 +185,18 @@ private fun Orb(
     val description = stringResource(R.string.assistant_orb)
     Box(
         modifier =
-            Modifier
-                .size(ORB_SIZE_DP.dp)
-                .semantics { contentDescription = description },
+            Modifier.size(ORB_SIZE_DP.dp),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.size(ORB_SIZE_DP.dp).scale(pulse)) {
             drawCircle(color = color.copy(alpha = 0.25f))
             drawCircle(color = color, radius = size.minDimension / 3f)
         }
-        TextButton(onClick = onClick, modifier = Modifier.size(ORB_SIZE_DP.dp)) {
+        // The label sits on the button itself so TalkBack says "Talk to assistant, button", not the emoji's name.
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier.size(ORB_SIZE_DP.dp).semantics { contentDescription = description },
+        ) {
             Text(
                 if (phase == AssistantPhase.IDLE ||
                     phase == AssistantPhase.ERROR
@@ -204,6 +207,7 @@ private fun Orb(
                 },
                 color = Color.White,
                 style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.clearAndSetSemantics {},
             )
         }
     }

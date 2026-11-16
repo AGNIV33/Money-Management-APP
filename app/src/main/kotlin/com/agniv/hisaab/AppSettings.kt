@@ -33,6 +33,11 @@ class AppSettings(
         get() = prefs.getBoolean(KEY_APP_LOCK, false)
         set(value) = prefs.edit().putBoolean(KEY_APP_LOCK, value).apply()
 
+    /** Send crash reports (no personal data, see CrashReporting). On by default; Settings can turn it off. */
+    var crashReports: Boolean
+        get() = prefs.getBoolean(KEY_CRASH_REPORTS, true)
+        set(value) = prefs.edit().putBoolean(KEY_CRASH_REPORTS, value).apply()
+
     var onboardingDone: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDING, false)
         set(value) = prefs.edit().putBoolean(KEY_ONBOARDING, value).apply()
@@ -52,5 +57,6 @@ class AppSettings(
         const val KEY_APP_LOCK = "app_lock"
         const val KEY_AVATAR = "avatar"
         const val KEY_ASSISTANT_CONSENT = "assistant_consent"
+        const val KEY_CRASH_REPORTS = "crash_reports"
     }
 }

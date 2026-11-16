@@ -19,9 +19,9 @@
 | `onPrimary` | `#FFFFFF` | `#00382A` | Text on primary |
 | `primaryContainer` | `#C9F2E0` | `#005139` | Selected chips, cards highlight |
 | `secondary` | `#F2A93B` (saffron) | `#FFC877` | Goals, highlights |
-| `tertiary` | `#3E6FD8` (blue) | `#A9C2FF` | Loans/EMI section |
+| `tertiary` | `#3461C4` (blue) | `#A9C2FF` | Loans/EMI section |
 | `error` | `#C62828` | `#FFB4AB` | Over budget, overdue EMI |
-| `warning` (custom) | `#E68A00` | `#FFB95C` | 80% budget, EMI due soon |
+| `warning` (custom) | `#9E5C00` | `#FFB95C` | 80% budget, EMI due soon |
 | `success` (custom) | `#2E7D32` | `#81C784` | Paid, under budget |
 | `background` | `#F7F8F6` | `#101413` | App background |
 | `surface` | `#FFFFFF` | `#181D1B` | Cards, sheets |
