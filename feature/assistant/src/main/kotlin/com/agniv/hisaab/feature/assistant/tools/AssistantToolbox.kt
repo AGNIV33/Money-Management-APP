@@ -58,7 +58,9 @@ object AssistantToolbox {
     const val AFFORDABILITY = "affordability"
     const val WEB_PRICE_LOOKUP = "web_price_lookup"
 
-    private const val TOP_CATEGORIES = 5
+    private const val MAX_CATEGORIES = 12
+    private const val RECENT_EXPENSES = 8
+    private const val OTHERS = "Others"
     private const val PAST_MONTHS = 3L
     private const val PERCENT = 100
     private const val DEFAULT_RATE_PERCENT = 12.0
@@ -120,18 +122,43 @@ object AssistantToolbox {
                 "topCategories",
                 buildJsonArray {
                     request.categories
-                        .filter { it.thisPaise > 0 }
-                        .take(TOP_CATEGORIES)
+                        .filter { it.thisPaise > 0 || it.lastPaise > 0 }
+                        .take(MAX_CATEGORIES)
                         .forEach { c ->
                             add(
                                 buildJsonObject {
                                     put("name", c.name)
                                     put("rupees", rupees(Money(c.thisPaise)))
+                                    put("lastMonthRupees", rupees(Money(c.lastPaise)))
                                 },
                             )
                         }
                 },
             )
+            put("recentExpenses", recentExpenses(ctx))
+        }
+    }
+
+    /**
+     * The latest entries as date, built-in category and amount only. The note, who paid and how are left out,
+     * and a category the family typed is shown as Others, so nothing personal goes with it.
+     */
+    private fun recentExpenses(ctx: ToolContext): JsonArray {
+        val nameOf = ctx.categories.associate { it.id to if (it.isDefault) it.name else OTHERS }
+        return buildJsonArray {
+            ctx.expenses
+                .filter { !it.deleted && !it.date.isAfter(ctx.today) }
+                .sortedByDescending { it.date }
+                .take(RECENT_EXPENSES)
+                .forEach { e ->
+                    add(
+                        buildJsonObject {
+                            put("date", e.date.toString())
+                            put("category", nameOf[e.categoryId] ?: OTHERS)
+                            put("rupees", rupees(e.amount))
+                        },
+                    )
+                }
         }
     }
 
@@ -311,7 +338,9 @@ object AssistantToolbox {
             is JsonPrimitive -> !answer.isString || isSafeText(answer.content)
         }
 
-    private val plainText = Regex("^[A-Za-z0-9 _:.\\-]{0,$LONGEST_SAFE_TEXT}$")
+    // "/" and "&" are needed by built-in names such as "Gas/LPG" and "Mobile/Internet". Without them the whole
+    // finance answer was refused, and the assistant told people it could not see their money.
+    private val plainText = Regex("^[A-Za-z0-9 _:.&/\\-]{0,$LONGEST_SAFE_TEXT}$")
     private val longDigits = Regex("\\d{9,}")
 
     private fun isSafeText(text: String): Boolean = plainText.matches(text) && !longDigits.containsMatchIn(text)

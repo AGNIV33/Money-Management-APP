@@ -1,5 +1,6 @@
 package com.agniv.hisaab
 
+import android.content.pm.ApplicationInfo
 import android.os.SystemClock
 import android.view.WindowManager
 import androidx.biometric.BiometricManager
@@ -100,7 +101,8 @@ class AppLock(
     }
 
     private fun applySecureFlag() {
-        if (settings.appLock) {
+        val debuggable = (activity.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (blockScreenshots(settings.appLock, debuggable)) {
             activity.window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         } else {
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -112,3 +114,12 @@ class AppLock(
         const val LOCK_AFTER_MS = 30_000L
     }
 }
+
+/**
+ * Screenshots (and the recent-apps picture) are blocked only when the app lock is on in a release build.
+ * Debug builds always allow them, so screens can be captured while the app is being built and tested.
+ */
+internal fun blockScreenshots(
+    appLockOn: Boolean,
+    debugBuild: Boolean,
+): Boolean = appLockOn && !debugBuild

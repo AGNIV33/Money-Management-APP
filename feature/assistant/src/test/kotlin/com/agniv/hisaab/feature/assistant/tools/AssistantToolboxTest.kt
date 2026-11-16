@@ -169,6 +169,39 @@ class AssistantToolboxTest {
     }
 
     @Test
+    fun `built-in names with a slash still pass, so the snapshot is not refused`() {
+        // Bug: "Mobile/Internet" failed the safety check, the whole answer was dropped and the
+        // assistant said it could not see the family's money.
+        val mobile = Category("c-mobile", null, "Mobile/Internet", "मोबाइल", "📱", 0, true)
+        val gas = Category("c-gas", null, "Gas/LPG", "गैस", "🔥", 0, true)
+        val base = context()
+        val ctx =
+            base.copy(
+                categories = base.categories + mobile + gas,
+                expenses = base.expenses + expense("e5", 999, mobile, today.minusDays(1)) + expense("e6", 1_100, gas, today),
+            )
+        val snapshot = run(AssistantToolbox.FINANCE_SNAPSHOT, ctx = ctx)
+        assertThat(AssistantToolbox.isSafe(snapshot)).isTrue()
+        assertThat(snapshot["topCategories"].toString()).contains("Mobile/Internet")
+        assertThat(snapshot["topCategories"].toString()).contains("Gas/LPG")
+    }
+
+    @Test
+    fun `snapshot lists every category with last month next to this month`() {
+        val categories = run(AssistantToolbox.FINANCE_SNAPSHOT)["topCategories"].toString()
+        assertThat(categories).contains("\"name\":\"Food\",\"rupees\":4000,\"lastMonthRupees\":9000")
+    }
+
+    @Test
+    fun `recent expenses carry date, category and amount only, newest first`() {
+        val recent = run(AssistantToolbox.FINANCE_SNAPSHOT)["recentExpenses"]!!.toString()
+        assertThat(recent).startsWith("[{\"date\":\"2026-11-08\",\"category\":\"Food\",\"rupees\":4000}")
+        assertThat(recent).contains("{\"date\":\"2026-11-07\",\"category\":\"Others\",\"rupees\":1500}")
+        assertThat(recent).doesNotContain("Ramesh")
+        assertThat(recent).doesNotContain("UPI")
+    }
+
+    @Test
     fun `finance snapshot reports totals in whole rupees`() {
         val snapshot = run(AssistantToolbox.FINANCE_SNAPSHOT)
         assertThat(snapshot["spentThisMonthRupees"]!!.jsonPrimitive.content).isEqualTo("5500")
