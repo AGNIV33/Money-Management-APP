@@ -26,7 +26,8 @@
     <string name="insights_footer">यह इसी फ़ोन पर आपकी अपनी एंट्री से निकाला गया है। ये सिर्फ़ आसान अंदाज़े हैं, वित्तीय सलाह नहीं।</string>
     <string name="insights_see_all">सभी %1$d देखें</string>
     <string name="insights_this_category">इस कैटेगरी</string>
-    <string name="insights_title">आपके लिए सुझाव</string>
+    <string name="insights_title">इनसाइट्स</string>
+    <string name="insights_home_title">खर्च की जानकारी</string>
     <string name="report_ai_label">AI का सुझाव है। अमल से पहले जाँच लें।</string>
     <string name="report_card_last_month">पिछले महीने के इन्हीं दिन</string>
     <string name="report_card_open">इस महीने का रिपोर्ट कार्ड देखें</string>

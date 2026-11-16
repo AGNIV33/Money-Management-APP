@@ -15,19 +15,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +44,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
 private const val ORB_SIZE_DP = 140
@@ -58,9 +55,8 @@ private const val PULSE_MS = 900
  * Talk to Kinly (PRD F23). Asks for consent once, before anything leaves the phone, then asks for the
  * microphone when the user taps the orb. The conversation stops when the sheet closes or the app goes away.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AssistantSheet(
+fun AssistantScreen(
     consentGiven: Boolean,
     onConsent: () -> Unit,
     onDismiss: () -> Unit,
@@ -89,18 +85,17 @@ fun AssistantSheet(
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    Column(Modifier.fillMaxWidth()) {
+        KinlyTopBar(title = stringResource(R.string.assistant_title))
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = Spacing.screen)
-                    .navigationBarsPadding(),
+                    .padding(horizontal = Spacing.screen),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
-            Text(stringResource(R.string.assistant_title), style = MaterialTheme.typography.headlineSmall)
             if (consentGiven) {
                 Talk(state, onOrb)
             } else {

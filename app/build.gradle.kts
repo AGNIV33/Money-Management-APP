@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.hisaab.hilt)
     alias(libs.plugins.hilt)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 // Crash-report address (Sentry DSN) comes from local.properties, never committed. Empty = crash reports off.
@@ -60,6 +61,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.work.runtime.ktx)

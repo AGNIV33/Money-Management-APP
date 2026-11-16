@@ -26,7 +26,8 @@
     <string name="insights_footer">Worked out on this phone from your own entries. These are simple guides, not financial advice.</string>
     <string name="insights_see_all">See all %1$d insights</string>
     <string name="insights_this_category">this category</string>
-    <string name="insights_title">Insights for you</string>
+    <string name="insights_title">Insights</string>
+    <string name="insights_home_title">Spending Insight</string>
     <string name="report_ai_label">Suggested by AI. Check before you act on it.</string>
     <string name="report_card_last_month">Same days last month</string>
     <string name="report_card_open">See the report card for this month</string>

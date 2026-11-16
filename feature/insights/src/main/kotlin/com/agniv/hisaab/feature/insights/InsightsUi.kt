@@ -5,25 +5,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.GoldCard
 import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.component.HCard
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.AiReportFailure
@@ -70,42 +75,50 @@ internal fun HomeInsightCard(
 ) {
     val top = state.insights.firstOrNull()
     if (top == null && state.monthly == null) return
-    Column(Modifier.clickable(onClick = onOpen), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        if (top != null) InsightCard(top, state.categories)
-        if (top == null || state.insights.size > 1 || state.monthly != null) {
-            Text(
-                if (state.insights.size > 1) {
-                    stringResource(R.string.insights_see_all, state.insights.size)
-                } else {
-                    stringResource(R.string.report_card_open)
-                },
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = Spacing.s),
-            )
+    val gold = HisaabTheme.extendedColors
+    // Board "Spending Insight": cream card, gold bulb, one sentence, chevron. Tap opens Insights.
+    GoldCard(Modifier.clickable(onClick = onOpen)) {
+        Row(
+            Modifier
+                .padding(Spacing.l)
+                .semantics(mergeDescendants = true) {},
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        ) {
+            Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = gold.gold, modifier = Modifier.size(36.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    stringResource(R.string.insights_home_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = gold.onGoldContainer,
+                )
+                Text(
+                    if (top != null) insightText(top, state.categories) else stringResource(R.string.report_card_open),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = gold.onGoldContainer,
+                )
+            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = gold.onGoldContainer)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun InsightsSheet(
+internal fun InsightsContent(
     state: InsightsUiState,
     report: ReportUiState,
     onGetTips: (String) -> Unit,
     onSetIncome: (Money?) -> Unit,
-    onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    Column(Modifier.fillMaxWidth()) {
+        KinlyTopBar(title = stringResource(R.string.insights_title))
         Column(
             Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.screen)
-                .navigationBarsPadding(),
+                .padding(horizontal = Spacing.screen),
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
-            Text(stringResource(R.string.insights_title), style = MaterialTheme.typography.headlineSmall)
             state.monthly?.let { MonthlyReportCard(it, state.categories) }
             state.insights.forEach { InsightCard(it, state.categories) }
             IncomeCard(state.income, onSetIncome)

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,16 +19,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +46,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.component.HCard
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
 import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Member
@@ -120,16 +117,14 @@ fun ProfileButton(
  * Profile (IMPLEMENTATION_PLAN 4.10): who you are, your picture, the app's settings (passed in by the app), your
  * family with invite code and members, export / delete account (5.6), and sign out.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileSheet(
+fun ProfileScreen(
     avatar: String?,
     onAvatar: (String?) -> Unit,
     localFamilyName: String,
     localMemberName: String,
     onSignedOut: () -> Unit,
     onAccountDeleted: () -> Unit,
-    onDismiss: () -> Unit,
     settingsContent: @Composable () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(key = "profile-sheet"),
 ) {
@@ -137,14 +132,14 @@ fun ProfileSheet(
     var editName by rememberSaveable { mutableStateOf(false) }
     var confirmSignOut by rememberSaveable { mutableStateOf(false) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    Column(Modifier.fillMaxWidth()) {
+        KinlyTopBar(title = stringResource(R.string.settings_title))
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = Spacing.screen)
-                    .navigationBarsPadding(),
+                    .padding(horizontal = Spacing.screen),
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
             Header(state, avatar, onEditName = { editName = true })

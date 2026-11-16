@@ -9,6 +9,10 @@
     <string name="budget_over_title">Budget crossed</string>
     <string name="budget_over_text">You have spent %1$s, more than your %2$s monthly budget.</string>
     <string name="tab_home">Home</string>
+    <string name="tab_insights">Insights</string>
+    <string name="tab_goals">Goals</string>
+    <string name="tab_assistant">Assistant</string>
+    <string name="tab_settings">Settings</string>
     <string name="emi_channel">EMI reminders</string>
     <string name="emi_soon_title">EMI due in a few days</string>
     <string name="emi_tomorrow_title">EMI due tomorrow</string>
