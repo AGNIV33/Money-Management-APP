@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.hisaab.android.application)
     alias(libs.plugins.hisaab.android.compose)
@@ -6,13 +8,24 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
+// Crash-report address (Sentry DSN) comes from local.properties, never committed. Empty = crash reports off.
+// A DSN only lets the app send reports to our project; it cannot read anything back.
+val sentryDsn: String =
+    Properties()
+        .apply {
+            val file = rootProject.file("local.properties")
+            if (file.exists()) file.inputStream().use { load(it) }
+        }.getProperty("SENTRY_DSN", "")
+
 android {
     namespace = "com.agniv.hisaab"
+    buildFeatures.buildConfig = true
 
     defaultConfig {
         applicationId = "com.agniv.hisaab"
         versionCode = 1
         versionName = "0.0.1"
+        buildConfigField("String", "SENTRY_DSN", "\"$sentryDsn\"")
     }
 
     buildTypes {
@@ -51,6 +64,7 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     // Installs the baseline/startup profile on phones where Play does not, so first launches are fast too.
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.sentry.android.core)
     baselineProfile(projects.baselineprofile)
 }
 

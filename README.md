@@ -10,4 +10,4 @@ Start with `CLAUDE.md`, then the docs in `DOCS/`: `PRD.md`, `ARCHITECTURE.md`, `
 ./gradlew test                 # unit tests
 ./gradlew ktlintCheck detekt   # lint
 ```
-Windows: `gradlew.bat`. Put `sdk.dir`, `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `local.properties` (never committed).
+Windows: `gradlew.bat`. Put `sdk.dir`, `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `local.properties` (never committed). Optional: `SENTRY_DSN` turns on crash reports in release builds (left empty = no reports).

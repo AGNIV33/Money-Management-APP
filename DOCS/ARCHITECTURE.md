@@ -176,7 +176,7 @@ More → Family | Budget | Goals | Categories | Settings | Privacy | About
 ```
 
 ## 11. Environments & config
-- `local.properties` (not committed): `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
+- `local.properties` (not committed): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, optional `SENTRY_DSN` (crash reports, release builds only; see `CrashReporting.kt`).
 - Build types: `debug` (dev Supabase project), `release` (prod project).
 - Edge function secrets: `AI_API_KEY`, `AI_MODEL`.
 

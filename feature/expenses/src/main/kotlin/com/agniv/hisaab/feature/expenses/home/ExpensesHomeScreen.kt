@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -427,7 +428,12 @@ private fun ExpenseRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
-        Text(category?.emoji() ?: "📦", style = MaterialTheme.typography.headlineSmall)
+        // Decorative: the category name is read from the line below, so TalkBack skips the emoji.
+        Text(
+            category?.emoji() ?: "📦",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.clearAndSetSemantics {},
+        )
         Column(Modifier.weight(1f)) {
             Text(
                 text = expense.note ?: category?.label().orEmpty(),

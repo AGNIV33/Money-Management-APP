@@ -15,11 +15,13 @@ internal object Palette {
     val PrimaryContainerDark = Color(0xFF005139)
     val SecondaryLight = Color(0xFFF2A93B)
     val SecondaryDark = Color(0xFFFFC877)
-    val TertiaryLight = Color(0xFF3E6FD8)
+
+    // Darker than the first DESIGN.md blue/amber so text in these colours passes WCAG AA (4.5:1) on cards and background.
+    val TertiaryLight = Color(0xFF3461C4)
     val TertiaryDark = Color(0xFFA9C2FF)
     val ErrorLight = Color(0xFFC62828)
     val ErrorDark = Color(0xFFFFB4AB)
-    val WarningLight = Color(0xFFE68A00)
+    val WarningLight = Color(0xFF9E5C00)
     val WarningDark = Color(0xFFFFB95C)
     val SuccessLight = Color(0xFF2E7D32)
     val SuccessDark = Color(0xFF81C784)

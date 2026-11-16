@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -176,15 +175,19 @@ private fun PickStep(
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), modifier = Modifier.fillMaxWidth()) {
         FilledTonalButton(
             onClick = onTake,
-            modifier = Modifier.weight(1f).height(56.dp),
+            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
         ) { Text("📷 " + stringResource(R.string.scan_take)) }
-        FilledTonalButton(onClick = onPictures, modifier = Modifier.weight(1f).height(56.dp)) {
+        FilledTonalButton(onClick = onPictures, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) {
             Text(
                 "🖼️ " + stringResource(R.string.stmt_pictures),
             )
         }
     }
-    FilledTonalButton(onClick = onPdf, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("📄 " + stringResource(R.string.stmt_pdf)) }
+    FilledTonalButton(onClick = onPdf, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+        Text(
+            "📄 " + stringResource(R.string.stmt_pdf),
+        )
+    }
     state.message?.let { m ->
         val res =
             when (m) {
@@ -251,12 +254,12 @@ private fun ReviewStep(
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s), modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = viewModel::reset,
-            modifier = Modifier.weight(1f).height(52.dp),
+            modifier = Modifier.weight(1f).heightIn(min = 52.dp),
         ) { Text(stringResource(R.string.stmt_again)) }
         Button(
             onClick = viewModel::addSelected,
             enabled = state.selectedCount > 0 && !state.saving,
-            modifier = Modifier.weight(1f).height(52.dp),
+            modifier = Modifier.weight(1f).heightIn(min = 52.dp),
         ) { Text(stringResource(R.string.stmt_add_selected, state.selectedCount)) }
     }
 }

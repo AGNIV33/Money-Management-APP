@@ -36,6 +36,8 @@ class HisaabApplication :
 
     override fun onCreate() {
         super.onCreate()
+        // First, so a crash during start-up is caught too. Cheap: one SharedPreferences read; skipped in debug.
+        CrashReporting.start(this, AppSettings(this).crashReports)
         // Faster cold start (5.1): the schedulers pull in Room, WorkManager and Supabase, so they are built and
         // started off the main thread after the first frame can already be drawn. Lazy keeps injection itself cheap.
         appScope.launch {

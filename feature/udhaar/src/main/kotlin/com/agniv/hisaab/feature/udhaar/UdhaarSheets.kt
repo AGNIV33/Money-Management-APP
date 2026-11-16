@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -126,14 +126,14 @@ internal fun UdhaarDetailSheet(
                         modifier =
                             Modifier
                                 .weight(1f)
-                                .height(52.dp),
+                                .heightIn(min = 52.dp),
                     ) { Text(stringResource(R.string.udhaar_add_payment)) }
                     Button(
                         onClick = { onEvent(UdhaarEvent.Settle(e.id)) },
                         modifier =
                             Modifier
                                 .weight(1f)
-                                .height(52.dp),
+                                .heightIn(min = 52.dp),
                     ) { Text("✓ " + stringResource(R.string.udhaar_mark_settled)) }
                 }
             }
@@ -278,7 +278,7 @@ internal fun AddUdhaarSheet(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .heightIn(min = 56.dp),
             ) { Text(stringResource(R.string.udhaar_save)) }
         }
     }

@@ -35,6 +35,21 @@ object MoneyFormatter {
         return "$sign$symbol$rupees$fraction"
     }
 
+    /**
+     * What TalkBack should say for an amount, e.g. "125000 rupees 50 paise" (DESIGN.md §10).
+     * Plain digits on purpose: the phone's voice then reads them its own way ("1 lakh 25 thousand" in
+     * en-IN / Hindi) instead of spelling out commas or the ₹ sign.
+     */
+    fun spoken(money: Money, words: SpokenWords): String {
+        val sign = if (money.isNegative) words.minus + " " else ""
+        val rupees = "$sign${kotlin.math.abs(money.rupeesPart)} ${words.rupees}"
+        val paise = kotlin.math.abs(money.paisePart)
+        return if (paise == 0L) rupees else "$rupees $paise ${words.paise}"
+    }
+
+    /** Words for [spoken], in the app's language (from strings.xml). */
+    data class SpokenWords(val rupees: String, val paise: String, val minus: String)
+
     internal fun groupIndian(digits: String): String {
         if (digits.length <= FIRST_GROUP) return digits
         val head = digits.dropLast(FIRST_GROUP)

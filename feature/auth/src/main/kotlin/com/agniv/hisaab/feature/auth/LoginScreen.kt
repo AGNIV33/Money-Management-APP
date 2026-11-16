@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -80,7 +80,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
+                            .heightIn(min = 56.dp),
                 ) { Text(stringResource(R.string.login_google)) }
             }
         }
@@ -106,7 +106,7 @@ private fun EmailStep(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
     ) { Text(stringResource(if (state.busy) R.string.login_sending else R.string.login_send_code)) }
 }
 
@@ -130,7 +130,7 @@ private fun CodeStep(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
     ) { Text(stringResource(R.string.login_verify)) }
     TextButton(onClick = { onEvent(LoginEvent.SendCode) }, enabled = !state.busy) {
         Text(stringResource(R.string.login_resend))

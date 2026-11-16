@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -30,6 +31,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,8 +43,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,6 +56,7 @@ import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Member
 import com.agniv.hisaab.core.domain.model.Role
 import com.agniv.hisaab.feature.family.R
+import androidx.compose.ui.semantics.Role as SemanticsRole
 
 /** Emoji people can pick as their picture; the first letter of the name is used until they pick one. */
 val AvatarChoices = listOf("🙂", "😎", "🧑", "👩", "👨", "👧", "👦", "🧓", "🦁", "🐯", "🐼", "🌸", "⭐", "🚀")
@@ -94,12 +99,21 @@ fun ProfileButton(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val label = stringResource(R.string.profile_open)
+    val open = onClick
     AvatarCircle(
         state.me?.name,
         avatar,
+        // 36 dp picture but a 48 dp touch area; TalkBack hears "Open profile, button", not the initial.
         Modifier
-            .clickable(onClick = onClick)
-            .semantics { contentDescription = label },
+            .minimumInteractiveComponentSize()
+            .clearAndSetSemantics {
+                contentDescription = label
+                role = SemanticsRole.Button
+                onClick {
+                    open()
+                    true
+                }
+            }.clickable(onClick = onClick),
     )
 }
 
@@ -236,7 +250,8 @@ private fun AvatarPicker(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier =
                     Modifier
-                        .clickable { onPick(emoji) }
+                        .minimumInteractiveComponentSize()
+                        .selectable(selected = emoji == current, role = SemanticsRole.RadioButton) { onPick(emoji) }
                         .padding(Spacing.xs),
             )
         }

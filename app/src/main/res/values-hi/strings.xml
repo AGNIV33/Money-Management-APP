@@ -26,6 +26,8 @@
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_lock">ऐप लॉक</string>
     <string name="settings_lock_hint">Kinly खोलते समय फ़िंगरप्रिंट, चेहरा या फ़ोन का PIN माँगे</string>
+    <string name="settings_crash">क्रैश रिपोर्ट भेजें</string>
+    <string name="settings_crash_hint">Kinly बंद हो जाए तो गड़बड़ी की जानकारी भेजें ताकि उसे ठीक किया जा सके। आपके नाम, रकम या नोट कभी नहीं।</string>
     <string name="settings_lock_missing">पहले फ़ोन की सेटिंग में स्क्रीन लॉक (PIN, पैटर्न या फ़िंगरप्रिंट) लगाएँ।</string>
     <string name="settings_language">भाषा</string>
     <string name="goal_channel">बचत लक्ष्य रिमाइंडर</string>

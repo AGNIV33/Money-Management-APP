@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
@@ -37,7 +38,8 @@ fun HSummaryCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(
-            modifier = Modifier.padding(Spacing.l),
+            // One TalkBack stop for title + amount + sub-line, read together.
+            modifier = Modifier.semantics(mergeDescendants = true) {}.padding(Spacing.l),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
             Text(

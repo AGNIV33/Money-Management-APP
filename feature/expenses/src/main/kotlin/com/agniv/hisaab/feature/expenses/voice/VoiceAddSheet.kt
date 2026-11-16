@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
@@ -147,7 +147,7 @@ private fun MicArea(
     onStop: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth(), horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-        FilledTonalButton(onClick = if (state.listening) onStop else onMic, modifier = Modifier.height(72.dp)) {
+        FilledTonalButton(onClick = if (state.listening) onStop else onMic, modifier = Modifier.heightIn(min = 72.dp)) {
             Text(if (state.listening) "⏹" else "🎤", style = MaterialTheme.typography.headlineMedium)
         }
         Text(
@@ -246,14 +246,14 @@ internal fun ParsedPreview(
             modifier =
                 Modifier
                     .weight(1f)
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
         ) { Text(stringResource(R.string.voice_save)) }
         OutlinedButton(
             onClick = { viewModel.prefill()?.let(onEdit) },
             modifier =
                 Modifier
                     .weight(1f)
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
         ) { Text(stringResource(R.string.voice_edit)) }
     }
 }
