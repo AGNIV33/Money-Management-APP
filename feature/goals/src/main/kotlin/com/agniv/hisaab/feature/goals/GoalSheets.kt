@@ -1,5 +1,6 @@
 package com.agniv.hisaab.feature.goals
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,8 +10,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -42,6 +46,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HOutlinedButton
+import com.agniv.hisaab.core.designsystem.component.KinlyTextField
+import com.agniv.hisaab.core.designsystem.component.SavingsJar
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.usecase.GoalItem
@@ -283,4 +290,58 @@ private fun GoalDateDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     ) { DatePicker(state = picker) }
+}
+
+/** Board "Add Money": the goal with its jar, the amount to add, Cancel / Add. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AddMoneySheet(
+    item: GoalItem,
+    onAdd: (Money) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    val amount = Money.parse(text)?.takeIf { it.paise > 0 }
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.screen)
+                .navigationBarsPadding()
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(Spacing.l),
+        ) {
+            Text(stringResource(R.string.goals_add_money), style = MaterialTheme.typography.titleLarge)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(HisaabTheme.extendedColors.goldContainer, RoundedCornerShape(14.dp))
+                    .padding(Spacing.m),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+            ) {
+                SavingsJar(item.fraction, size = 44.dp)
+                Column {
+                    Text(item.goal.name, style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        stringResource(R.string.goals_saved_slash, item.saved.formatted(), item.goal.target.formatted()),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            KinlyTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = stringResource(R.string.goals_amount_to_add),
+                leadingIcon = Icons.Filled.CurrencyRupee,
+                keyboardType = KeyboardType.Decimal,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                HOutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.cancel)) }
+                HButton(onClick = { amount?.let(onAdd) }, enabled = amount != null, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.goals_add))
+                }
+            }
+        }
+    }
 }

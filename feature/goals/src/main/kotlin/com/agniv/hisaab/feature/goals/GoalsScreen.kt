@@ -15,10 +15,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Savings
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,95 +36,96 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.EmptyState
 import com.agniv.hisaab.core.designsystem.component.HCard
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
+import com.agniv.hisaab.core.designsystem.component.MoreButton
+import com.agniv.hisaab.core.designsystem.component.SavingsJar
+import com.agniv.hisaab.core.designsystem.motion.popIn
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.usecase.GoalItem
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
 
-/** Goals tab (PRD F19): every goal with a progress jar, what is saved and what to put aside each month. */
+/** Board "Goals" tab: one card per goal with its savings jar, what is saved, the date and the monthly amount needed. */
 @Composable
 fun GoalsScreen(viewModel: GoalsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var openId by rememberSaveable { mutableStateOf<String?>(null) }
+    var addMoneyFor by rememberSaveable { mutableStateOf<String?>(null) }
     // null = closed, "" = adding, otherwise the id being edited.
     var sheetFor by rememberSaveable { mutableStateOf<String?>(null) }
     var sheetCount by rememberSaveable { mutableIntStateOf(0) }
+    val newGoal = {
+        sheetCount++
+        sheetFor = ""
+    }
+    val overview = state.overview
 
     Scaffold(
+        topBar = { KinlyTopBar(title = stringResource(R.string.goals_title)) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    sheetCount++
-                    sheetFor = ""
-                },
-                text = { Text(stringResource(R.string.goals_add_fab)) },
-                icon = { Text("+", style = MaterialTheme.typography.headlineSmall) },
-            )
+            if (overview.items.isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = newGoal,
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.goals_create)) }
+            }
         },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         LazyColumn(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(padding),
-            contentPadding = PaddingValues(Spacing.screen),
+            contentPadding = PaddingValues(start = Spacing.screen, end = Spacing.screen, top = Spacing.s, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
-            item(key = "title") {
-                Text(
-                    stringResource(R.string.goals_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-            val overview = state.overview
             if (overview.items.isNotEmpty()) {
-                item(key = "total") {
-                    HCard(Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                            Text(stringResource(R.string.goals_saved_total), style = MaterialTheme.typography.labelLarge)
-                            Text(
-                                overview.totalSaved.formatted(),
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = HisaabTheme.extendedColors.success,
-                            )
-                            Text(
-                                stringResource(R.string.goals_of_target, overview.totalTarget.formatted()),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
+                items(overview.items, key = { it.goal.id }) { item ->
+                    GoalCard(
+                        item,
+                        onClick = { openId = item.goal.id },
+                        onAddMoney = { addMoneyFor = item.goal.id },
+                        onEdit = {
+                            sheetCount++
+                            sheetFor = item.goal.id
+                        },
+                    )
                 }
-                items(overview.items, key = { it.goal.id }) { item -> GoalCard(item) { openId = item.goal.id } }
             } else if (!state.loading) {
                 item(key = "empty") {
-                    Text(
-                        stringResource(R.string.goals_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = Spacing.xl),
+                    EmptyState(
+                        icon = Icons.Outlined.Savings,
+                        title = stringResource(R.string.goals_empty_title),
+                        body = stringResource(R.string.goals_empty_body),
+                        action = stringResource(R.string.goals_create),
+                        onAction = newGoal,
                     )
                 }
             }
         }
     }
 
-    val open = state.overview.items.firstOrNull { it.goal.id == openId }
-    if (open != null) {
+    overview.items.firstOrNull { it.goal.id == openId }?.let { open ->
         GoalDetailSheet(
             item = open,
             canDelete = state.canDelete(open.goal),
@@ -125,6 +136,16 @@ fun GoalsScreen(viewModel: GoalsViewModel = hiltViewModel()) {
                 openId = null
             },
             onDismiss = { openId = null },
+        )
+    }
+    overview.items.firstOrNull { it.goal.id == addMoneyFor }?.let { goal ->
+        AddMoneySheet(
+            item = goal,
+            onAdd = {
+                viewModel.onEvent(GoalsEvent.Add(goal.goal.id, it))
+                addMoneyFor = null
+            },
+            onDismiss = { addMoneyFor = null },
         )
     }
     // Android 13+ needs the user's OK before goal reminders can show; asked right after a goal is saved.
@@ -169,63 +190,108 @@ internal fun GoalJar(
 private fun GoalCard(
     item: GoalItem,
     onClick: () -> Unit,
+    onAddMoney: () -> Unit,
+    onEdit: () -> Unit,
 ) {
     val g = item.goal
     val locale = LocalConfiguration.current.locales[0]
+    var menu by remember { mutableStateOf(false) }
     HCard(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick),
+        containerColor = if (item.reached) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
     ) {
-        Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(if (item.reached) "🎉" else "🫙", style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    g.name + if (g.visibility == Visibility.PRIVATE) "  " + stringResource(R.string.goals_private) else "",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .padding(start = Spacing.m),
-                )
-                Text(
-                    stringResource(R.string.goals_percent, (item.fraction * PERCENT).roundToInt()),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            GoalJar(item.fraction)
-            Row {
-                Text(
-                    stringResource(R.string.goals_saved_of, item.saved.formatted(), g.target.formatted()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                )
-                if (item.reached) {
-                    Text(
-                        stringResource(R.string.goals_reached),
-                        color = HisaabTheme.extendedColors.success,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                } else {
-                    g.deadline?.let {
-                        Text(
-                            stringResource(R.string.goals_by, it.format(DateTimeFormatter.ofPattern("d MMM yyyy", locale))),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Row(
+            Modifier.padding(start = Spacing.l, top = Spacing.l, bottom = Spacing.l),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SavingsJar(item.fraction)
+            Column(
+                Modifier
+                    .weight(1f)
+                    .semantics(mergeDescendants = true) {},
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                    Text(g.name, style = MaterialTheme.typography.titleSmall)
+                    if (g.visibility == Visibility.PRIVATE) {
+                        Icon(
+                            Icons.Outlined.Lock,
+                            contentDescription = stringResource(R.string.goals_private),
+                            modifier = Modifier.size(14.dp),
                         )
                     }
                 }
-            }
-            item.perMonthNeeded?.let {
                 Text(
-                    stringResource(R.string.goals_per_month, it.formatted()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    stringResource(R.string.goals_saved_slash, item.saved.formatted(), g.target.formatted()),
+                    style = MaterialTheme.typography.titleMedium,
                 )
+                g.deadline?.let {
+                    Text(
+                        stringResource(R.string.goals_due, it.format(DateTimeFormatter.ofPattern("d MMM yyyy", locale))),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                val perMonth = item.perMonthNeeded
+                if (item.reached) {
+                    Pill(
+                        text = stringResource(R.string.goals_completed),
+                        icon = Icons.Filled.CheckCircle,
+                        bg = MaterialTheme.colorScheme.surface,
+                        fg = MaterialTheme.colorScheme.primary,
+                    )
+                } else if (perMonth != null) {
+                    Pill(
+                        text = stringResource(R.string.goals_save_month, perMonth.formatted()),
+                        icon = null,
+                        bg = HisaabTheme.extendedColors.chipWarn,
+                        fg = HisaabTheme.extendedColors.onChipWarn,
+                    )
+                }
+            }
+            Box {
+                MoreButton(onClick = { menu = true })
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    if (!item.reached) {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.goals_add_money)) }, onClick = {
+                            menu = false
+                            onAddMoney()
+                        })
+                    }
+                    DropdownMenuItem(text = { Text(stringResource(R.string.goals_edit)) }, onClick = {
+                        menu = false
+                        onEdit()
+                    })
+                    DropdownMenuItem(text = { Text(stringResource(R.string.goals_details)) }, onClick = {
+                        menu = false
+                        onClick()
+                    })
+                }
             }
         }
     }
 }
 
-private const val PERCENT = 100
+@Composable
+private fun Pill(
+    text: String,
+    icon: ImageVector?,
+    bg: Color,
+    fg: Color,
+) {
+    Row(
+        Modifier
+            .padding(top = Spacing.xs)
+            .background(bg, CircleShape)
+            .padding(horizontal = Spacing.s, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        icon?.let { Icon(it, contentDescription = null, tint = fg, modifier = Modifier.size(14.dp).popIn()) }
+        Text(text, style = MaterialTheme.typography.labelMedium, color = fg)
+    }
+}
