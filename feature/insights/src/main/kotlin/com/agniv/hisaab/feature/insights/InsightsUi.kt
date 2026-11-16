@@ -11,7 +11,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.TrendingUp
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.QueryStats
+import androidx.compose.material.icons.outlined.Savings
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,10 +31,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.EmptyState
 import com.agniv.hisaab.core.designsystem.component.GoldCard
 import com.agniv.hisaab.core.designsystem.component.HButton
 import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
+import com.agniv.hisaab.core.designsystem.component.SectionHeader
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.model.AiReportFailure
@@ -36,6 +44,10 @@ import com.agniv.hisaab.core.domain.model.AiTip
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.ml.insight.Insight
 import com.agniv.hisaab.feature.insights.R
+import com.agniv.hisaab.feature.insights.report.CategoryRows
+import com.agniv.hisaab.feature.insights.report.MetricTile
+import com.agniv.hisaab.feature.insights.report.ReportState
+import com.agniv.hisaab.feature.insights.report.TrendChart
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
@@ -103,31 +115,129 @@ internal fun HomeInsightCard(
     }
 }
 
+/**
+ * Board "Insights" tab: private income (or the gold "Add monthly income" card), savings / EMI share / spent,
+ * six-month trend, this month's categories (View all → Monthly Report), smart alerts and other insights, then the
+ * optional AI saving tips. Empty state until there is any spending.
+ */
+@Suppress("CyclomaticComplexMethod") // One small branch per optional section of the board.
 @Composable
 internal fun InsightsContent(
     state: InsightsUiState,
     report: ReportUiState,
+    numbers: ReportState,
     onGetTips: (String) -> Unit,
     onSetIncome: (Money?) -> Unit,
+    onReport: () -> Unit,
+    onAddExpense: () -> Unit,
 ) {
+    val locale = LocalConfiguration.current.locales[0]
     Column(Modifier.fillMaxWidth()) {
         KinlyTopBar(title = stringResource(R.string.insights_title))
         Column(
             Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.screen),
-            verticalArrangement = Arrangement.spacedBy(Spacing.m),
+                .padding(horizontal = Spacing.screen)
+                .padding(bottom = Spacing.xl),
+            verticalArrangement = Arrangement.spacedBy(Spacing.l),
         ) {
-            state.monthly?.let { MonthlyReportCard(it, state.categories) }
-            state.insights.forEach { InsightCard(it, state.categories) }
+            if (numbers.isEmpty && state.insights.isEmpty() && numbers.trend.all { it.total.paise <= 0 }) {
+                EmptyState(
+                    icon = Icons.Outlined.QueryStats,
+                    title = stringResource(R.string.insights_empty_title),
+                    body = stringResource(R.string.insights_empty_body),
+                    action = stringResource(R.string.report_add_expense),
+                    onAction = onAddExpense,
+                )
+                return@Column
+            }
             IncomeCard(state.income, onSetIncome)
+            if (numbers.income != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                    MetricTile(
+                        Icons.Outlined.Savings,
+                        stringResource(R.string.report_savings),
+                        numbers.savingsPercent?.let { "$it%" } ?: "—",
+                        numbers.savings?.let { "(${it.formatted()})" },
+                        Modifier.weight(1f),
+                    )
+                    MetricTile(
+                        Icons.Outlined.CalendarMonth,
+                        stringResource(R.string.report_emi_share),
+                        numbers.emiPercent?.let { "$it%" } ?: "—",
+                        "(${numbers.monthlyEmi.formatted()})",
+                        Modifier.weight(1f),
+                    )
+                    MetricTile(
+                        Icons.Outlined.AccountBalanceWallet,
+                        stringResource(R.string.insights_total_spent),
+                        numbers.spent.formatted(),
+                        null,
+                        Modifier.weight(1f),
+                    )
+                }
+            }
+            if (numbers.trend.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                    Text(stringResource(R.string.insights_trend), style = MaterialTheme.typography.titleMedium)
+                    HCard(Modifier.fillMaxWidth()) { Column(Modifier.padding(Spacing.l)) { TrendChart(numbers.trend) } }
+                }
+            }
+            if (numbers.slices.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                    SectionHeader(
+                        stringResource(R.string.insights_breakdown, numbers.month.format(DateTimeFormatter.ofPattern("MMM", locale))),
+                        action = stringResource(R.string.insights_view_all),
+                        onAction = onReport,
+                    )
+                    HCard(
+                        Modifier.fillMaxWidth(),
+                    ) { Column(Modifier.padding(Spacing.l)) { CategoryRows(numbers.slices, numbers.categories) } }
+                }
+            }
+            val (alerts, others) = state.insights.partition { it.isAlert() }
+            if (alerts.isNotEmpty()) {
+                Text(stringResource(R.string.insights_smart_alerts), style = MaterialTheme.typography.titleMedium)
+                alerts.forEach { AlertInsightCard(it, state.categories, onClick = onReport) }
+            }
+            others.forEach { InsightCard(it, state.categories) }
             ReportSection(report, onGetTips)
             Text(
                 stringResource(R.string.insights_footer),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+/** Board smart-alert card: red for an unusual payment, gold for a jump or pace warning, with a chevron. */
+@Composable
+private fun AlertInsightCard(
+    insight: Insight,
+    categories: Map<String, Category>,
+    onClick: () -> Unit,
+) {
+    val danger = insight is Insight.BigExpense
+    val gold = HisaabTheme.extendedColors
+    val bg = if (danger) MaterialTheme.colorScheme.errorContainer else gold.goldContainer
+    val fg = if (danger) MaterialTheme.colorScheme.onErrorContainer else gold.onGoldContainer
+    HCard(Modifier.fillMaxWidth().clickable(onClick = onClick), containerColor = bg) {
+        Row(
+            Modifier
+                .padding(Spacing.l)
+                .semantics(mergeDescendants = true) {},
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        ) {
+            Icon(
+                if (danger) Icons.Outlined.WarningAmber else Icons.AutoMirrored.Outlined.TrendingUp,
+                contentDescription = null,
+                tint = if (danger) MaterialTheme.colorScheme.error else gold.gold,
+            )
+            Text(insightText(insight, categories), style = MaterialTheme.typography.bodyMedium, color = fg, modifier = Modifier.weight(1f))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = fg)
         }
     }
 }

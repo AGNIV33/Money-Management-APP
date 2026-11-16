@@ -60,6 +60,7 @@ import com.agniv.hisaab.feature.expenses.statement.StatementImportScreen
 import com.agniv.hisaab.feature.goals.GoalsScreen
 import com.agniv.hisaab.feature.insights.InsightsHomeCard
 import com.agniv.hisaab.feature.insights.InsightsScreen
+import com.agniv.hisaab.feature.insights.report.MonthlyReportScreen
 import com.agniv.hisaab.feature.loans.LoansScreen
 import com.agniv.hisaab.feature.tools.ToolsScreen
 import com.agniv.hisaab.feature.udhaar.UdhaarScreen
@@ -88,6 +89,9 @@ data object BudgetsRoute
 
 @Serializable
 data object AlertsRoute
+
+@Serializable
+data object ReportRoute
 
 @Serializable
 data object NotificationSettingsRoute
@@ -227,6 +231,9 @@ fun KinlyNavHost(
             )
         }
         composable<NotificationSettingsRoute> { NotificationSettingsScreen(settings, onBack = navController::popBackStack) }
+        composable<ReportRoute> {
+            MonthlyReportScreen(onBack = navController::popBackStack, onAddExpense = { navController.navigate(AddExpenseRoute()) })
+        }
         composable<ImportRoute> { StatementImportScreen(onBack = navController::popBackStack) }
         composable<UdhaarRoute> { UdhaarScreen(onBack = navController::popBackStack) }
         composable<ToolsRoute> { ToolsScreen() }
@@ -269,7 +276,11 @@ private fun Tabs(
                             ),
                         insightCard = { InsightsHomeCard(onOpen = { onTab(Tab.INSIGHTS) }) },
                     )
-                Tab.INSIGHTS -> InsightsScreen()
+                Tab.INSIGHTS ->
+                    InsightsScreen(
+                        onReport = { navController.navigate(ReportRoute) },
+                        onAddExpense = { navController.navigate(AddExpenseRoute()) },
+                    )
                 Tab.GOALS -> GoalsScreen()
                 Tab.ASSISTANT -> content.assistant()
                 Tab.SETTINGS -> content.settings()
