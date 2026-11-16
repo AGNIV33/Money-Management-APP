@@ -14,6 +14,8 @@
 
 ## 2. Color tokens
 
+> 2026-11-16 (later): the whole UI now follows the 16 design boards in `/design` (one PNG per screen). Code is the source of truth: `core/designsystem` theme (`Color.kt`, `Type.kt` with Inter, `Shape.kt`) and components. Dark theme: background #111A16, cards #1B2721, light-green primary #5FD39F with dark text on buttons (the boards' white-on-green is only 3.4:1).
+
 > 2026-11-16: the light theme now follows the Kinly design spec, and `Color.kt` is the source of truth. Primary `#1B7F5B`, primaryContainer `#E6F3EC`, background `#FAFAF6`, onSurface `#17251F`, onSurfaceVariant `#68766F`, outlineVariant (card borders) `#E5EAE6`, outline (field borders) `#7D8983`, secondary/accent `#E9B872` (never as text), error `#B84040`, warning `#8F5E12`, success `#1E7A4B`. Shapes: cards 20, sheets 28, chips 10, buttons 12. Cards are flat with a 1 dp border (`HCard`). The table below is the older palette; its dark-theme values are still in use.
 | Token | Light | Dark | Use |
 |-------|-------|------|-----|
