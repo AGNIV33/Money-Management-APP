@@ -16,6 +16,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.agniv.hisaab.core.domain.loan.EmiReminder
 import com.agniv.hisaab.core.domain.loan.EmiReminders
+import com.agniv.hisaab.core.domain.repository.LoanReminderSettings
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.GoalReminder
 import com.agniv.hisaab.core.domain.usecase.GoalReminders
@@ -75,11 +76,13 @@ class EmiReminderWorker
         private val observeGoals: ObserveGoals,
         private val goalNotifier: GoalReminderNotifier,
         private val time: TimeProvider,
+        private val loanReminders: LoanReminderSettings,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
             val session = sessions.session.first() ?: return Result.success()
             val today = time.today()
-            val due = EmiReminders.due(observeLoans(session).first().items, session.userId)
+            val muted = loanReminders.mutedLoanIds.first()
+            val due = EmiReminders.due(observeLoans(session).first().items, session.userId).filter { it.loan.id !in muted }
             val udhaarDue = UdhaarReminders.due(observeUdhaar(session).first().items, session.userId, today)
             val goalsDue = GoalReminders.due(observeGoals(session).first().items, session.userId, today)
             val store = applicationContext.reminderStore

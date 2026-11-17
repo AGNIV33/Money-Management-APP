@@ -70,6 +70,9 @@ fun LoansScreen(
                 openId = null
             },
             onSetPaid = { month, paid -> viewModel.onEvent(LoansEvent.SetPaid(open.loan.id, month, paid)) },
+            // Reminders only ever go to the loan's owner, so only they get the switch.
+            reminderOn = (open.loan.id !in state.mutedReminders).takeIf { open.loan.ownerUserId == state.viewerUserId },
+            onReminderChange = { on -> viewModel.onEvent(LoansEvent.SetReminder(open.loan.id, on)) },
         )
     } else {
         LoansList(state, onBack = onBack, onOpen = { openId = it }, onAdd = { openSheet("") })

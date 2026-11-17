@@ -96,4 +96,6 @@
     <string name="emi_per_month">%1$s / महीना</string>
     <string name="emi_next_due">अगली किस्त: %1$s</string>
     <string name="emi_completed">पूरा हुआ (%1$d / %2$d)</string>
+    <string name="loan_reminder_title">EMI रिमाइंडर</string>
+    <string name="loan_reminder_text">3 दिन पहले, 1 दिन पहले और देय दिन पर</string>
 </resources>

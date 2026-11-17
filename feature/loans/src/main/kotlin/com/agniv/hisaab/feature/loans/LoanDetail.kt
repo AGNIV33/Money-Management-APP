@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.formatted
@@ -51,6 +54,8 @@ internal fun LoanDetail(
     canDelete: Boolean,
     onDelete: () -> Unit,
     onSetPaid: (YearMonth, Boolean) -> Unit,
+    reminderOn: Boolean?,
+    onReminderChange: (Boolean) -> Unit,
 ) {
     val loan = item.loan
     val progress = item.progress
@@ -92,6 +97,9 @@ internal fun LoanDetail(
             }
         }
         item(key = "next") { NextEmiCard(item, onSetPaid, lastMarked) }
+        if (reminderOn != null && item.progress.next != null) {
+            item(key = "reminder") { ReminderSwitch(reminderOn, onReminderChange) }
+        }
         item(key = "facts") {
             HCard(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
@@ -168,6 +176,35 @@ private fun NextEmiCard(
                     Text(stringResource(R.string.undo_paid))
                 }
             }
+        }
+    }
+}
+
+/** Per-loan on/off for the 3-day, 1-day and due-day EMI reminders. */
+@Composable
+private fun ReminderSwitch(
+    on: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    HCard(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
+                .padding(Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.loan_reminder_title), style = MaterialTheme.typography.titleSmall)
+                Text(
+                    stringResource(R.string.loan_reminder_text),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            // The whole row toggles, so the switch itself takes no clicks (one TalkBack item).
+            Switch(checked = on, onCheckedChange = null)
         }
     }
 }

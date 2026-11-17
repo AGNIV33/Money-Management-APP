@@ -5,6 +5,7 @@ import com.agniv.hisaab.core.data.assistant.DefaultAssistantRepository
 import com.agniv.hisaab.core.data.auth.SupabaseAuthRepository
 import com.agniv.hisaab.core.data.family.LinkingFamilyRepository
 import com.agniv.hisaab.core.data.income.DataStoreIncomeRepository
+import com.agniv.hisaab.core.data.loan.DataStoreLoanReminderSettings
 import com.agniv.hisaab.core.data.loan.RemoteLoanExtractRepository
 import com.agniv.hisaab.core.data.report.RemoteAiReportRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstExpenseRepository
@@ -29,6 +30,7 @@ import com.agniv.hisaab.core.domain.repository.ExpenseRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.GoalRepository
 import com.agniv.hisaab.core.domain.repository.IncomeRepository
+import com.agniv.hisaab.core.domain.repository.LoanReminderSettings
 import com.agniv.hisaab.core.domain.repository.LoanRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.RecurringRepository
@@ -78,6 +80,8 @@ internal abstract class DataModule {
     @Binds abstract fun syncState(impl: DataStoreSyncState): SyncStateStore
 
     @Binds abstract fun incomeRepository(impl: DataStoreIncomeRepository): IncomeRepository
+
+    @Binds abstract fun loanReminderSettings(impl: DataStoreLoanReminderSettings): LoanReminderSettings
 
     @Binds abstract fun syncRequester(impl: SyncScheduler): SyncRequester
 
