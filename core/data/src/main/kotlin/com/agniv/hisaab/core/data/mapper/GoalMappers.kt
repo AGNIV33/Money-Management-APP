@@ -22,6 +22,7 @@ fun GoalEntity.toDomain(): Goal =
         visibility = enumOr(visibility, Visibility.PRIVATE),
         updatedAt = Instant.ofEpochMilli(updatedAt),
         deleted = deleted,
+        icon = icon,
     )
 
 fun Goal.toEntity(): GoalEntity =
@@ -35,6 +36,7 @@ fun Goal.toEntity(): GoalEntity =
         visibility = visibility.name,
         updatedAt = updatedAt.toEpochMilli(),
         deleted = deleted,
+        icon = icon,
     )
 
 fun GoalEntity.toDto(): GoalDto =
@@ -47,6 +49,7 @@ fun GoalEntity.toDto(): GoalDto =
         deadline = deadline?.let { LocalDate.ofEpochDay(it).toString() },
         visibility = visibility,
         deleted = deleted,
+        icon = icon,
     )
 
 fun GoalDto.toEntity(updatedAtMillis: Long): GoalEntity =
@@ -60,6 +63,7 @@ fun GoalDto.toEntity(updatedAtMillis: Long): GoalEntity =
         visibility = visibility,
         updatedAt = updatedAtMillis,
         deleted = deleted,
+        icon = icon,
     )
 
 fun GoalContributionEntity.toDomain(): GoalContribution =

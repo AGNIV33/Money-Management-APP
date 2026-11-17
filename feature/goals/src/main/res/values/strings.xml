@@ -48,4 +48,5 @@
     <string name="goals_saved_slash">%1$s / %2$s</string>
     <string name="goals_amount_to_add">Amount to add</string>
     <string name="goals_add">Add</string>
+    <string name="goals_icon">Icon</string>
 </resources>

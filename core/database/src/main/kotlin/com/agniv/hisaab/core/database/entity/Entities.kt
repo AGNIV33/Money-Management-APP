@@ -206,6 +206,8 @@ data class GoalEntity(
     val visibility: String,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     val deleted: Boolean = false,
+    /** Emoji, or null for the default jar (added in v7). */
+    val icon: String? = null,
 )
 
 @Entity(

@@ -15,6 +15,8 @@ data class Goal(
     val visibility: Visibility,
     val updatedAt: Instant,
     val deleted: Boolean = false,
+    /** Emoji picked for the goal, or null for the default jar. */
+    val icon: String? = null,
 )
 
 /** Money put towards a goal on [date]. Taking one back is a soft delete, so nothing is edited in place. */

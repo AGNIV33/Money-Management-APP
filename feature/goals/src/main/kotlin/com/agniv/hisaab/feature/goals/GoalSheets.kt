@@ -1,7 +1,9 @@
 package com.agniv.hisaab.feature.goals
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +11,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -37,8 +44,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -205,6 +215,7 @@ internal fun AddGoalSheet(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
+            GoalIconPicker(selected = state.icon, onPick = viewModel::setIcon)
             OutlinedTextField(
                 value = state.target,
                 onValueChange = viewModel::setTarget,
@@ -345,3 +356,36 @@ internal fun AddMoneySheet(
         }
     }
 }
+
+/** One row of emoji to pick from; tapping the picked one again clears it. */
+@Composable
+private fun GoalIconPicker(
+    selected: String?,
+    onPick: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+        Text(stringResource(R.string.goals_icon), style = MaterialTheme.typography.labelLarge)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            items(GOAL_ICONS, key = { it }) { icon ->
+                val picked = icon == selected
+                Box(
+                    Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (picked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                        ).border(
+                            width = if (picked) 2.dp else 0.dp,
+                            color = if (picked) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            shape = CircleShape,
+                        ).selectable(selected = picked, role = Role.RadioButton, onClick = { onPick(icon) }),
+                    contentAlignment = Alignment.Center,
+                ) { Text(icon, style = MaterialTheme.typography.titleLarge) }
+            }
+        }
+    }
+}
+
+/** Common Indian family savings goals. */
+internal val GOAL_ICONS =
+    listOf("🎯", "🏠", "🚗", "🏍️", "✈️", "🏖️", "🎓", "💍", "👶", "📱", "💻", "📺", "🛋️", "🩺", "🪔", "🎁", "🐷", "💰")

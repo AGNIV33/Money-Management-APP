@@ -216,6 +216,7 @@ private fun GoalCard(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                    g.icon?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
                     Text(g.name, style = MaterialTheme.typography.titleSmall)
                     if (g.visibility == Visibility.PRIVATE) {
                         Icon(
