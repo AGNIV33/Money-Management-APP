@@ -82,9 +82,23 @@ object CsvStatementParser {
         c: Columns,
     ): StatementLine? {
         val date = cells.getOrNull(c.date)?.let(::date) ?: return null
-        val description = c.text?.let { cells.getOrNull(it) }.orEmpty().replace(Regex("""\s+"""), " ").trim().take(MAX_DESCRIPTION)
-        val out = c.debit?.let { cells.getOrNull(it) }?.let(::money)?.takeIf { it.paise > 0 }
-        val inn = c.credit?.let { cells.getOrNull(it) }?.let(::money)?.takeIf { it.paise > 0 }
+        val description =
+            c.text
+                ?.let { cells.getOrNull(it) }
+                .orEmpty()
+                .replace(Regex("""\s+"""), " ")
+                .trim()
+                .take(MAX_DESCRIPTION)
+        val out =
+            c.debit
+                ?.let { cells.getOrNull(it) }
+                ?.let(::money)
+                ?.takeIf { it.paise > 0 }
+        val inn =
+            c.credit
+                ?.let { cells.getOrNull(it) }
+                ?.let(::money)
+                ?.takeIf { it.paise > 0 }
         val balance = c.balance?.let { cells.getOrNull(it) }?.let(::money)
         val (amount, debit) =
             when {
@@ -94,7 +108,12 @@ object CsvStatementParser {
                     val raw = cells.getOrNull(c.amount).orEmpty().trim()
                     val value = money(raw) ?: return null
                     if (value.paise == 0L) return null
-                    val type = c.type?.let { cells.getOrNull(it) }.orEmpty().trim().lowercase()
+                    val type =
+                        c.type
+                            ?.let { cells.getOrNull(it) }
+                            .orEmpty()
+                            .trim()
+                            .lowercase()
                     val dir =
                         when {
                             raw.startsWith("-") || raw.endsWith("dr", ignoreCase = true) -> true

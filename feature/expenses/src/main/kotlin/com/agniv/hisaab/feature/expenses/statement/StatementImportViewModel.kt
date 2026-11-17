@@ -81,6 +81,7 @@ data class StatementUiState(
  * Passbook / statement import (PRD F21): read, compare with Kinly, let the user pick what to add.
  * AI suggests, the user confirms: nothing is saved until "Add selected" is pressed.
  */
+@Suppress("TooManyFunctions") // one handler per screen event of a single import flow
 @HiltViewModel
 class StatementImportViewModel
     @Inject

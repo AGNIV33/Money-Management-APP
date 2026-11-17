@@ -20,6 +20,7 @@ import javax.inject.Inject
 
 private const val MAX_NAME = 40
 
+@Suppress("TooManyFunctions") // one function per AccountRepository operation
 class DefaultAccountRepository
     @Inject
     constructor(

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions") // small private composables of one screen
+
 package com.agniv.hisaab.feature.expenses.statement
 
 import android.content.Context
