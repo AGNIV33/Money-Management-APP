@@ -4,6 +4,7 @@ import com.agniv.hisaab.core.network.dto.CreateFamilyParams
 import com.agniv.hisaab.core.network.dto.FamilyDto
 import com.agniv.hisaab.core.network.dto.JoinFamilyParams
 import com.agniv.hisaab.core.network.dto.MemberDto
+import com.agniv.hisaab.core.network.dto.MemberEmailDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -107,6 +108,13 @@ class FamilyApi
         suspend fun deleteMyAccount() {
             supabase.postgrest.rpc("delete_my_account")
         }
+
+        /** Member id → sign-in email, for the caller's own family only (migration 014). */
+        suspend fun memberEmails(familyId: String): Map<String, String> =
+            supabase.postgrest
+                .rpc("family_member_emails", buildJsonObject { put("p_family_id", familyId) })
+                .decodeList<MemberEmailDto>()
+                .associate { it.memberId to it.email }
 
         private fun decode(body: String): FamilyDto = json.decodeFromString(FamilyDto.serializer(), body)
     }

@@ -60,6 +60,13 @@ class DefaultAccountRepository
                 db.memberDao().get(memberId)?.let { db.memberDao().upsert(it.copy(deleted = true, updatedAt = time.now().toEpochMilli())) }
             }
 
+        override suspend fun memberEmails(familyId: String): Map<String, String> =
+            withContext(dispatchers.io) {
+                if (api.currentUserId() == null) return@withContext emptyMap()
+                // Emails are a nice-to-have on the Family screen, so any failure just shows no emails.
+                resultOf { api.memberEmails(familyId) }.getOrDefault(emptyMap())
+            }
+
         override suspend fun pendingChanges(): Int = withContext(dispatchers.io) { db.syncQueueDao().observeCount().first() }
 
         override suspend fun signOut(

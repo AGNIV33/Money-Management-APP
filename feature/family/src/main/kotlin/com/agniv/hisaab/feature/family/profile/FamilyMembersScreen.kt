@@ -52,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -200,11 +201,21 @@ private fun MemberRow(
         horizontalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         InitialAvatar(member.name)
-        Text(
-            member.name + if (isMe) stringResource(R.string.family_you) else "",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.weight(1f),
-        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                member.name + if (isMe) stringResource(R.string.family_you) else "",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            state.memberEmails[member.id]?.let { email ->
+                Text(
+                    email,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
         RoleChip(member.role)
         // Only admins manage others, and nobody manages themselves here.
         if (state.isAdmin && !isMe) {
