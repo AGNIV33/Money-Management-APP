@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Asked only when the user taps the mic. Kinly never records or stores audio: Android turns speech into text. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Asked only on Bill Scan, for the live camera view. Pictures stay on the phone. If refused, the phone's camera app is used. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Android 11+: lets the app see the phone's speech recognition service. -->
     <queries>

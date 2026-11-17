@@ -1,6 +1,8 @@
 package com.agniv.hisaab.feature.expenses.scan
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -45,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -66,6 +69,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -102,8 +106,9 @@ private enum class ScanPhase { CAMERA, CAPTURED, PROCESSING, DETECTED, NOT_READA
 
 /**
  * Board "Bill Scan": frame guide → photo preview (Retake / Process) → "Reading your bill…" → editable amount, date
- * and shop name → Save expense. The phone's own camera app takes the photo (no camera permission needed) and the
- * text is read on this phone; the picture is never sent anywhere.
+ * and shop name → Save expense. With camera permission the frame shows the live camera and the shutter takes the
+ * photo here; without it the phone's own camera app takes it. The text is read on this phone; the picture is never
+ * sent anywhere.
  */
 @Suppress("CyclomaticComplexMethod") // One branch per screen state.
 @Composable
@@ -156,7 +161,20 @@ fun ScanBillScreen(
                 phase = ScanPhase.CAPTURED
             }
         }
-    val capture = {
+    var cameraAllowed by remember {
+        mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
+    }
+    var askedCamera by rememberSaveable { mutableStateOf(false) }
+    val askCamera = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { cameraAllowed = it }
+    // Ask once per visit; a "no" keeps the old way (the phone's camera app), which needs no permission.
+    LaunchedEffect(Unit) {
+        if (!cameraAllowed && !askedCamera) {
+            askedCamera = true
+            askCamera.launch(Manifest.permission.CAMERA)
+        }
+    }
+    var capturing by remember { mutableStateOf(false) }
+    val systemCapture = {
         val file = newPhotoFile(context)
         photoPath = file.absolutePath
         takePhoto.launch(FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file))
@@ -181,10 +199,29 @@ fun ScanBillScreen(
             verticalArrangement = Arrangement.spacedBy(Spacing.l),
         ) {
             when (phase) {
-                ScanPhase.CAMERA ->
-                    Camera(onCapture = capture, onGallery = {
+                ScanPhase.CAMERA -> {
+                    val live = if (cameraAllowed) rememberLiveCamera() else null
+                    val capture = {
+                        if (live == null) {
+                            systemCapture()
+                        } else if (!capturing) {
+                            capturing = true
+                            live.capture(context, newPhotoFile(context)) { uri ->
+                                capturing = false
+                                if (uri != null) {
+                                    photo = uri.toString()
+                                    phase = ScanPhase.CAPTURED
+                                } else {
+                                    // The live camera failed (busy, no camera): fall back to the camera app.
+                                    systemCapture()
+                                }
+                            }
+                        }
+                    }
+                    Camera(live = live, onCapture = capture, onGallery = {
                         pickPicture.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     })
+                }
                 ScanPhase.CAPTURED -> Captured(photo, onRetake = retake, onProcess = ::process)
                 ScanPhase.PROCESSING -> Processing()
                 ScanPhase.DETECTED -> Detected(photo, viewModel, today, onRetake = retake)
@@ -203,9 +240,13 @@ fun ScanBillScreen(
     }
 }
 
-/** Dark frame with corner brackets and a shutter, like a camera view; the shutter opens the phone's camera. */
+/**
+ * Dark frame with corner brackets and a shutter. With [live] the frame shows the camera and the shutter takes the
+ * photo here; without it the frame shows a hint and the shutter opens the phone's camera app.
+ */
 @Composable
 private fun Camera(
+    live: LiveCameraState?,
     onCapture: () -> Unit,
     onGallery: () -> Unit,
 ) {
@@ -225,6 +266,14 @@ private fun Camera(
                 .aspectRatio(FRAME_RATIO),
             contentAlignment = Alignment.Center,
         ) {
+            if (live != null) {
+                LivePreview(
+                    live,
+                    Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp)),
+                )
+            }
             Canvas(Modifier.fillMaxSize()) {
                 val l = size.minDimension * BRACKET
                 val w = 4.dp.toPx()
@@ -240,19 +289,8 @@ private fun Camera(
                     drawLine(frame, p, Offset(p.x, p.y + d.y * l), w, StrokeCap.Round)
                 }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                Icon(
-                    Icons.Outlined.ReceiptLong,
-                    contentDescription = null,
-                    tint = frame.copy(alpha = HINT_ALPHA),
-                    modifier = Modifier.size(64.dp),
-                )
-                Text(
-                    stringResource(R.string.scan_frame_hint),
-                    color = frame,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                )
+            if (live == null) {
+                CameraHint(frame)
             }
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -281,6 +319,24 @@ private fun Camera(
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth(),
     )
+}
+
+@Composable
+private fun CameraHint(frame: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+        Icon(
+            Icons.Outlined.ReceiptLong,
+            contentDescription = null,
+            tint = frame.copy(alpha = HINT_ALPHA),
+            modifier = Modifier.size(64.dp),
+        )
+        Text(
+            stringResource(R.string.scan_frame_hint),
+            color = frame,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
+    }
 }
 
 private const val CAMERA_BG = 0xFF1E2622

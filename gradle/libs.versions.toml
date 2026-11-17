@@ -25,6 +25,7 @@ supabase = "3.9.0"
 ktor = "3.6.1"
 credentials = "1.6.0"
 googleId = "1.2.1"
+camerax = "1.6.2"
 
 junit4 = "4.13.2"
 truth = "1.4.5"
@@ -42,6 +43,10 @@ detekt = "1.23.8"
 ktlintGradle = "14.2.0"
 
 [libraries]
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
 androidx-biometric = { module = "androidx.biometric:biometric", version = "1.1.0" }
 mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version = "16.0.1" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
