@@ -194,8 +194,8 @@
     <string name="scan_unreadable_title">Couldn\'t read the bill</string>
     <string name="scan_unreadable_body">The image is not clear. Please retake with good lighting.</string>
     <string name="stmt_import_title">Import Bank Statement</string>
-    <string name="stmt_import_body">Upload your bank statement or passbook (PDF or photos) to automatically add your expenses.</string>
-    <string name="stmt_bullet_formats">Supports PDF files and photos</string>
+    <string name="stmt_import_body">Upload your bank statement or passbook (PDF, CSV or photos) to automatically add your expenses.</string>
+    <string name="stmt_bullet_formats">Supports PDF, CSV files and photos</string>
     <string name="stmt_bullet_detect">We\'ll read and detect transactions</string>
     <string name="stmt_bullet_review">Review, edit and import</string>
     <string name="stmt_choose_file">Choose file</string>

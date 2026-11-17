@@ -88,8 +88,12 @@ import com.agniv.hisaab.core.ml.statement.MatchResult
 import com.agniv.hisaab.feature.expenses.R
 import com.agniv.hisaab.feature.expenses.ui.iconVector
 import com.agniv.hisaab.feature.expenses.ui.label
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.InputStream
 import java.time.format.DateTimeFormatter
 
 /**
@@ -129,6 +133,29 @@ fun StatementImportScreen(
         }
     }
 
+    fun readCsv(uri: Uri) {
+        lastUris = listOf(uri.toString())
+        val (name, size) = describe(context, uri)
+        fileName = name
+        fileSize = size
+        viewModel.onReading()
+        scope.launch {
+            val text =
+                try {
+                    withContext(Dispatchers.IO) {
+                        context.contentResolver.openInputStream(uri)?.use { input ->
+                            // A statement CSV is a few hundred KB at most; refuse anything huge rather than run out of memory.
+                            String(input.readNBytesCompat(MAX_CSV_BYTES), Charsets.UTF_8)
+                        }
+                    } ?: error("no stream")
+                } catch (_: Exception) {
+                    viewModel.onFailure(StatementMessage.READ_FAILED)
+                    return@launch
+                }
+            viewModel.onCsv(text)
+        }
+    }
+
     fun readPdf(uri: Uri) {
         lastUris = listOf(uri.toString())
         val (name, size) = describe(context, uri)
@@ -150,11 +177,15 @@ fun StatementImportScreen(
         }
     }
 
+    fun readFile(uri: Uri) {
+        if (isCsv(context, uri, describe(context, uri).first)) readCsv(uri) else readPdf(uri)
+    }
+
     fun tryAgain() {
         val uris = lastUris.map(Uri::parse)
         when {
             uris.isEmpty() -> viewModel.reset()
-            fileSize != null -> readPdf(uris.first())
+            fileSize != null -> readFile(uris.first())
             else -> readImages(uris)
         }
     }
@@ -169,8 +200,8 @@ fun StatementImportScreen(
             }
         }
     val pickPictures = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_PICTURES)) { readImages(it) }
-    val pickPdf = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(::readPdf) }
-    val choosePdf = { pickPdf.launch(arrayOf("application/pdf")) }
+    val pickPdf = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(::readFile) }
+    val choosePdf = { pickPdf.launch(STATEMENT_TYPES) }
 
     Scaffold(
         topBar = { KinlyTopBar(title = stringResource(R.string.stmt_title), onBack = onBack) },
@@ -225,6 +256,34 @@ fun StatementImportScreen(
 }
 
 private const val MAX_PICTURES = 6
+private const val MAX_CSV_BYTES = 5 * 1024 * 1024
+
+/** PDF plus the names phones and file managers give CSV files. */
+private val STATEMENT_TYPES =
+    arrayOf("application/pdf", "text/csv", "text/comma-separated-values", "application/csv", "application/vnd.ms-excel", "text/plain")
+
+private fun isCsv(
+    context: Context,
+    uri: Uri,
+    name: String?,
+): Boolean {
+    val type = context.contentResolver.getType(uri).orEmpty()
+    return type != "application/pdf" && (type.startsWith("text/") || "csv" in type || name?.endsWith(".csv", ignoreCase = true) == true)
+}
+
+/** Reads at most [limit] bytes (InputStream.readNBytes needs API 33). */
+private fun InputStream.readNBytesCompat(limit: Int): ByteArray {
+    val out = ByteArrayOutputStream()
+    val buffer = ByteArray(BUFFER_BYTES)
+    while (out.size() < limit) {
+        val n = read(buffer, 0, minOf(buffer.size, limit - out.size()))
+        if (n < 0) break
+        out.write(buffer, 0, n)
+    }
+    return out.toByteArray()
+}
+
+private const val BUFFER_BYTES = 8 * 1024
 private const val NEWLINE = '\n'
 
 /** The picked file's name and size ("2.4 MB"), for the file chip on the review screen. */

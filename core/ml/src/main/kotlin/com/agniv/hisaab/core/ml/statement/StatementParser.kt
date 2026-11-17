@@ -142,6 +142,9 @@ object StatementParser {
         return Row(d, description, amount, balance)
     }
 
+    /** [text] as one date in any of the shapes above, or null. Used by the CSV reader. */
+    fun dateOf(text: String): LocalDate? = dateAt(text)?.takeIf { it.second.isBlank() || it.second.startsWith(" ") }?.first
+
     /** Date at the very start of [text] and what follows it, or null. */
     private fun dateAt(text: String): Pair<LocalDate, String>? {
         for ((i, regex) in dateAtStart.withIndex()) {

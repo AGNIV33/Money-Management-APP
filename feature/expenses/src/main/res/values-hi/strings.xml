@@ -194,8 +194,8 @@
     <string name="scan_unreadable_title">बिल पढ़ा नहीं जा सका</string>
     <string name="scan_unreadable_body">फ़ोटो साफ़ नहीं है। अच्छी रोशनी में फिर से लें।</string>
     <string name="stmt_import_title">बैंक स्टेटमेंट इम्पोर्ट करें</string>
-    <string name="stmt_import_body">अपने खर्च अपने-आप जोड़ने के लिए बैंक स्टेटमेंट या पासबुक (PDF या फ़ोटो) चुनें।</string>
-    <string name="stmt_bullet_formats">PDF फ़ाइल और फ़ोटो दोनों चलते हैं</string>
+    <string name="stmt_import_body">अपने खर्च अपने-आप जोड़ने के लिए बैंक स्टेटमेंट या पासबुक (PDF, CSV या फ़ोटो) चुनें।</string>
+    <string name="stmt_bullet_formats">PDF, CSV फ़ाइल और फ़ोटो सब चलते हैं</string>
     <string name="stmt_bullet_detect">हम लेन-देन पढ़कर पहचान लेंगे</string>
     <string name="stmt_bullet_review">देखें, बदलें और इम्पोर्ट करें</string>
     <string name="stmt_choose_file">फ़ाइल चुनें</string>

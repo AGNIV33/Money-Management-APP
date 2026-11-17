@@ -3,6 +3,7 @@ package com.agniv.hisaab.feature.expenses.statement
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agniv.hisaab.core.common.dispatcher.DispatcherProvider
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
@@ -17,9 +18,11 @@ import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ObserveLoans
 import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.util.TimeProvider
+import com.agniv.hisaab.core.ml.statement.CsvStatementParser
 import com.agniv.hisaab.core.ml.statement.MatchResult
 import com.agniv.hisaab.core.ml.statement.MatchSummary
 import com.agniv.hisaab.core.ml.statement.MatchedLine
+import com.agniv.hisaab.core.ml.statement.StatementLine
 import com.agniv.hisaab.core.ml.statement.StatementMatcher
 import com.agniv.hisaab.core.ml.statement.StatementParser
 import com.agniv.hisaab.core.ml.statement.summary
@@ -32,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 enum class StatementPhase { PICK, READING, REVIEW, DONE }
@@ -88,6 +92,7 @@ class StatementImportViewModel
         private val addExpense: AddExpense,
         private val setEmiPaid: SetEmiPaid,
         private val time: TimeProvider,
+        private val dispatchers: DispatcherProvider,
     ) : ViewModel() {
         private val _state = MutableStateFlow(StatementUiState())
         val state: StateFlow<StatementUiState> = _state
@@ -132,8 +137,21 @@ class StatementImportViewModel
                 onFailure(StatementMessage.NO_TEXT)
                 return
             }
+            review { StatementParser.parse(text, time.today()) }
+        }
+
+        /** A statement downloaded from net banking as CSV: columns, not text lines. */
+        fun onCsv(text: String) {
+            if (text.isBlank()) {
+                onFailure(StatementMessage.NO_TEXT)
+                return
+            }
+            review { CsvStatementParser.parse(text, time.today()) }
+        }
+
+        private fun review(parse: () -> List<StatementLine>) {
             viewModelScope.launch {
-                val lines = StatementParser.parse(text, time.today())
+                val lines = withContext(dispatchers.default) { parse() }
                 if (lines.isEmpty()) {
                     onFailure(StatementMessage.NO_ROWS)
                     return@launch
