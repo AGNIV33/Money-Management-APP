@@ -10,6 +10,8 @@ import com.agniv.hisaab.core.data.repository.OfflineFirstLoanRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository
 import com.agniv.hisaab.core.database.HisaabDatabase
+import com.agniv.hisaab.core.database.entity.FamilyEntity
+import com.agniv.hisaab.core.database.entity.SyncQueueEntity
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Goal
 import com.agniv.hisaab.core.domain.model.GoalContribution
@@ -134,6 +136,41 @@ class SyncEngineTest {
             assertThat(server.pushed.first { it.id == "e1" }.amountPaise).isEqualTo(15_000)
             assertThat(db.syncQueueDao().peek(10)).isEmpty()
         }
+
+    @Test
+    fun `category limits go up whole and come back down`() =
+        runTest {
+            db.familyDao().upsert(FamilyEntity("f1", "Sarkar", "ABC234", null, 0))
+            db.syncQueueDao().insert(
+                SyncQueueEntity(
+                    tableName = TABLE_CATEGORY_LIMITS,
+                    rowId = "f1",
+                    op = "upsert",
+                    payloadJson =
+                        kotlinx.serialization.json.Json.encodeToString(
+                            CategoryLimitsChange.serializer(),
+                            CategoryLimitsChange("f1", "2026-11-01", 0, mapOf("food" to 500_000L)),
+                        ),
+                    createdAt = 0,
+                ),
+            )
+
+            engine.sync().getOrThrow()
+            assertThat(server.limits).containsExactly("food", 500_000L)
+            assertThat(server.limitsMonth).isEqualTo("2026-11-01")
+
+            // Another admin changed them on their phone.
+            server.limits = mapOf("fuel" to 200_000L)
+            engine.sync().getOrThrow()
+            assertThat(CategoryLimitsCodec.decode(db.familyDao().get("f1")?.categoryLimits)).containsExactly("fuel", 200_000L)
+        }
+
+    @Test
+    fun `limits codec reads bad text as no limits`() {
+        assertThat(CategoryLimitsCodec.decode("")).isEmpty()
+        assertThat(CategoryLimitsCodec.decode("not json")).isEmpty()
+        assertThat(CategoryLimitsCodec.decode(CategoryLimitsCodec.encode(mapOf("a" to 1L)))).containsExactly("a", 1L)
+    }
 
     @Test
     fun `failed push keeps the queue for the next try`() =
@@ -480,6 +517,24 @@ private class FakeRemote(
     ) {
         budget = paise
     }
+
+    var limits: Map<String, Long>? = null
+    var limitsMonth: String? = null
+
+    override suspend fun setCategoryLimits(
+        familyId: String,
+        monthIso: String,
+        totalPaise: Long,
+        limits: Map<String, Long>,
+    ) {
+        this.limits = limits
+        limitsMonth = monthIso
+    }
+
+    override suspend fun categoryLimits(
+        familyId: String,
+        monthIso: String,
+    ): Map<String, Long>? = limits
 
     override suspend fun members(familyId: String): List<MemberDto> = listOf(MemberDto("m2", familyId, "u2", "Didi", "MEMBER"))
 }

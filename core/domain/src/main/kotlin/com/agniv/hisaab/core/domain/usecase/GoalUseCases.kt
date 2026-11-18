@@ -39,6 +39,7 @@ data class GoalDraft(
     val target: Money,
     val deadline: LocalDate? = null,
     val visibility: Visibility = Visibility.FAMILY,
+    val icon: String? = null,
 )
 
 /** The first thing wrong with the form, or null. A goal may keep an old deadline when edited. */
@@ -80,6 +81,7 @@ class SaveGoal
                     deadline = draft.deadline,
                     visibility = draft.visibility,
                     updatedAt = time.now(),
+                    icon = draft.icon,
                 )
             return repository.upsert(goal).map { goal }
         }
@@ -104,10 +106,11 @@ class AddGoalSavings
             session: Session,
             goal: Goal,
             amount: Money,
+            date: LocalDate = time.today(),
         ): Result<Unit> {
             if (amount.paise <= 0) return Result.failure(GoalError.BadAmount)
             return repository.saveContribution(
-                GoalContribution(ids.newId(), goal.id, goal.familyId, session.userId, amount, time.today(), time.now()),
+                GoalContribution(ids.newId(), goal.id, goal.familyId, session.userId, amount, date, time.now()),
             )
         }
     }

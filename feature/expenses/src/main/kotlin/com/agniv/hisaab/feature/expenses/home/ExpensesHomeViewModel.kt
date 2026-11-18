@@ -14,6 +14,7 @@ import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
+import com.agniv.hisaab.core.domain.usecase.CategoryBudget
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
 import com.agniv.hisaab.core.domain.usecase.LoanItem
 import com.agniv.hisaab.core.domain.usecase.MonthSummary
@@ -23,6 +24,7 @@ import com.agniv.hisaab.core.domain.usecase.ObserveMonthSummary
 import com.agniv.hisaab.core.domain.usecase.RestoreExpense
 import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.usecase.canDelete
+import com.agniv.hisaab.core.domain.usecase.categoryBudgets
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,10 +56,13 @@ data class ExpensesHomeUiState(
     val budget: Money? = null,
     /** Only admins may change the budget (enforced by Supabase RLS too). */
     val canEditBudget: Boolean = false,
+    /** Categories with their own monthly limit, most used first (PRD F6). */
+    val categoryBudgets: List<CategoryBudget> = emptyList(),
     /** Soonest unpaid EMI the user may see (DESIGN.md §7.3 "Next EMI" card); null when no open loans. */
     val nextEmi: LoanItem? = null,
     val viewerUserId: String = "",
     val isAdmin: Boolean = false,
+    val currentMonth: YearMonth = month,
 ) {
     fun canDelete(expense: Expense): Boolean =
         canDelete(expense.ownerUserId, viewerUserId, if (isAdmin) Role.ADMIN else Role.MEMBER)
@@ -67,6 +72,11 @@ sealed interface HomeEvent {
     data object PreviousMonth : HomeEvent
 
     data object NextMonth : HomeEvent
+
+    /** Month picker: jump straight to [month] (never past the current month). */
+    data class SetMonth(
+        val month: YearMonth,
+    ) : HomeEvent
 
     data class Search(
         val query: String,
@@ -92,6 +102,11 @@ sealed interface HomeEvent {
 
     data class SetBudget(
         val budget: Money?,
+    ) : HomeEvent
+
+    data class SetCategoryLimit(
+        val categoryId: String,
+        val limit: Money?,
     ) : HomeEvent
 
     data class MarkEmiPaid(
@@ -150,10 +165,16 @@ class ExpensesHomeViewModel
                             categories = byId,
                             members = people.associateBy { it.id },
                             budget = family?.monthlyBudget,
+                            categoryBudgets =
+                                categoryBudgets(
+                                    family?.categoryLimits.orEmpty().filterKeys { it in byId },
+                                    summary.byCategory.associate { it.id to it.total },
+                                ),
                             canEditBudget = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
                             viewerUserId = session.userId,
                             isAdmin = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN,
                             nextEmi = loans.items.firstOrNull { !it.progress.isClosed },
+                            currentMonth = thisMonth,
                         )
                     }
                 }.stateIn(
@@ -162,11 +183,14 @@ class ExpensesHomeViewModel
                     ExpensesHomeUiState(month = thisMonth),
                 )
 
+        // One short branch per Home event.
+        @Suppress("CyclomaticComplexMethod")
         fun onEvent(event: HomeEvent) {
             when (event) {
                 HomeEvent.PreviousMonth -> month.update { it.minusMonths(1) }
                 // No future months: nothing can be spent there yet.
                 HomeEvent.NextMonth -> month.update { if (it < thisMonth) it.plusMonths(1) else it }
+                is HomeEvent.SetMonth -> month.value = minOf(event.month, thisMonth)
                 is HomeEvent.Search -> filter.update { it.copy(query = event.query) }
                 is HomeEvent.FilterCategory -> filter.update { it.copy(categoryId = event.id) }
                 is HomeEvent.FilterMode -> filter.update { it.copy(mode = event.mode) }
@@ -184,6 +208,11 @@ class ExpensesHomeViewModel
                     viewModelScope.launch {
                         val session = sessions.session.filterNotNull().first()
                         families.setMonthlyBudget(session.familyId, event.budget)
+                    }
+                is HomeEvent.SetCategoryLimit ->
+                    viewModelScope.launch {
+                        val session = sessions.session.filterNotNull().first()
+                        families.setCategoryLimit(session.familyId, event.categoryId, event.limit)
                     }
             }
         }

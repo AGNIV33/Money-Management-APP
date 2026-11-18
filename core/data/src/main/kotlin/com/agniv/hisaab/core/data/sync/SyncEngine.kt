@@ -36,7 +36,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
+import java.time.YearMonth
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,6 +51,31 @@ data class BudgetChange(
 )
 
 const val TABLE_FAMILY_BUDGET = "family_budget"
+
+/**
+ * Queue payload for per-category limits (table name [TABLE_CATEGORY_LIMITS]). Goes up as the server `budgets` row of
+ * [month]; the newest row on or before a month is the one that applies, so limits carry on until changed.
+ */
+@kotlinx.serialization.Serializable
+data class CategoryLimitsChange(
+    val familyId: String,
+    val month: String,
+    val totalPaise: Long,
+    val limits: Map<String, Long>,
+)
+
+const val TABLE_CATEGORY_LIMITS = "category_limits"
+
+/** Category limits as stored in Room (families.category_limits). Bad or empty text reads as "no limits". */
+object CategoryLimitsCodec {
+    private val json = Json { ignoreUnknownKeys = true }
+    private val serializer = MapSerializer(String.serializer(), Long.serializer())
+
+    fun encode(limits: Map<String, Long>): String = json.encodeToString(serializer, limits)
+
+    fun decode(text: String?): Map<String, Long> =
+        if (text.isNullOrBlank()) emptyMap() else runCatching { json.decodeFromString(serializer, text) }.getOrDefault(emptyMap())
+}
 
 /** Remembers how far we have pulled, per family. */
 interface SyncStateStore {
@@ -103,6 +131,7 @@ class SyncEngine
                             pullGoals(session)
                             pullMembers(session)
                             pullFamily(session)
+                            pullCategoryLimits(session)
                         }
                     pushed.exceptionOrNull()?.let { Result.failure(it) } ?: pulled
                 }
@@ -114,12 +143,8 @@ class SyncEngine
                 val batch = queue.peek(PUSH_BATCH)
                 if (batch.isEmpty()) return
                 val expenses = batch.filter { it.tableName == TABLE_EXPENSES }
-                val budgets = batch.filter { it.tableName == TABLE_FAMILY_BUDGET }
                 resultOf {
-                    budgets.lastOrNull()?.let {
-                        val change = json.decodeFromString(BudgetChange.serializer(), it.payloadJson)
-                        remote.setMonthlyBudget(change.familyId, change.paise)
-                    }
+                    pushBudgets(batch)
                     // Same row edited twice offline: only the newest version needs to go up.
                     val rows =
                         expenses
@@ -141,6 +166,18 @@ class SyncEngine
                 }.onFailure { batch.forEach { queue.markAttempt(it.id) } }
                     .getOrThrow()
                 batch.forEach { queue.remove(it.id) }
+            }
+        }
+
+        /** Family budget and category limits: only the newest change of each matters, it carries the whole value. */
+        private suspend fun pushBudgets(batch: List<SyncQueueEntity>) {
+            batch.lastOrNull { it.tableName == TABLE_FAMILY_BUDGET }?.let {
+                val change = json.decodeFromString(BudgetChange.serializer(), it.payloadJson)
+                remote.setMonthlyBudget(change.familyId, change.paise)
+            }
+            batch.lastOrNull { it.tableName == TABLE_CATEGORY_LIMITS }?.let {
+                val change = json.decodeFromString(CategoryLimitsChange.serializer(), it.payloadJson)
+                remote.setCategoryLimits(change.familyId, change.month, change.totalPaise, change.limits)
             }
         }
 
@@ -264,8 +301,22 @@ class SyncEngine
                     family.monthlyBudgetPaise,
                     System.currentTimeMillis(),
                     family.deleted,
+                    // Limits come from the budgets table (pullCategoryLimits), not from families.
+                    db.familyDao().get(session.familyId)?.categoryLimits ?: "{}",
                 ),
             )
+        }
+
+        private suspend fun pullCategoryLimits(session: Session) {
+            // A local change still waiting to go up wins; it is newer than what the server has.
+            if (db.syncQueueDao().hasPending(TABLE_CATEGORY_LIMITS, session.familyId)) return
+            val month = YearMonth.now().atDay(1).toString()
+            val limits = remote.categoryLimits(session.familyId, month)
+            val family = db.familyDao().get(session.familyId)
+            if (limits != null && family != null) {
+                val text = CategoryLimitsCodec.encode(limits)
+                if (text != family.categoryLimits) db.familyDao().upsert(family.copy(categoryLimits = text))
+            }
         }
 
         private suspend fun pullMembers(session: Session) {

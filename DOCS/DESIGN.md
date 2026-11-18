@@ -13,15 +13,19 @@
 6. **Light on phone** — flat colors, vectors, small shadows, minimal animation.
 
 ## 2. Color tokens
+
+> 2026-11-16 (later): the whole UI now follows the 16 design boards in `/design` (one PNG per screen). Code is the source of truth: `core/designsystem` theme (`Color.kt`, `Type.kt` with Inter, `Shape.kt`) and components. Dark theme: background #111A16, cards #1B2721, light-green primary #5FD39F with dark text on buttons (the boards' white-on-green is only 3.4:1).
+
+> 2026-11-16: the light theme now follows the Kinly design spec, and `Color.kt` is the source of truth. Primary `#1B7F5B`, primaryContainer `#E6F3EC`, background `#FAFAF6`, onSurface `#17251F`, onSurfaceVariant `#68766F`, outlineVariant (card borders) `#E5EAE6`, outline (field borders) `#7D8983`, secondary/accent `#E9B872` (never as text), error `#B84040`, warning `#8F5E12`, success `#1E7A4B`. Shapes: cards 20, sheets 28, chips 10, buttons 12. Cards are flat with a 1 dp border (`HCard`). The table below is the older palette; its dark-theme values are still in use.
 | Token | Light | Dark | Use |
 |-------|-------|------|-----|
 | `primary` | `#1B7F5C` (deep green) | `#6FD6AE` | Main actions, FAB, active tab |
 | `onPrimary` | `#FFFFFF` | `#00382A` | Text on primary |
 | `primaryContainer` | `#C9F2E0` | `#005139` | Selected chips, cards highlight |
 | `secondary` | `#F2A93B` (saffron) | `#FFC877` | Goals, highlights |
-| `tertiary` | `#3E6FD8` (blue) | `#A9C2FF` | Loans/EMI section |
+| `tertiary` | `#3461C4` (blue) | `#A9C2FF` | Loans/EMI section |
 | `error` | `#C62828` | `#FFB4AB` | Over budget, overdue EMI |
-| `warning` (custom) | `#E68A00` | `#FFB95C` | 80% budget, EMI due soon |
+| `warning` (custom) | `#9E5C00` | `#FFB95C` | 80% budget, EMI due soon |
 | `success` (custom) | `#2E7D32` | `#81C784` | Paid, under budget |
 | `background` | `#F7F8F6` | `#101413` | App background |
 | `surface` | `#FFFFFF` | `#181D1B` | Cards, sheets |

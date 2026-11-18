@@ -9,6 +9,7 @@ import com.agniv.hisaab.core.domain.model.Role
 import com.agniv.hisaab.core.domain.repository.AccountError
 import com.agniv.hisaab.core.domain.repository.AccountRepository
 import com.agniv.hisaab.core.domain.repository.AuthRepository
+import com.agniv.hisaab.core.domain.repository.IncomeRepository
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.network.FamilyApi
 import io.github.jan.supabase.exceptions.HttpRequestException
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 private const val MAX_NAME = 40
 
+@Suppress("TooManyFunctions") // one function per AccountRepository operation
 class DefaultAccountRepository
     @Inject
     constructor(
@@ -29,6 +31,7 @@ class DefaultAccountRepository
         private val session: LocalSessionRepository,
         private val time: TimeProvider,
         private val dispatchers: DispatcherProvider,
+        private val income: IncomeRepository,
     ) : AccountRepository {
         override suspend fun renameMe(
             memberId: String,
@@ -58,6 +61,13 @@ class DefaultAccountRepository
                 db.memberDao().get(memberId)?.let { db.memberDao().upsert(it.copy(deleted = true, updatedAt = time.now().toEpochMilli())) }
             }
 
+        override suspend fun memberEmails(familyId: String): Map<String, String> =
+            withContext(dispatchers.io) {
+                if (api.currentUserId() == null) return@withContext emptyMap()
+                // Emails are a nice-to-have on the Family screen, so any failure just shows no emails.
+                resultOf { api.memberEmails(familyId) }.getOrDefault(emptyMap())
+            }
+
         override suspend fun pendingChanges(): Int = withContext(dispatchers.io) { db.syncQueueDao().observeCount().first() }
 
         override suspend fun signOut(
@@ -72,6 +82,8 @@ class DefaultAccountRepository
                 if (pending > 0 && !force) return@withContext Result.failure(AccountError.PendingChanges(pending))
                 auth.signOut()
                 db.clearAllTables()
+                // The private income belongs to the person signing out, not to the next one.
+                income.set(null)
                 session.resetLocal(localFamilyName, localMemberName)
                 Result.success(Unit)
             }
@@ -88,6 +100,7 @@ class DefaultAccountRepository
                 // The login is already gone on the server, so this only drops the token kept on the phone.
                 auth.signOut()
                 db.clearAllTables()
+                income.set(null)
                 session.resetLocal(localFamilyName, localMemberName)
             }
         }

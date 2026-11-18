@@ -127,7 +127,7 @@ class RecurringUseCasesTest {
         }
 }
 
-private class FakeRecurringRepo(
+internal class FakeRecurringRepo(
     initial: List<Recurring>,
 ) : RecurringRepository {
     var items = initial

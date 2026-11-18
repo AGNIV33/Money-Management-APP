@@ -39,10 +39,24 @@ enum class AssistantMessage {
     STOPPED_QUIET,
 }
 
+/** One chat bubble. [voiceOnly] = the assistant answered by voice and no text of it came back. */
+@Immutable
+data class ChatMessage(
+    val id: Long,
+    val fromUser: Boolean,
+    val text: String,
+    val at: Long,
+    val voiceOnly: Boolean = false,
+)
+
 @Immutable
 data class AssistantUiState(
     val phase: AssistantPhase = AssistantPhase.IDLE,
     val message: AssistantMessage? = null,
+    /** This visit's conversation only; nothing is stored (privacy rule). */
+    val chat: List<ChatMessage> = emptyList(),
+    /** True while the microphone is part of the conversation (voice mode), false for typing only. */
+    val micOn: Boolean = false,
 )
 
 /**
@@ -72,6 +86,13 @@ class AssistantViewModel
         @Volatile private var lastVoiceAt = 0L
 
         @Volatile private var assistantSpeaking = false
+
+        @Volatile private var withMic = false
+        private val pendingTexts = ArrayDeque<String>()
+        private var userOpen = false
+        private var assistantOpen = false
+        private var heardAudioThisTurn = false
+        private var nextId = 0L
         private var resumeHandle: String? = null
         private var reconnecting = false
         private var reconnects = 0
@@ -97,25 +118,71 @@ class AssistantViewModel
                 if (ready) session?.sendAudio(buffer, length)
             }
 
-        fun start() {
-            if (active) return
+        /** Voice: opens the conversation with the microphone on (or turns the mic on in a typed conversation). */
+        fun start() = open(mic = true)
+
+        /** Sends a typed question; opens the conversation first if needed (microphone stays off). */
+        fun send(text: String) {
+            val question = text.trim()
+            if (question.isEmpty()) return
+            addMessage(fromUser = true, text = question)
+            userOpen = false
+            lastVoiceAt = System.currentTimeMillis()
+            val live = session
+            if (active && ready && live != null) {
+                live.sendText(question)
+                setPhase(AssistantPhase.THINKING)
+            } else {
+                pendingTexts.addLast(question)
+                if (!active) open(mic = false)
+            }
+        }
+
+        /** Asks the last question again after a failure (board "Try again"). */
+        fun retry() {
+            val last =
+                _state.value.chat
+                    .lastOrNull { it.fromUser }
+                    ?.text
+            if (last != null) {
+                pendingTexts.addLast(last)
+                open(mic = withMic)
+            } else {
+                _state.update { it.copy(phase = AssistantPhase.IDLE, message = null) }
+            }
+        }
+
+        fun clearChat() {
+            stop()
+            _state.value = AssistantUiState()
+        }
+
+        private fun open(mic: Boolean) {
+            if (active) {
+                if (mic && !withMic) {
+                    withMic = true
+                    if (ready) startMic()
+                }
+                return
+            }
+            withMic = mic
             active = true
             resumeHandle = null
             reconnects = 0
-            _state.value = AssistantUiState(AssistantPhase.CONNECTING)
+            _state.update { it.copy(phase = AssistantPhase.CONNECTING, message = null, micOn = mic) }
             viewModelScope.launch {
                 repository.connect(null).fold(onSuccess = ::attach, onFailure = { fail(it.toMessage()) })
             }
         }
 
         fun onPermissionDenied() {
-            _state.value = AssistantUiState(AssistantPhase.ERROR, AssistantMessage.NO_PERMISSION)
+            _state.update { it.copy(phase = AssistantPhase.ERROR, message = AssistantMessage.NO_PERMISSION) }
         }
 
-        /** Ends the conversation and releases the microphone and speaker. Safe to call at any time. */
+        /** Ends the conversation and releases the microphone and speaker. The chat stays on screen. */
         fun stop() {
             shutDown()
-            _state.value = AssistantUiState()
+            _state.update { it.copy(phase = AssistantPhase.IDLE, message = null, micOn = false) }
         }
 
         private fun shutDown() {
@@ -130,11 +197,50 @@ class AssistantViewModel
             session = null
             assistantSpeaking = false
             reconnecting = false
+            withMic = false
+            pendingTexts.clear()
+            userOpen = false
+            assistantOpen = false
         }
 
         private fun fail(message: AssistantMessage) {
             shutDown()
-            _state.value = AssistantUiState(AssistantPhase.ERROR, message)
+            _state.update { it.copy(phase = AssistantPhase.ERROR, message = message, micOn = false) }
+        }
+
+        private fun addMessage(
+            fromUser: Boolean,
+            text: String,
+            voiceOnly: Boolean = false,
+        ) {
+            val m = ChatMessage(nextId++, fromUser, text, System.currentTimeMillis(), voiceOnly)
+            _state.update { it.copy(chat = it.chat + m) }
+        }
+
+        /** Streams a transcript piece into the open bubble of that side, or starts a new bubble. */
+        private fun appendText(
+            fromUser: Boolean,
+            piece: String,
+        ) {
+            val open = if (fromUser) userOpen else assistantOpen
+            _state.update { s ->
+                val last = s.chat.lastOrNull()
+                if (open && last != null && last.fromUser == fromUser) {
+                    s.copy(chat = s.chat.dropLast(1) + last.copy(text = last.text + piece))
+                } else {
+                    s.copy(chat = s.chat + ChatMessage(nextId++, fromUser, piece.trimStart(), System.currentTimeMillis()))
+                }
+            }
+            if (fromUser) userOpen = true else assistantOpen = true
+        }
+
+        private fun onTurnComplete() {
+            // Spoken answer but no text came back (server without transcripts): say so instead of an empty bubble.
+            if (heardAudioThisTurn && !assistantOpen) addMessage(fromUser = false, text = "", voiceOnly = true)
+            heardAudioThisTurn = false
+            assistantOpen = false
+            userOpen = false
+            if (!assistantSpeaking) setPhase(AssistantPhase.LISTENING)
         }
 
         private fun setPhase(phase: AssistantPhase) = _state.update { if (active) it.copy(phase = phase, message = null) else it }
@@ -167,12 +273,17 @@ class AssistantViewModel
             if (!active || session !== from) return
             when (event) {
                 LiveEvent.Ready -> onReady()
-                is LiveEvent.Audio -> player.enqueue(event.pcm)
+                is LiveEvent.Audio -> {
+                    heardAudioThisTurn = true
+                    player.enqueue(event.pcm)
+                }
+                is LiveEvent.UserText -> appendText(fromUser = true, piece = event.text)
+                is LiveEvent.AssistantText -> appendText(fromUser = false, piece = event.text)
                 LiveEvent.Interrupted -> {
                     player.flush()
                     setPhase(AssistantPhase.LISTENING)
                 }
-                LiveEvent.TurnComplete -> Unit
+                LiveEvent.TurnComplete -> onTurnComplete()
                 is LiveEvent.ToolCalls -> answerTools(from, event)
                 is LiveEvent.GoAway -> reconnect()
                 is LiveEvent.Resume -> resumeHandle = event.handle
@@ -183,16 +294,26 @@ class AssistantViewModel
         private fun onReady() {
             ready = true
             reconnecting = false
-            if (!mic.isRunning()) {
-                player.start()
-                if (!mic.start()) {
-                    fail(AssistantMessage.MIC_FAILED)
-                    return
-                }
-                lastVoiceAt = System.currentTimeMillis()
-                startWatchdog()
+            player.start()
+            if (withMic && !mic.isRunning() && !startMic()) return
+            lastVoiceAt = System.currentTimeMillis()
+            startWatchdog()
+            val live = session
+            if (live != null && pendingTexts.isNotEmpty()) {
+                while (pendingTexts.isNotEmpty()) live.sendText(pendingTexts.removeFirst())
+                setPhase(AssistantPhase.THINKING)
+            } else if (!assistantSpeaking) {
+                setPhase(AssistantPhase.LISTENING)
             }
-            if (!assistantSpeaking) setPhase(AssistantPhase.LISTENING)
+        }
+
+        private fun startMic(): Boolean {
+            if (mic.start()) {
+                _state.update { it.copy(micOn = true) }
+                return true
+            }
+            fail(AssistantMessage.MIC_FAILED)
+            return false
         }
 
         private fun answerTools(
@@ -234,8 +355,16 @@ class AssistantViewModel
                         delay(WATCH_EVERY_MS)
                         val quiet = System.currentTimeMillis() - lastVoiceAt > SILENCE_STOP_MS
                         if (quiet && !assistantSpeaking && _state.value.phase == AssistantPhase.LISTENING) {
+                            val wasMic = withMic
                             shutDown()
-                            _state.value = AssistantUiState(AssistantPhase.IDLE, AssistantMessage.STOPPED_QUIET)
+                            // A typed chat just goes quiet; only a voice chat says it stopped listening.
+                            _state.update {
+                                it.copy(
+                                    phase = AssistantPhase.IDLE,
+                                    message = if (wasMic) AssistantMessage.STOPPED_QUIET else null,
+                                    micOn = false,
+                                )
+                            }
                         }
                     }
                 }

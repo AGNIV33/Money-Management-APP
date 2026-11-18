@@ -8,11 +8,15 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.sum
+import com.agniv.hisaab.core.domain.model.Category
+import com.agniv.hisaab.core.domain.repository.CategoryRepository
 import com.agniv.hisaab.core.domain.repository.FamilyRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.BudgetLevel
+import com.agniv.hisaab.core.domain.usecase.CategoryBudget
 import com.agniv.hisaab.core.domain.usecase.ObserveMonthExpenses
 import com.agniv.hisaab.core.domain.usecase.budgetLevel
+import com.agniv.hisaab.core.domain.usecase.categoryBudgets
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -34,12 +38,21 @@ interface BudgetAlertNotifier {
         spent: Money,
         budget: Money,
     )
+
+    /** A category crossed 80% or 100% of its own monthly limit. [category] is null if it was deleted meanwhile. */
+    fun notifyCategory(
+        level: BudgetLevel,
+        category: Category?,
+        spent: Money,
+        limit: Money,
+    )
 }
 
 private val Context.alertStore: DataStore<Preferences> by preferencesDataStore(name = "budget_alerts")
 
 /**
- * Watches this month's spending against the family budget and notifies once at 80% and once at 100%.
+ * Watches this month's spending against the family budget, and each category against its own limit,
+ * and notifies once at 80% and once at 100% (per family budget and per category).
  * Works offline: it reads Room, not the network. The last level shown is remembered per family and month,
  * so reopening the app doesn't repeat an alert. If spending drops back (an expense is deleted), the
  * memory drops too, so crossing the line again alerts again.
@@ -51,6 +64,7 @@ class BudgetAlertMonitor
         @ApplicationContext private val context: Context,
         private val sessions: SessionRepository,
         private val families: FamilyRepository,
+        private val categories: CategoryRepository,
         private val monthExpenses: ObserveMonthExpenses,
         private val notifier: BudgetAlertNotifier,
         private val time: TimeProvider,
@@ -62,12 +76,49 @@ class BudgetAlertMonitor
                     .filterNotNull()
                     .flatMapLatest { session ->
                         val month = YearMonth.from(time.today())
-                        combine(families.observeFamily(session.familyId), monthExpenses(session, month)) { family, expenses ->
-                            Triple(session.familyId to month, family?.monthlyBudget, expenses.map { it.amount }.sum())
+                        combine(
+                            families.observeFamily(session.familyId),
+                            monthExpenses(session, month),
+                            categories.observeCategories(session.familyId),
+                        ) { family, expenses, cats ->
+                            val byCategory = expenses.groupBy { it.categoryId }.mapValues { (_, list) -> list.map { it.amount }.sum() }
+                            Snapshot(
+                                session.familyId,
+                                month,
+                                family?.monthlyBudget,
+                                expenses.map { it.amount }.sum(),
+                                categoryBudgets(family?.categoryLimits.orEmpty(), byCategory),
+                                cats.associateBy { it.id },
+                            )
                         }
                     }.distinctUntilChanged()
-                    .collect { (key, budget, spent) -> check(key.first, key.second, budget, spent) }
+                    .collect { snap ->
+                        check(snap.familyId, snap.month, snap.budget, snap.spent)
+                        snap.limits.forEach { checkCategory(snap.familyId, snap.month, it, snap.categories[it.categoryId]) }
+                    }
             }
+        }
+
+        private data class Snapshot(
+            val familyId: String,
+            val month: YearMonth,
+            val budget: Money?,
+            val spent: Money,
+            val limits: List<CategoryBudget>,
+            val categories: Map<String, Category>,
+        )
+
+        private suspend fun checkCategory(
+            familyId: String,
+            month: YearMonth,
+            item: CategoryBudget,
+            category: Category?,
+        ) {
+            val key = intPreferencesKey("cat_${familyId}_${month}_${item.categoryId}")
+            val level = item.level
+            val shown = context.alertStore.data.first()[key] ?: 0
+            if (level.ordinal > shown) notifier.notifyCategory(level, category, item.spent, item.limit)
+            if (level.ordinal != shown) context.alertStore.edit { it[key] = level.ordinal }
         }
 
         private suspend fun check(

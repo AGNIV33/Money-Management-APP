@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 
 internal enum class Tool(
@@ -106,7 +106,7 @@ private fun ToolGrid(onOpen: (Tool) -> Unit) {
             item(key = "row-$index") {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
                     pair.forEach { tool ->
-                        Card(
+                        HCard(
                             modifier =
                                 Modifier
                                     .weight(1f)

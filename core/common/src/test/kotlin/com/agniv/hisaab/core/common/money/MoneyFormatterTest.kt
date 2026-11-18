@@ -41,4 +41,15 @@ class MoneyFormatterTest {
     fun `format without symbol`() {
         assertThat(MoneyFormatter.format(Money.ofRupees(1_500), withSymbol = false)).isEqualTo("1,500")
     }
+
+    @Test
+    fun `spoken amounts for TalkBack`() {
+        val en = MoneyFormatter.SpokenWords("rupees", "paise", "minus")
+        assertThat(MoneyFormatter.spoken(Money.ofRupees(125_000), en)).isEqualTo("125000 rupees")
+        assertThat(MoneyFormatter.spoken(Money(12_550), en)).isEqualTo("125 rupees 50 paise")
+        assertThat(MoneyFormatter.spoken(Money(5), en)).isEqualTo("0 rupees 5 paise")
+        assertThat(MoneyFormatter.spoken(Money(-25_000), en)).isEqualTo("minus 250 rupees")
+        val hi = MoneyFormatter.SpokenWords("रुपये", "पैसे", "माइनस")
+        assertThat(MoneyFormatter.spoken(Money(100_050), hi)).isEqualTo("1000 रुपये 50 पैसे")
+    }
 }

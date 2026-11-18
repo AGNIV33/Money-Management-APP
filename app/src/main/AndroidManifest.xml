@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Asked only when the user taps the mic. Kinly never records or stores audio: Android turns speech into text. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Asked only on Bill Scan, for the live camera view. Pictures stay on the phone. If refused, the phone's camera app is used. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Android 11+: lets the app see the phone's speech recognition service. -->
     <queries>
@@ -26,6 +29,13 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="false"
         android:theme="@style/Theme.Hisaab">
+
+        <!-- Crash reports start from HisaabApplication, only if the user allows it (Settings) and a DSN is set. -->
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
+        <!-- Ask Play services to download the text-reading (OCR) model at install time, for bill scan. -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
 
         <activity
             android:name=".MainActivity"

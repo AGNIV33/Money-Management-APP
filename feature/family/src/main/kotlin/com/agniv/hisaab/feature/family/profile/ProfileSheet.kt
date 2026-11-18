@@ -1,6 +1,5 @@
 package com.agniv.hisaab.feature.family.profile
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,29 +7,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,19 +29,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.agniv.hisaab.core.designsystem.theme.DisplayAmount
+import com.agniv.hisaab.core.designsystem.component.HOutlinedButton
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
 import com.agniv.hisaab.core.designsystem.theme.Spacing
-import com.agniv.hisaab.core.domain.model.Member
-import com.agniv.hisaab.core.domain.model.Role
 import com.agniv.hisaab.feature.family.R
+import androidx.compose.ui.semantics.Role as SemanticsRole
 
 /** Emoji people can pick as their picture; the first letter of the name is used until they pick one. */
 val AvatarChoices = listOf("🙂", "😎", "🧑", "👩", "👨", "👧", "👦", "🧓", "🦁", "🐯", "🐼", "🌸", "⭐", "🚀")
@@ -94,61 +84,56 @@ fun ProfileButton(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val label = stringResource(R.string.profile_open)
+    val open = onClick
     AvatarCircle(
         state.me?.name,
         avatar,
+        // 36 dp picture but a 48 dp touch area; TalkBack hears "Open profile, button", not the initial.
         Modifier
-            .clickable(onClick = onClick)
-            .semantics { contentDescription = label },
+            .minimumInteractiveComponentSize()
+            .clearAndSetSemantics {
+                contentDescription = label
+                role = SemanticsRole.Button
+                onClick {
+                    open()
+                    true
+                }
+            }.clickable(onClick = onClick),
     )
 }
 
 /**
- * Profile (IMPLEMENTATION_PLAN 4.10): who you are, your picture, the app's settings (passed in by the app), your
+ * Profile details (from the Settings profile tile): who you are, your picture, the app's settings (passed in by the app), your
  * family with invite code and members, export / delete account (5.6), and sign out.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileSheet(
+fun ProfileDetailsScreen(
     avatar: String?,
     onAvatar: (String?) -> Unit,
     localFamilyName: String,
     localMemberName: String,
-    onSignedOut: () -> Unit,
-    onAccountDeleted: () -> Unit,
-    onDismiss: () -> Unit,
-    settingsContent: @Composable () -> Unit,
+    onBack: () -> Unit,
+    onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(key = "profile-sheet"),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var editName by rememberSaveable { mutableStateOf(false) }
     var confirmSignOut by rememberSaveable { mutableStateOf(false) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    Column(Modifier.fillMaxWidth()) {
+        KinlyTopBar(title = stringResource(R.string.profile_title), onBack = onBack)
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = Spacing.screen)
-                    .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(Spacing.m),
+                    .padding(horizontal = Spacing.screen),
+            verticalArrangement = Arrangement.spacedBy(Spacing.l),
         ) {
             Header(state, avatar, onEditName = { editName = true })
             AvatarPicker(avatar, onAvatar)
             MessageLine(state.message)
-            HorizontalDivider()
-            settingsContent()
-            HorizontalDivider()
-            FamilySection(state, viewModel)
-            HorizontalDivider()
-            PrivacySection(
-                busy = state.busy,
-                message = state.message,
-                onDelete = { viewModel.deleteAccount(localFamilyName, localMemberName, onAccountDeleted) },
-            )
-            HorizontalDivider()
-            OutlinedButton(onClick = { confirmSignOut = true }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
+            HOutlinedButton(onClick = { confirmSignOut = true }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.profile_sign_out))
             }
         }
@@ -236,7 +221,8 @@ private fun AvatarPicker(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier =
                     Modifier
-                        .clickable { onPick(emoji) }
+                        .minimumInteractiveComponentSize()
+                        .selectable(selected = emoji == current, role = SemanticsRole.RadioButton) { onPick(emoji) }
                         .padding(Spacing.xs),
             )
         }
@@ -273,108 +259,4 @@ private fun NameDialog(
         confirmButton = { TextButton(onClick = { onSave(text) }) { Text(stringResource(R.string.profile_save)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
-}
-
-@Composable
-private fun FamilySection(
-    state: ProfileUiState,
-    viewModel: ProfileViewModel,
-) {
-    val context = LocalContext.current
-    val code = state.family?.inviteCode
-    val shareText = code?.let { stringResource(R.string.family_share_text, it) }
-    val shareTitle = stringResource(R.string.family_share)
-    Text(state.family?.name.orEmpty(), style = MaterialTheme.typography.titleLarge)
-    code?.let {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(Modifier.padding(Spacing.l), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.family_invite_code), style = MaterialTheme.typography.titleMedium)
-                Text(it, style = DisplayAmount, textAlign = TextAlign.Center)
-                Text(stringResource(R.string.family_invite_hint), style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-        Button(
-            onClick = {
-                val send =
-                    Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, shareText)
-                    }
-                context.startActivity(Intent.createChooser(send, shareTitle))
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text(shareTitle) }
-    }
-    Text(stringResource(R.string.family_members, state.members.size), style = MaterialTheme.typography.titleMedium)
-    state.members.forEach { member -> MemberRow(member, state, viewModel) }
-}
-
-@Composable
-private fun MemberRow(
-    member: Member,
-    state: ProfileUiState,
-    viewModel: ProfileViewModel,
-) {
-    var menu by remember { mutableStateOf(false) }
-    var confirmRemove by remember { mutableStateOf(false) }
-    val isMe = member.id == state.myMemberId
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        AvatarCircle(member.name, null, size = 32)
-        Text(
-            member.name + if (isMe) stringResource(R.string.family_you) else "",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(start = Spacing.m),
-        )
-        if (member.role == Role.ADMIN) {
-            Text(
-                stringResource(R.string.family_admin),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
-        // Only admins manage others, and nobody manages themselves here (rename is in the header).
-        if (state.isAdmin && !isMe) {
-            Box {
-                TextButton(onClick = { menu = true }, enabled = !state.busy) { Text("⋯") }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    val makeAdmin = member.role != Role.ADMIN
-                    DropdownMenuItem(
-                        text = { Text(stringResource(if (makeAdmin) R.string.profile_make_admin else R.string.profile_make_member)) },
-                        onClick = {
-                            menu = false
-                            viewModel.setRole(member.id, if (makeAdmin) Role.ADMIN else Role.MEMBER)
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.profile_remove), color = MaterialTheme.colorScheme.error) },
-                        onClick = {
-                            menu = false
-                            confirmRemove = true
-                        },
-                    )
-                }
-            }
-        }
-    }
-    HorizontalDivider()
-    if (confirmRemove) {
-        AlertDialog(
-            onDismissRequest = { confirmRemove = false },
-            title = { Text(stringResource(R.string.profile_remove_title, member.name)) },
-            text = { Text(stringResource(R.string.profile_remove_text)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmRemove = false
-                    viewModel.remove(member.id)
-                }) { Text(stringResource(R.string.profile_remove), color = MaterialTheme.colorScheme.error) }
-            },
-            dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text(stringResource(R.string.cancel)) } },
-        )
-    }
 }

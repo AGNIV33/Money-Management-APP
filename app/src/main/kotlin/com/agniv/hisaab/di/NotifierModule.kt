@@ -2,9 +2,11 @@ package com.agniv.hisaab.di
 
 import com.agniv.hisaab.AndroidBudgetNotifier
 import com.agniv.hisaab.AndroidEmiNotifier
+import com.agniv.hisaab.AndroidGoalNotifier
 import com.agniv.hisaab.AndroidUdhaarNotifier
 import com.agniv.hisaab.core.data.budget.BudgetAlertNotifier
 import com.agniv.hisaab.core.data.loan.EmiReminderNotifier
+import com.agniv.hisaab.core.data.loan.GoalReminderNotifier
 import com.agniv.hisaab.core.data.loan.UdhaarReminderNotifier
 import dagger.Binds
 import dagger.Module
@@ -22,4 +24,7 @@ internal abstract class NotifierModule {
 
     @Binds
     abstract fun bindUdhaarNotifier(impl: AndroidUdhaarNotifier): UdhaarReminderNotifier
+
+    @Binds
+    abstract fun bindGoalNotifier(impl: AndroidGoalNotifier): GoalReminderNotifier
 }

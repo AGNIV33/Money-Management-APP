@@ -95,4 +95,18 @@ class LiveProtocolTest {
         assertThat(LiveProtocol.parse("""{"usageMetadata":{"totalTokenCount":5}}""")).isEmpty()
         assertThat(LiveProtocol.parse("""{"serverContent":{"modelTurn":{"parts":[{"inlineData":{"data":"@@@"}}]}}}""")).isEmpty()
     }
+
+    @Test
+    fun `transcripts of both sides are read`() {
+        val events =
+            LiveProtocol.parse(
+                """{"serverContent":{"inputTranscription":{"text":"budget left?"},"outputTranscription":{"text":"You have"}}}""",
+            )
+        assertThat(events).containsExactly(LiveEvent.UserText("budget left?"), LiveEvent.AssistantText("You have")).inOrder()
+    }
+
+    @Test
+    fun `typed text goes as realtime input`() {
+        assertThat(LiveProtocol.textMessage("Hi")).isEqualTo("""{"realtimeInput":{"text":"Hi"}}""")
+    }
 }

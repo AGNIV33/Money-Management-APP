@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="assistant_open">Talk to Kinly</string>
-    <string name="assistant_title">Talk to Kinly</string>
+    <string name="assistant_title">AI Assistant</string>
     <string name="assistant_orb">Start or stop talking to Kinly</string>
     <string name="assistant_tap">Tap to talk about your money</string>
     <string name="assistant_tap_again">Tap to try again</string>
@@ -13,7 +13,7 @@
     <string name="assistant_tip">Earphones work best. Kinly only talks about money and cannot change your entries.</string>
 
     <string name="assistant_consent_title">Before you talk to Kinly</string>
-    <string name="assistant_consent_voice">To talk, your voice is sent live to Google\'s Gemini, which answers back in voice.</string>
+    <string name="assistant_consent_voice">When you talk or type, your words are sent live to Google\'s Gemini, which answers back.</string>
     <string name="assistant_consent_totals">When you ask about your money, only totals are shared, like \"spent this month\". Never names, notes, phone numbers or account numbers.</string>
     <string name="assistant_consent_nosave">Kinly does not save what you say or hear.</string>
     <string name="assistant_consent_free">This uses Google\'s free service, so Google may use these conversations to improve its products.</string>
@@ -28,7 +28,22 @@
     <string name="assistant_err_busy">Kinly\'s voice is very busy today. Please try again tomorrow.</string>
     <string name="assistant_err_not_configured">Voice is not switched on yet.</string>
     <string name="assistant_err_signed_in">Sign in to talk to Kinly.</string>
-    <string name="assistant_err_failed">Something went wrong. Please try again.</string>
+    <string name="assistant_err_failed">We couldn\'t get a response right now. Please try again.</string>
     <string name="assistant_err_lost">The connection was lost. Tap to start again.</string>
     <string name="assistant_stopped_quiet">I stopped listening because it was quiet. Tap to start again.</string>
+    <string name="assistant_clear">Clear chat</string>
+    <string name="assistant_privacy">Only dates, categories and amounts are shared, no names or notes.</string>
+    <string name="assistant_welcome_title">Ask about your money</string>
+    <string name="assistant_welcome_body">Get quick answers about your spending, budget, savings and more.</string>
+    <string name="assistant_offline_title">You\'re offline</string>
+    <string name="assistant_offline_body">Check your internet connection and try again.</string>
+    <string name="assistant_try_again">Try again</string>
+    <string name="assistant_error_title">Something went wrong</string>
+    <string name="assistant_voice_only">Answered by voice</string>
+    <string name="assistant_suggest_budget">What\'s my budget left?</string>
+    <string name="assistant_suggest_most">Where did I spend most?</string>
+    <string name="assistant_mic_start">Talk instead of typing</string>
+    <string name="assistant_mic_stop">Stop talking</string>
+    <string name="assistant_ask_hint">Ask something...</string>
+    <string name="assistant_send">Send</string>
 </resources>

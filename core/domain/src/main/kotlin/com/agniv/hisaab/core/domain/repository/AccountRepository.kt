@@ -33,6 +33,9 @@ interface AccountRepository {
 
     suspend fun removeMember(memberId: String): Result<Unit>
 
+    /** Member id → sign-in email for this family. Empty when offline or not signed in. */
+    suspend fun memberEmails(familyId: String): Map<String, String> = emptyMap()
+
     /** How many changes are waiting to upload. */
     suspend fun pendingChanges(): Int
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="goals_tab">Goals</string>
-    <string name="goals_title">Savings goals</string>
+    <string name="goals_title">Goals</string>
     <string name="goals_add_fab">Add goal</string>
     <string name="goals_empty">No goals yet. Add something you are saving for, like a fridge, a trip or school fees.</string>
     <string name="goals_saved_total">Saved so far</string>
     <string name="goals_of_target">of %1$s in all goals</string>
-    <string name="goals_private">🔒 Only me</string>
+    <string name="goals_private">Only me</string>
     <string name="goals_percent">%1$d%%</string>
     <string name="goals_saved_of">%1$s of %2$s</string>
     <string name="goals_reached">Goal reached!</string>
@@ -37,4 +37,16 @@
     <string name="goals_err_target">Enter the target amount</string>
     <string name="goals_err_deadline">Pick a date that has not passed</string>
     <string name="goals_err_save">Could not save. Please try again.</string>
+    <string name="goals_create">Create goal</string>
+    <string name="goals_empty_title">No goals yet</string>
+    <string name="goals_empty_body">Create a savings goal for something you want, like a bike, trip or new phone.</string>
+    <string name="goals_due">Due: %1$s</string>
+    <string name="goals_completed">Completed</string>
+    <string name="goals_save_month">Save %1$s a month</string>
+    <string name="goals_add_money">Add Money</string>
+    <string name="goals_details">Details</string>
+    <string name="goals_saved_slash">%1$s / %2$s</string>
+    <string name="goals_amount_to_add">Amount to add</string>
+    <string name="goals_add">Add</string>
+    <string name="goals_icon">Icon</string>
 </resources>

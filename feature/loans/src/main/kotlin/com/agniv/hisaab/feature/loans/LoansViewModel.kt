@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agniv.hisaab.core.domain.model.Loan
 import com.agniv.hisaab.core.domain.model.Role
+import com.agniv.hisaab.core.domain.repository.LoanReminderSettings
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
 import com.agniv.hisaab.core.domain.usecase.DeleteLoan
@@ -34,6 +35,8 @@ data class LoansUiState(
     val today: LocalDate,
     val viewerUserId: String = "",
     val isAdmin: Boolean = false,
+    /** Loans whose EMI reminders are switched off on this phone. */
+    val mutedReminders: Set<String> = emptySet(),
 ) {
     fun canDelete(loan: Loan): Boolean = canDelete(loan.ownerUserId, viewerUserId, if (isAdmin) Role.ADMIN else Role.MEMBER)
 }
@@ -43,6 +46,11 @@ sealed interface LoansEvent {
         val loanId: String,
         val month: YearMonth,
         val paid: Boolean,
+    ) : LoansEvent
+
+    data class SetReminder(
+        val loanId: String,
+        val on: Boolean,
     ) : LoansEvent
 
     data class Delete(
@@ -60,15 +68,20 @@ class LoansViewModel
         private val setEmiPaid: SetEmiPaid,
         private val deleteLoan: DeleteLoan,
         private val time: TimeProvider,
+        private val reminders: LoanReminderSettings,
     ) : ViewModel() {
         @OptIn(ExperimentalCoroutinesApi::class)
         val state: StateFlow<LoansUiState> =
             sessions.session
                 .filterNotNull()
                 .flatMapLatest { session ->
-                    combine(observeLoans(session), members.observeMembers(session.familyId)) { overview, people ->
+                    combine(
+                        observeLoans(session),
+                        members.observeMembers(session.familyId),
+                        reminders.mutedLoanIds,
+                    ) { overview, people, muted ->
                         val admin = people.firstOrNull { it.id == session.memberId }?.role == Role.ADMIN
-                        LoansUiState(false, overview, time.today(), session.userId, admin)
+                        LoansUiState(false, overview, time.today(), session.userId, admin, muted)
                     }
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), LoansUiState(today = time.today()))
 
@@ -84,6 +97,7 @@ class LoansViewModel
                                 ?.loan ?: return@launch
                         setEmiPaid(session, loan, event.month, event.paid)
                     }
+                    is LoansEvent.SetReminder -> reminders.setReminderOn(event.loanId, event.on)
                     is LoansEvent.Delete -> deleteLoan(event.loanId)
                 }
             }

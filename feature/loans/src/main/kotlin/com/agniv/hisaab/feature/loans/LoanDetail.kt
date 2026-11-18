@@ -7,15 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,9 +26,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HCard
+import com.agniv.hisaab.core.designsystem.component.IconTile
+import com.agniv.hisaab.core.designsystem.component.KinlyTopBar
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.EmiMath
@@ -49,6 +54,8 @@ internal fun LoanDetail(
     canDelete: Boolean,
     onDelete: () -> Unit,
     onSetPaid: (YearMonth, Boolean) -> Unit,
+    reminderOn: Boolean?,
+    onReminderChange: (Boolean) -> Unit,
 ) {
     val loan = item.loan
     val progress = item.progress
@@ -62,15 +69,12 @@ internal fun LoanDetail(
     LazyColumn(
         modifier =
             Modifier
-                .fillMaxSize()
-                .statusBarsPadding(),
+                .fillMaxSize(),
         contentPadding = PaddingValues(Spacing.screen),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         item(key = "top") {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = onBack) { Text("◀ " + stringResource(R.string.loan_back)) }
-                Text("", Modifier.weight(1f))
+            KinlyTopBar(title = loan.lender, onBack = onBack) {
                 TextButton(onClick = onEdit) { Text(stringResource(R.string.loan_edit)) }
                 if (canDelete) {
                     TextButton(onClick = { confirmDelete = true }) {
@@ -80,10 +84,10 @@ internal fun LoanDetail(
             }
         }
         item(key = "head") {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(loan.type.emoji(), style = MaterialTheme.typography.headlineMedium)
-                Column(Modifier.padding(start = Spacing.m)) {
-                    Text(loan.lender, style = MaterialTheme.typography.headlineSmall)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                IconTile(loan.type.icon(), size = 52.dp)
+                Column {
+                    Text(stringResource(R.string.emi_per_month, loan.emi.formatted()), style = MaterialTheme.typography.titleLarge)
                     Text(
                         stringResource(loan.type.labelRes()),
                         style = MaterialTheme.typography.bodyMedium,
@@ -93,8 +97,11 @@ internal fun LoanDetail(
             }
         }
         item(key = "next") { NextEmiCard(item, onSetPaid, lastMarked) }
+        if (reminderOn != null && item.progress.next != null) {
+            item(key = "reminder") { ReminderSwitch(reminderOn, onReminderChange) }
+        }
         item(key = "facts") {
-            Card(Modifier.fillMaxWidth()) {
+            HCard(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                     PaidBar(progress.paidFraction)
                     Text(stringResource(R.string.loan_paid_of, progress.paidCount, progress.tenureMonths))
@@ -148,7 +155,7 @@ private fun NextEmiCard(
     lastMarked: YearMonth?,
 ) {
     val next = item.progress.next
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
             if (next == null) {
                 Text(
@@ -160,7 +167,7 @@ private fun NextEmiCard(
                 Text(stringResource(R.string.loan_next_emi), style = MaterialTheme.typography.titleMedium)
                 Text(item.loan.emi.formatted(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.tertiary)
                 Text(next.date.shortText() + " • " + dueText(next), color = dueColor(next.status))
-                Button(onClick = { onSetPaid(next.month, true) }, modifier = Modifier.fillMaxWidth()) {
+                HButton(onClick = { onSetPaid(next.month, true) }, modifier = Modifier.fillMaxWidth()) {
                     Text("✓ " + stringResource(R.string.mark_paid))
                 }
             }
@@ -169,6 +176,35 @@ private fun NextEmiCard(
                     Text(stringResource(R.string.undo_paid))
                 }
             }
+        }
+    }
+}
+
+/** Per-loan on/off for the 3-day, 1-day and due-day EMI reminders. */
+@Composable
+private fun ReminderSwitch(
+    on: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    HCard(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
+                .padding(Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.loan_reminder_title), style = MaterialTheme.typography.titleSmall)
+                Text(
+                    stringResource(R.string.loan_reminder_text),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            // The whole row toggles, so the switch itself takes no clicks (one TalkBack item).
+            Switch(checked = on, onCheckedChange = null)
         }
     }
 }

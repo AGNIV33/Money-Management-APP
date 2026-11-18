@@ -15,6 +15,7 @@ data class GoalDto(
     val visibility: String,
     val deleted: Boolean = false,
     @SerialName("updated_at") val updatedAt: String? = null,
+    val icon: String? = null,
 )
 
 @Serializable

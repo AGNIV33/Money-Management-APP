@@ -3,6 +3,9 @@ package com.agniv.hisaab.feature.expenses.statement
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agniv.hisaab.core.common.dispatcher.DispatcherProvider
+import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Session
@@ -15,9 +18,11 @@ import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ObserveLoans
 import com.agniv.hisaab.core.domain.usecase.SetEmiPaid
 import com.agniv.hisaab.core.domain.util.TimeProvider
+import com.agniv.hisaab.core.ml.statement.CsvStatementParser
 import com.agniv.hisaab.core.ml.statement.MatchResult
 import com.agniv.hisaab.core.ml.statement.MatchSummary
 import com.agniv.hisaab.core.ml.statement.MatchedLine
+import com.agniv.hisaab.core.ml.statement.StatementLine
 import com.agniv.hisaab.core.ml.statement.StatementMatcher
 import com.agniv.hisaab.core.ml.statement.StatementParser
 import com.agniv.hisaab.core.ml.statement.summary
@@ -30,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 enum class StatementPhase { PICK, READING, REVIEW, DONE }
@@ -60,12 +66,22 @@ data class StatementUiState(
     val addedCount: Int = 0,
 ) {
     val selectedCount: Int get() = rows.count { it.selected && it.actionable }
+    val actionableCount: Int get() = rows.count { it.actionable }
+    val selectedTotal: Money get() = rows.filter { it.selected && it.actionable }.map { it.matched.line.amount }.sum()
+
+    /** "3 / 5" pages read, as 0..1 for the progress bar; null while there is no page count (photos). */
+    val progressFraction: Float?
+        get() =
+            progress?.split('/')?.mapNotNull { it.trim().toIntOrNull() }?.takeIf { it.size == 2 && it[1] > 0 }?.let {
+                it[0].toFloat() / it[1]
+            }
 }
 
 /**
  * Passbook / statement import (PRD F21): read, compare with Kinly, let the user pick what to add.
  * AI suggests, the user confirms: nothing is saved until "Add selected" is pressed.
  */
+@Suppress("TooManyFunctions") // one handler per screen event of a single import flow
 @HiltViewModel
 class StatementImportViewModel
     @Inject
@@ -77,6 +93,7 @@ class StatementImportViewModel
         private val addExpense: AddExpense,
         private val setEmiPaid: SetEmiPaid,
         private val time: TimeProvider,
+        private val dispatchers: DispatcherProvider,
     ) : ViewModel() {
         private val _state = MutableStateFlow(StatementUiState())
         val state: StateFlow<StatementUiState> = _state
@@ -121,8 +138,21 @@ class StatementImportViewModel
                 onFailure(StatementMessage.NO_TEXT)
                 return
             }
+            review { StatementParser.parse(text, time.today()) }
+        }
+
+        /** A statement downloaded from net banking as CSV: columns, not text lines. */
+        fun onCsv(text: String) {
+            if (text.isBlank()) {
+                onFailure(StatementMessage.NO_TEXT)
+                return
+            }
+            review { CsvStatementParser.parse(text, time.today()) }
+        }
+
+        private fun review(parse: () -> List<StatementLine>) {
             viewModelScope.launch {
-                val lines = StatementParser.parse(text, time.today())
+                val lines = withContext(dispatchers.default) { parse() }
                 if (lines.isEmpty()) {
                     onFailure(StatementMessage.NO_ROWS)
                     return@launch
@@ -172,6 +202,8 @@ class StatementImportViewModel
                         },
                 )
             }
+
+        fun selectAll(on: Boolean) = _state.update { s -> s.copy(rows = s.rows.map { if (it.actionable) it.copy(selected = on) else it }) }
 
         fun setCategory(
             key: Int,
