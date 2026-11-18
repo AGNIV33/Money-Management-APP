@@ -5,7 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,19 +21,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Balance
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Dialpad
+import androidx.compose.material.icons.outlined.House
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Percent
 import androidx.compose.material.icons.outlined.Savings
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,12 +44,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -68,12 +62,20 @@ internal enum class Tool(
     val icon: ImageVector,
     val title: Int,
     val hint: Int,
+    val subtitle: Int,
+    val art: ImageVector,
 ) {
-    EMI(Icons.Outlined.Calculate, R.string.tool_emi, R.string.tool_emi_hint),
-    PREPAY(Icons.Outlined.Savings, R.string.tool_prepay, R.string.tool_prepay_hint),
-    AFFORD(Icons.Outlined.Balance, R.string.tool_afford, R.string.tool_afford_hint),
-    SAVINGS(Icons.Outlined.Percent, R.string.tool_savings, R.string.tool_savings_hint),
-    CALCULATOR(Icons.Outlined.Dialpad, R.string.tool_calculator, R.string.tool_calculator_hint),
+    EMI(Icons.Outlined.Calculate, R.string.tool_emi, R.string.tool_emi_hint, R.string.tool_emi_sub, Icons.Outlined.Calculate),
+    PREPAY(Icons.Outlined.Savings, R.string.tool_prepay, R.string.tool_prepay_hint, R.string.tool_prepay_sub, Icons.Outlined.Savings),
+    AFFORD(Icons.Outlined.Balance, R.string.tool_afford, R.string.tool_afford_hint, R.string.tool_afford_sub, Icons.Outlined.House),
+    SAVINGS(Icons.Outlined.Percent, R.string.tool_savings, R.string.tool_savings_hint, R.string.tool_savings_sub, Icons.Outlined.Percent),
+    CALCULATOR(
+        Icons.Outlined.Dialpad,
+        R.string.tool_calculator,
+        R.string.tool_calculator_hint,
+        R.string.tool_calculator_hint,
+        Icons.Outlined.Calculate,
+    ),
 }
 
 /** The four big cards; the plain calculator sits under them as one wide row. */
@@ -102,9 +104,9 @@ fun ToolsScreen(
     val latest = remember(tool) { mutableStateOf<RecentResult?>(null) }
     DisposableEffect(tool) { onDispose { latest.value?.let(viewModel::saveRecent) } }
     val onResult: (RecentResult?) -> Unit = { latest.value = it }
-    ToolPage(stringResource(tool.title), onBack = { open = null }) {
+    ToolPage(stringResource(tool.title), stringResource(tool.subtitle), tool.art, onBack = { open = null }) {
         when (tool) {
-            Tool.EMI -> EmiTool(state, onResult)
+            Tool.EMI -> EmiTool(state, onResult, onSave = viewModel::saveRecent)
             Tool.PREPAY -> PrepayTool(state, onResult)
             Tool.AFFORD -> AffordTool(state, onResult)
             Tool.SAVINGS -> SavingsTool(onResult)
@@ -130,7 +132,9 @@ private fun ToolsHub(
         contentPadding = PaddingValues(start = Spacing.screen, end = Spacing.screen, bottom = Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
-        item(key = "header") { HubHeader(onBack) }
+        item(key = "header") {
+            PageHeader(stringResource(R.string.tools_title), stringResource(R.string.tools_subtitle), Icons.Outlined.Calculate, onBack)
+        }
         GRID.chunked(2).forEachIndexed { index, pair ->
             item(key = "row-$index") {
                 // Same height for both cards in a row, whatever the text length.
@@ -162,57 +166,6 @@ private fun ToolsHub(
         item(key = "bottom") { Spacer(Modifier.navigationBarsPadding()) }
     }
 }
-
-@Composable
-private fun HubHeader(onBack: (() -> Unit)?) {
-    Box(Modifier.fillMaxWidth()) {
-        // Soft green glow with a big calculator icon, in place of the mockup's 3D picture (cheap to draw).
-        Box(
-            Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = Spacing.l)
-                .size(HERO_SIZE)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.background),
-                    ),
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                Icons.Outlined.Calculate,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(HERO_ICON),
-            )
-        }
-        Column(Modifier.padding(bottom = Spacing.l)) {
-            if (onBack != null) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.tools_back))
-                }
-            } else {
-                Spacer(Modifier.height(Spacing.xxl))
-            }
-            Text(
-                stringResource(R.string.tools_title),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = Spacing.s).semantics { heading() },
-            )
-            Text(
-                stringResource(R.string.tools_subtitle),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-private val HERO_SIZE = 140.dp
-private val HERO_ICON = 64.dp
 
 @Composable
 private fun ToolCard(

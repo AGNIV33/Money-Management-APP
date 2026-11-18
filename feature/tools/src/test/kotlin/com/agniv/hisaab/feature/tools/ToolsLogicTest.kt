@@ -1,8 +1,10 @@
 package com.agniv.hisaab.feature.tools
 
 import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.domain.loan.EmiMath
+import com.agniv.hisaab.core.domain.loan.PrepayMode
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -55,20 +57,49 @@ class ToolsLogicTest {
     fun `fd adds interest every quarter and simple interest for leftover months`() {
         val lakh = Money.ofRupees(100_000)
         // 7% for a year: 1.0175^4.
-        assertThat(ToolsLogic.lumpSumMaturity(lakh, 700, 12)).isEqualTo(Money(10_718_590))
+        assertThat(SavingsMath.lumpSumMaturity(lakh, 700, 12)).isEqualTo(Money(10_718_590))
         // 11 months: three quarters, then two months simple.
-        assertThat(ToolsLogic.lumpSumMaturity(lakh, 700, 11)).isEqualTo(Money(10_657_141))
-        assertThat(ToolsLogic.lumpSumMaturity(lakh, 0, 24)).isEqualTo(lakh)
+        assertThat(SavingsMath.lumpSumMaturity(lakh, 700, 11)).isEqualTo(Money(10_657_141))
+        assertThat(SavingsMath.lumpSumMaturity(lakh, 0, 24)).isEqualTo(lakh)
     }
 
     @Test
     fun `monthly saving grows like a sip`() {
-        assertThat(ToolsLogic.monthlyMaturity(Money.ofRupees(1_000), 1_200, 12)).isEqualTo(Money(1_280_933))
-        assertThat(ToolsLogic.monthlyMaturity(Money.ofRupees(1_000), 0, 12)).isEqualTo(Money.ofRupees(12_000))
+        assertThat(SavingsMath.monthlyMaturity(Money.ofRupees(1_000), 1_200, 12)).isEqualTo(Money(1_280_933))
+        assertThat(SavingsMath.monthlyMaturity(Money.ofRupees(1_000), 0, 12)).isEqualTo(Money.ofRupees(12_000))
     }
 
     @Test
     fun `too big an answer is null, not a wrapped number`() {
-        assertThat(ToolsLogic.monthlyMaturity(Money(100_000_000_000), 4_200, 480)).isNull()
+        assertThat(SavingsMath.monthlyMaturity(Money(100_000_000_000), 4_200, 480)).isNull()
+    }
+
+    @Test
+    fun `compact amounts use lakh and crore`() {
+        assertThat(AmountInput.compact(Money.ofRupees(5_988_000))).isEqualTo("₹59.88 L")
+        assertThat(AmountInput.compact(Money.ofRupees(12_000_000))).isEqualTo("₹1.20 Cr")
+        assertThat(AmountInput.compact(Money.ofRupees(50_000))).isEqualTo(Money.ofRupees(50_000).formatted())
+    }
+
+    @Test
+    fun `share has one decimal and survives zero`() {
+        assertThat(ToolsLogic.share(Money.ofRupees(1), Money.ofRupees(3))).isEqualTo("33.3")
+        assertThat(ToolsLogic.share(Money.ofRupees(1), Money.ZERO)).isEqualTo("0.0")
+    }
+
+    @Test
+    fun `calculator expression gets commas in each number`() {
+        assertThat(AmountInput.groupNumbers("12000×18%")).isEqualTo("12,000×18%")
+        assertThat(AmountInput.groupNumbers("1234567.5+2")).isEqualTo("12,34,567.5+2")
+    }
+
+    @Test
+    fun `prepay totals add the interest already paid`() {
+        val terms = checkNotNull(ToolsLogic.terms("3000000", "8.5", "20", inYears = true))
+        val result = checkNotNull(ToolsLogic.prepayOrNull(terms, 24, Money.ofRupees(50_000), PrepayMode.REDUCE_TENURE))
+        val totals = ToolsLogic.prepayTotals(terms, 24, result)
+        assertThat(totals.interestBefore - totals.interestAfter).isEqualTo(result.interestSaved)
+        assertThat(totals.monthsBefore).isEqualTo(240)
+        assertThat(totals.monthsAfter).isLessThan(240)
     }
 }

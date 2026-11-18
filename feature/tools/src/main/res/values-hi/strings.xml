@@ -20,7 +20,7 @@
     <string name="fill_from_loan">मेरे लोन से भरें</string>
     <string name="tools_need_inputs">नतीजा देखने के लिए रकम, ब्याज और अवधि भरें।</string>
 
-    <string name="emi_result">हर महीने की EMI</string>
+    <string name="emi_result">आपकी EMI</string>
     <string name="emi_total_interest">कुल ब्याज</string>
     <string name="emi_total_payable">कुल चुकाना होगा</string>
     <string name="emi_pie_desc">मूल रकम %1$s, ब्याज %2$s</string>
@@ -36,8 +36,6 @@
     <string name="prepay_extra">अभी अतिरिक्त भुगतान</string>
     <string name="prepay_shorter">जल्दी खत्म करें</string>
     <string name="prepay_smaller">छोटी EMI</string>
-    <string name="prepay_saved">ब्याज में बचत</string>
-    <string name="prepay_months_saved">लोन %1$d महीने पहले खत्म होगा</string>
     <string name="prepay_new_emi">नई EMI: %1$s (पहले %2$s)</string>
     <string name="prepay_bad_extra">अतिरिक्त भुगतान ₹0 से ज़्यादा और बाकी रकम (%1$s) से कम होना चाहिए।</string>
     <string name="prepay_bad_paid">भरी हुई EMI अवधि से कम होनी चाहिए।</string>
@@ -77,20 +75,15 @@
     <string name="tip_general">साल में एक अतिरिक्त EMI भी लंबे लोन के कई साल कम कर सकती है। पहले भुगतान वाला कैलकुलेटर आज़माएँ।</string>
 
     <string name="prepay_need_inputs">बचत देखने के लिए अपना लोन और अतिरिक्त रकम भरें।</string>
-    <string name="prepay_interest_left">अभी बाकी ब्याज</string>
     <string name="prepay_before">पहले भुगतान के बिना</string>
-    <string name="prepay_after">पहले भुगतान के बाद</string>
-    <string name="prepay_bars_desc">बाकी ब्याज: बिना पहले भुगतान %1$s, पहले भुगतान के बाद %2$s</string>
-    <string name="prepay_months_left">बाकी EMI</string>
     <string name="prepay_emi_change">मासिक EMI</string>
 
-    <string name="afford_new_loan">नया लोन</string>
+    <string name="afford_new_loan">नए लोन की रकम</string>
     <string name="afford_need_inputs">जाँचने के लिए अपनी कमाई और नया लोन भरें।</string>
-    <string name="afford_of_income">आपकी कमाई का हिस्सा EMI में</string>
-    <string name="afford_total_emi">इस लोन के बाद कुल EMI</string>
-    <string name="afford_ok_advice">यह आपके बजट में आराम से है।</string>
-    <string name="afford_caution_advice">हो सकता है, पर इमरजेंसी फंड तैयार रखें।</string>
-    <string name="afford_risky_advice">बहुत भारी है। छोटा लोन या लंबी अवधि आज़माएँ।</string>
+    <string name="afford_of_income">EMI बनाम कमाई</string>
+    <string name="afford_ok_advice">सलाह: यह लोन आपके बस में लगता है। सुरक्षित रहने के लिए कुल EMI (%1$s) कमाई के 40%% से कम रखें।</string>
+    <string name="afford_caution_advice">सलाह: हो सकता है, पर तंग है। कुल EMI (%1$s) कमाई के 30%% से ज़्यादा है, इमरजेंसी फंड तैयार रखें।</string>
+    <string name="afford_risky_advice">सलाह: बहुत भारी है। कुल EMI (%1$s) कमाई के 40%% से ज़्यादा होगी। छोटा लोन या लंबी अवधि आज़माएँ।</string>
 
     <string name="savings_lump">एक बार (FD)</string>
     <string name="savings_monthly">हर महीने</string>
@@ -105,4 +98,47 @@
     <string name="savings_note_lump">बैंक FD की तरह हर 3 महीने ब्याज जुड़ता है। टैक्स से पहले; सिर्फ़ अंदाज़ा।</string>
     <string name="savings_note_monthly">हर महीने ब्याज जुड़ता है (SIP की तरह)। टैक्स से पहले; सिर्फ़ अंदाज़ा।</string>
     <string name="calc_clear">सब मिटाएँ</string>
+    <string name="tool_emi_sub">अपनी मासिक किस्त जानें</string>
+    <string name="tool_prepay_sub">देखें एकमुश्त रकम से कितनी बचत</string>
+    <string name="tool_afford_sub">नया लोन अपनी कमाई से जाँचें</string>
+    <string name="tool_savings_sub">देखें आपका पैसा कितना बढ़ेगा</string>
+    <string name="field_amount_help">आपको कितना लोन चाहिए</string>
+    <string name="field_rate_help">सालाना ब्याज दर</string>
+    <string name="field_tenure_help">लोन चुकाने की अवधि</string>
+    <string name="per_month">/ महीना</string>
+    <string name="emi_total">कुल</string>
+    <string name="col_opening">शुरुआती बाकी</string>
+    <string name="emi_view_all">सभी %1$d साल देखें</string>
+    <string name="emi_save">सेव करें</string>
+    <string name="emi_saved">सेव हो गया</string>
+    <string name="emi_share">शेयर करें</string>
+    <string name="emi_share_text">लोन %1$s, %2$s%% पर, %3$d महीने: EMI %4$s हर महीने। कुल ब्याज %5$s, कुल भुगतान %6$s। (Kinly)</string>
+    <string name="tenure_years_decimal">%1$s साल</string>
+    <string name="prepay_amount_help">आपके लोन की असली रकम</string>
+    <string name="prepay_paid_help">अब तक भरी गई EMI की गिनती</string>
+    <string name="prepay_extra_help">एकमुश्त रकम जो आप अलग से भरना चाहते हैं</string>
+    <string name="prepay_shorter_help">EMI वही रखें और लोन जल्दी बंद करें</string>
+    <string name="prepay_smaller_help">अवधि वही रखें और EMI कम करें</string>
+    <string name="prepay_you_save">आप %1$s ब्याज बचाते हैं</string>
+    <string name="prepay_ends_earlier">लोन %1$s पहले खत्म होगा</string>
+    <string name="prepay_before_after">पहले बनाम बाद में</string>
+    <string name="prepay_after_with">बाद में (%1$s के साथ)</string>
+    <string name="prepay_less">(%1$s%% कम)</string>
+    <string name="prepay_tenure">लोन की अवधि</string>
+    <string name="prepay_earlier">(पहले)</string>
+    <string name="prepay_per_month_less">(हर महीने कम)</string>
+    <string name="prepay_tip_sooner">सुझाव: अभी %1$s पहले भरने से ब्याज में %2$s बच सकते हैं और लोन %3$s पहले बंद होगा।</string>
+    <string name="prepay_tip_smaller">सुझाव: अभी %1$s पहले भरने से ब्याज में %2$s बच सकते हैं और आगे हर EMI कम होगी।</string>
+    <string name="afford_income_help">कटौती के बाद हाथ में आने वाली कमाई</string>
+    <string name="afford_existing_help">आपकी मौजूदा सभी EMI का जोड़</string>
+    <string name="afford_new_loan_help">आप कितना उधार लेना चाहते हैं</string>
+    <string name="afford_ok_sentence">आपकी कुल EMI मासिक कमाई का %1$s%% होगी, जो ठीक सीमा में है।</string>
+    <string name="afford_caution_sentence">आपकी कुल EMI मासिक कमाई का %1$s%% होगी, जो थोड़ी ज़्यादा है।</string>
+    <string name="afford_risky_sentence">आपकी कुल EMI मासिक कमाई का %1$s%% होगी, जो बहुत ज़्यादा है।</string>
+    <string name="afford_left">हर महीने बचने वाले पैसे</string>
+    <string name="afford_bands" formatted="false">हरा 30% से कम · पीला 30–40% · लाल 40% से ज़्यादा</string>
+    <string name="savings_amount_help">आप कितना बचाते हैं</string>
+    <string name="calc_gst">GST +%1$d%%</string>
+    <string name="calc_discount" formatted="false">−% छूट</string>
+    <string name="calc_history">पिछले हिसाब</string>
 </resources>
