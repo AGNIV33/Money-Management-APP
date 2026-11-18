@@ -7,11 +7,17 @@ plugins {
 
 android {
     namespace = "com.agniv.hisaab.baselineprofile"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         minSdk = 28 // Macrobenchmark needs API 28+; the app itself still supports 26.
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
