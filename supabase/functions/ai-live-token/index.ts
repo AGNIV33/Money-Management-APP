@@ -15,8 +15,11 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const MODEL = Deno.env.get("LIVE_MODEL") ?? "gemini-3.8-live";
 const VOICE = Deno.env.get("LIVE_VOICE") ?? "Aoede";
 const SLICE = intEnv("LIVE_SLICE_MINUTES", 5, 1, 15);
-const USER_MAX = intEnv("LIVE_USER_MINUTES", 20, 1, 240);
-const GLOBAL_MAX = intEnv("LIVE_GLOBAL_MINUTES", 150, 1, 5000);
+// Every connect reserves a 5-minute slice, and a typed chat opens a new one after 45 s of quiet. 300 minutes a
+// day leaves room for about 50 typed questions plus 50 spoken ones with their spoken replies. Google's free quota
+// stays the real ceiling: the key's project has no billing, so going over is refused, never charged.
+const USER_MAX = intEnv("LIVE_USER_MINUTES", 300, 1, 600);
+const GLOBAL_MAX = intEnv("LIVE_GLOBAL_MINUTES", 3000, 1, 20000);
 
 function intEnv(name: string, def: number, lo: number, hi: number): number {
   const n = Number.parseInt(Deno.env.get(name) ?? "", 10);

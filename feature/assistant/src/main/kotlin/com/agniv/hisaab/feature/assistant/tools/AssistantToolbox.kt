@@ -7,9 +7,11 @@ import com.agniv.hisaab.core.domain.loan.LoanTerms
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.UdhaarDirection
+import com.agniv.hisaab.core.domain.usecase.BudgetLevel
 import com.agniv.hisaab.core.domain.usecase.GoalsOverview
 import com.agniv.hisaab.core.domain.usecase.LoansOverview
 import com.agniv.hisaab.core.domain.usecase.UdhaarOverview
+import com.agniv.hisaab.core.domain.usecase.categoryBudgets
 import com.agniv.hisaab.core.ml.insight.Insight
 import com.agniv.hisaab.core.ml.insight.InsightEngine
 import com.agniv.hisaab.core.ml.insight.InsightInput
@@ -40,6 +42,8 @@ data class ToolContext(
     val loans: LoansOverview,
     val udhaar: UdhaarOverview,
     val goals: GoalsOverview,
+    /** Monthly limit per category id (only categories that have one). */
+    val categoryLimits: Map<String, Money> = emptyMap(),
 )
 
 /**
@@ -111,6 +115,7 @@ object AssistantToolbox {
             put("spentThisMonthRupees", rupees(spent))
             put("spentLastMonthRupees", rupees(Money(request.previousTotalPaise)))
             put("daysLeftInMonth", ChronoUnit.DAYS.between(ctx.today, month.atEndOfMonth()))
+            put("familyBudgetSet", ctx.budget != null)
             ctx.budget?.let {
                 put("budgetRupees", rupees(it))
                 put("budgetLeftRupees", rupees(Money(maxOf(0L, (it - spent).paise))))
@@ -135,7 +140,34 @@ object AssistantToolbox {
                         }
                 },
             )
+            put("categoryBudgets", categoryLimitsJson(ctx, month))
             put("recentExpenses", recentExpenses(ctx))
+        }
+    }
+
+    /** Each category limit with what is spent and left this month. A category the family typed shows as Others. */
+    private fun categoryLimitsJson(
+        ctx: ToolContext,
+        month: YearMonth,
+    ): JsonArray {
+        val nameOf = ctx.categories.associate { it.id to if (it.isDefault) it.name else OTHERS }
+        val spentBy =
+            ctx.expenses
+                .filter { !it.deleted && YearMonth.from(it.date) == month }
+                .groupBy { it.categoryId }
+                .mapValues { (_, v) -> v.map { it.amount }.sum() }
+        return buildJsonArray {
+            categoryBudgets(ctx.categoryLimits, spentBy).forEach { b ->
+                add(
+                    buildJsonObject {
+                        put("category", nameOf[b.categoryId] ?: OTHERS)
+                        put("limitRupees", rupees(b.limit))
+                        put("spentRupees", rupees(b.spent))
+                        put("leftRupees", rupees(Money(maxOf(0L, (b.limit - b.spent).paise))))
+                        put("overLimit", b.level == BudgetLevel.OVER)
+                    },
+                )
+            }
         }
     }
 

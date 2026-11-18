@@ -202,6 +202,26 @@ class AssistantToolboxTest {
     }
 
     @Test
+    fun `category budgets show limit, spent and left, with typed names as Others`() {
+        val ctx = context().copy(categoryLimits = mapOf(food.id to Money.ofRupees(5_000), custom.id to Money.ofRupees(1_000)))
+        val snapshot = run(AssistantToolbox.FINANCE_SNAPSHOT, ctx = ctx)
+        val budgets = snapshot["categoryBudgets"].toString()
+        val food = "{\"category\":\"Food\",\"limitRupees\":5000,\"spentRupees\":4000,\"leftRupees\":1000,\"overLimit\":false}"
+        val others = "{\"category\":\"Others\",\"limitRupees\":1000,\"spentRupees\":1500,\"leftRupees\":0,\"overLimit\":true}"
+        assertThat(budgets).contains(food)
+        assertThat(budgets).contains(others)
+        assertThat(budgets).doesNotContain("Ramesh")
+        assertThat(AssistantToolbox.isSafe(snapshot)).isTrue()
+    }
+
+    @Test
+    fun `snapshot says plainly when no family budget is set`() {
+        val snapshot = run(AssistantToolbox.FINANCE_SNAPSHOT, ctx = context(withBudget = false))
+        assertThat(snapshot["familyBudgetSet"]!!.jsonPrimitive.content).isEqualTo("false")
+        assertThat(snapshot["categoryBudgets"].toString()).isEqualTo("[]")
+    }
+
+    @Test
     fun `finance snapshot reports totals in whole rupees`() {
         val snapshot = run(AssistantToolbox.FINANCE_SNAPSHOT)
         assertThat(snapshot["spentThisMonthRupees"]!!.jsonPrimitive.content).isEqualTo("5500")

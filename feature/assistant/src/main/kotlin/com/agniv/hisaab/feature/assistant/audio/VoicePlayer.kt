@@ -31,7 +31,9 @@ class VoicePlayer(
                 .setAudioAttributes(
                     AudioAttributes
                         .Builder()
-                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        // Assistant usage plays on the loudspeaker at media volume. Voice-communication usage
+                        // went to the earpiece at call volume, which was too quiet to hear.
+                        .setUsage(AudioAttributes.USAGE_ASSISTANT)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build(),
                 ).setAudioFormat(
