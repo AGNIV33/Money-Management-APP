@@ -329,7 +329,7 @@ fun KinlyNavHost(
         }
         composable<ImportRoute> { StatementImportScreen(onBack = navController::popBackStack) }
         composable<UdhaarRoute> { UdhaarScreen(onBack = navController::popBackStack) }
-        composable<ToolsRoute> { ToolsScreen() }
+        composable<ToolsRoute> { ToolsScreen(onBack = navController::popBackStack) }
     }
 }
 

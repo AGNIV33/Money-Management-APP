@@ -5,15 +5,15 @@
     <string name="tool_calculator">Calculator</string>
     <string name="tool_calculator_hint">Quick sums, with %</string>
     <string name="tool_emi">EMI calculator</string>
-    <string name="tool_emi_hint">EMI, total interest, year by year</string>
+    <string name="tool_emi_hint">Your loan EMI and total cost</string>
     <string name="tool_prepay">Prepayment saver</string>
-    <string name="tool_prepay_hint">How much a lump sum saves</string>
+    <string name="tool_prepay_hint">See how much prepaying saves</string>
     <string name="tool_afford">Can I afford it?</string>
     <string name="tool_afford_hint">Check a new loan against your income</string>
     <string name="tools_back">Back</string>
 
-    <string name="field_amount">Loan amount (₹)</string>
-    <string name="field_rate" formatted="false">Interest rate (% a year)</string>
+    <string name="field_amount">Loan amount</string>
+    <string name="field_rate" formatted="false">Interest rate (per year)</string>
     <string name="field_tenure">Tenure</string>
     <string name="unit_years">Years</string>
     <string name="unit_months">Months</string>
@@ -33,7 +33,7 @@
     <string name="col_balance">Left</string>
 
     <string name="prepay_paid">EMIs already paid</string>
-    <string name="prepay_extra">Extra payment now (₹)</string>
+    <string name="prepay_extra">Extra payment now</string>
     <string name="prepay_shorter">Finish sooner</string>
     <string name="prepay_smaller">Smaller EMI</string>
     <string name="prepay_saved">You save in interest</string>
@@ -42,8 +42,8 @@
     <string name="prepay_bad_extra">Extra payment must be more than ₹0 and less than what is left (%1$s).</string>
     <string name="prepay_bad_paid">EMIs paid must be less than the tenure.</string>
 
-    <string name="afford_income">Monthly take-home income (₹)</string>
-    <string name="afford_existing">EMIs you already pay each month (₹)</string>
+    <string name="afford_income">Monthly take-home income</string>
+    <string name="afford_existing">EMIs you already pay each month</string>
     <string name="afford_new_emi">New EMI</string>
     <string name="afford_burden">%1$s%% of your income would go to EMIs</string>
     <string name="afford_ok">Comfortable</string>
@@ -54,4 +54,55 @@
     <string name="afford_note">A rough guide, not financial advice.</string>
 
     <string name="calc_backspace">Delete</string>
+
+    <string name="tools_subtitle">Quick money calculators</string>
+    <string name="tool_savings">Interest / Savings</string>
+    <string name="tool_savings_hint">See what your FD or monthly saving grows to</string>
+    <string name="tools_recent">Recently used</string>
+    <string name="tools_see_all">See all</string>
+    <string name="tools_show_less">Show less</string>
+    <string name="tools_show">Show</string>
+    <string name="tools_hide">Hide</string>
+    <string name="tools_less">One less</string>
+    <string name="tools_more">One more</string>
+    <string name="tenure_years">%1$d yrs</string>
+    <string name="tenure_months">%1$d months</string>
+    <string name="recent_emi">%1$s / month · %2$s · %3$s</string>
+    <string name="recent_prepay">%1$s prepay · save %2$s</string>
+    <string name="recent_afford">EMI %1$s · %2$s%% of income</string>
+    <string name="recent_savings">%1$s after %2$s</string>
+    <string name="tip_title">Kinly Tip</string>
+    <string name="tip_prepay">Prepaying %1$s on your loan could save %2$s in interest</string>
+    <string name="tip_prepay_months">and close it %1$d months sooner.</string>
+    <string name="tip_general">Even one extra EMI a year can cut years off a long loan. Try the Prepayment calculator.</string>
+
+    <string name="prepay_need_inputs">Enter your loan and the extra amount to see the saving.</string>
+    <string name="prepay_interest_left">Interest still to pay</string>
+    <string name="prepay_before">Without prepaying</string>
+    <string name="prepay_after">After prepaying</string>
+    <string name="prepay_bars_desc">Interest left: %1$s without prepaying, %2$s after prepaying</string>
+    <string name="prepay_months_left">EMIs left</string>
+    <string name="prepay_emi_change">Monthly EMI</string>
+
+    <string name="afford_new_loan">The new loan</string>
+    <string name="afford_need_inputs">Enter your income and the new loan to check it.</string>
+    <string name="afford_of_income">of your income goes to EMIs</string>
+    <string name="afford_total_emi">All EMIs after this loan</string>
+    <string name="afford_ok_advice">This fits your budget well.</string>
+    <string name="afford_caution_advice">Doable, but keep an emergency fund ready.</string>
+    <string name="afford_risky_advice">Too heavy. Try a smaller loan or a longer tenure.</string>
+
+    <string name="savings_lump">One-time (FD)</string>
+    <string name="savings_monthly">Every month</string>
+    <string name="savings_amount_lump">Amount you put in</string>
+    <string name="savings_amount_monthly">Amount each month</string>
+    <string name="savings_rate">Interest rate (per year)</string>
+    <string name="savings_need_inputs">Enter amount, interest and time to see what it grows to.</string>
+    <string name="savings_maturity">You will get</string>
+    <string name="savings_invested">You put in</string>
+    <string name="savings_earned">Interest earned</string>
+    <string name="savings_pie_desc">You put in %1$s and earn %2$s interest</string>
+    <string name="savings_note_lump">Interest added every 3 months, like bank FDs. Before tax; a rough guide.</string>
+    <string name="savings_note_monthly">Interest added every month (SIP style). Before tax; a rough guide.</string>
+    <string name="calc_clear">Clear all</string>
 </resources>

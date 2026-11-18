@@ -132,8 +132,13 @@ Recent           [5 HExpenseRow] → See all
 - Add Loan: [Fill with AI 🎤/📷] or manual form → Review screen with `HAiBadge` on AI-filled fields.
 
 ### 7.9 Tools
-- Grid of 4 cards: Calculator, EMI, Prepayment, Can I afford?
-- EMI result: EMI big, total interest, total payable, pie (principal vs interest), amortisation table (yearly collapse).
+- Hub: "Tools" + subtitle, 2×2 grid (EMI, Prepayment, Can I afford?, Interest / Savings) with outlined icons in soft green circles, a wide Calculator row, "Recently used" (last results, kept on the phone only, DataStore), and a Kinly Tip (real numbers from the family's first open loan, else a general tip).
+- Tool pages: back-arrow top bar, inputs in one `surfaceContainer` card (₹ prefix with Indian commas, % suffix, segmented Years / Months), live result on a `primaryContainer` card, icon + text empty state.
+- EMI result: EMI big, donut (principal vs interest), total interest, total payable, year-by-year table (collapsed by default).
+- Prepayment: EMIs-paid stepper, Finish sooner / Smaller EMI segmented, interest saved + before/after bars.
+- Can I afford?: half-circle gauge (green / amber / red by existing 30% / 40% levels) + one-line advice.
+- Interest / Savings: FD (quarterly compounding, simple interest for leftover months) or monthly saving (SIP style).
+- Only theme tokens; no hard-coded colours.
 
 ### 7.10 Insights / Monthly Report
 - Header "October Report Card" + grade emoji.

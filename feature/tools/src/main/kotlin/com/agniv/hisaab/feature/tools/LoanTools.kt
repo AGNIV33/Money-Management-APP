@@ -1,20 +1,25 @@
 package com.agniv.hisaab.feature.tools
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,16 +28,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.designsystem.component.DonutSlice
-import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.component.HDonut
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
@@ -51,7 +53,7 @@ internal class LoanInputs(
 
     fun fillFrom(item: LoanItem) {
         val loan = item.loan
-        amount.value = LoanForm.amountText(loan.principal)
+        amount.value = AmountInput.cleanAmount(LoanForm.amountText(loan.principal))
         rate.value = LoanForm.rateText(loan.annualRateBps)
         val years = loan.tenureMonths % MONTHS_PER_YEAR == 0
         inYears.value = years
@@ -72,6 +74,7 @@ internal fun rememberLoanInputs() =
         rememberSaveable { mutableStateOf(true) },
     )
 
+/** "Fill from my loans" chips, then amount, rate and tenure. */
 @Composable
 internal fun LoanInputFields(
     inputs: LoanInputs,
@@ -86,117 +89,85 @@ internal fun LoanInputFields(
             }
         }
     }
-    NumberField(inputs.amount, R.string.field_amount)
-    NumberField(inputs.rate, R.string.field_rate)
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-        Column(Modifier.weight(1f)) { NumberField(inputs.tenure, R.string.field_tenure, KeyboardType.Number) }
-        FilterChip(
-            selected = inputs.inYears.value,
-            onClick = { inputs.inYears.value = true },
-            label = { Text(stringResource(R.string.unit_years)) },
-        )
-        FilterChip(
-            selected = !inputs.inYears.value,
-            onClick = { inputs.inYears.value = false },
-            label = { Text(stringResource(R.string.unit_months)) },
-        )
-    }
+    MoneyField(inputs.amount, R.string.field_amount)
+    PercentField(inputs.rate, R.string.field_rate)
+    TenureInput(inputs)
 }
 
+/** PRD F9b: EMI, total interest, principal vs interest donut, year-by-year table. */
 @Composable
-internal fun NumberField(
-    state: MutableState<String>,
-    label: Int,
-    keyboard: KeyboardType = KeyboardType.Decimal,
+internal fun EmiTool(
+    state: ToolsUiState,
+    onResult: (RecentResult?) -> Unit,
 ) {
-    OutlinedTextField(
-        value = state.value,
-        onValueChange = { state.value = it },
-        label = { Text(stringResource(label)) },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboard),
-        modifier = Modifier.fillMaxWidth(),
-    )
-}
-
-@Composable
-internal fun Hint(text: String) {
-    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-}
-
-@Composable
-internal fun ResultCard(content: @Composable () -> Unit) {
-    HCard(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) { content() }
-    }
-}
-
-@Composable
-internal fun Fact(
-    label: Int,
-    value: String,
-) {
-    Row {
-        Text(stringResource(label), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-        Text(value, style = MaterialTheme.typography.titleSmall)
-    }
-}
-
-/** PRD F9b: EMI, total interest, principal vs interest pie, year-by-year table. */
-@Composable
-internal fun EmiTool(state: ToolsUiState) {
     val inputs = rememberLoanInputs()
-    LoanInputFields(inputs, state.openLoans)
+    InputCard { LoanInputFields(inputs, state.openLoans) }
     val terms = inputs.terms
+    LaunchedEffect(terms) {
+        onResult(terms?.let { recent(Tool.EMI, EmiMath.emi(it).paise, it.tenureMonths.toLong(), it.principal.paise) })
+    }
     if (terms == null) {
-        Hint(stringResource(R.string.tools_need_inputs))
+        EmptyResult(stringResource(R.string.tools_need_inputs))
         return
     }
     val schedule = remember(terms) { EmiMath.schedule(terms) }
     val interest = remember(schedule) { schedule.map { it.interest }.sum() }
     val years = remember(schedule) { ToolsLogic.yearly(schedule) }
-    val principalColor = MaterialTheme.colorScheme.tertiary
-    val interestColor = HisaabTheme.extendedColors.warning
-    ResultCard {
-        Text(stringResource(R.string.emi_result), style = MaterialTheme.typography.titleMedium)
-        Text(EmiMath.emi(terms).formatted(), style = MaterialTheme.typography.headlineMedium, color = principalColor)
+    val principalColor = MaterialTheme.colorScheme.primary
+    val interestColor = HisaabTheme.extendedColors.gold
+    ResultHero(stringResource(R.string.emi_result), EmiMath.emi(terms).formatted())
+    DetailCard {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.l)) {
             HDonut(
                 slices = listOf(DonutSlice(terms.principal.paise, principalColor), DonutSlice(interest.paise, interestColor)),
                 description = stringResource(R.string.emi_pie_desc, terms.principal.formatted(), interest.formatted()),
-                size = 96.dp,
+                size = 104.dp,
             )
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                Legend(principalColor, R.string.emi_principal, terms.principal)
-                Legend(interestColor, R.string.emi_interest, interest)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                Stat(stringResource(R.string.emi_principal), terms.principal.formatted(), dot = principalColor)
+                Stat(stringResource(R.string.emi_interest), interest.formatted(), dot = interestColor)
             }
         }
-        Fact(R.string.emi_total_interest, interest.formatted())
-        Fact(R.string.emi_total_payable, (terms.principal + interest).formatted())
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Stat(stringResource(R.string.emi_total_interest), interest.formatted())
+        Stat(stringResource(R.string.emi_total_payable), (terms.principal + interest).formatted())
     }
-    Text(stringResource(R.string.emi_year_table), style = MaterialTheme.typography.titleMedium)
-    TableRow(
-        stringResource(R.string.col_year),
-        stringResource(R.string.col_principal),
-        stringResource(R.string.col_interest),
-        stringResource(R.string.col_balance),
-        header = true,
-    )
-    years.forEach { row ->
-        TableRow(row.year.toString(), row.principal.formatted(), row.interest.formatted(), row.balance.formatted())
-        HorizontalDivider()
-    }
+    YearTable(years)
 }
 
+/** Collapsed by default: a 30-year loan is 30 rows, which would bury the answer. */
 @Composable
-private fun Legend(
-    color: Color,
-    label: Int,
-    amount: Money,
-) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        Text("●", color = color)
-        Text(stringResource(label) + ": " + amount.formatted(), style = MaterialTheme.typography.bodyMedium)
+private fun YearTable(years: List<YearRow>) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    DetailCard {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .clickable(role = Role.Button) { open = !open },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(stringResource(R.string.emi_year_table), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Icon(
+                if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = stringResource(if (open) R.string.tools_hide else R.string.tools_show),
+            )
+        }
+        AnimatedVisibility(open) {
+            Column {
+                TableRow(
+                    stringResource(R.string.col_year),
+                    stringResource(R.string.col_principal),
+                    stringResource(R.string.col_interest),
+                    stringResource(R.string.col_balance),
+                    header = true,
+                )
+                years.forEach { row ->
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    TableRow(row.year.toString(), row.principal.formatted(), row.interest.formatted(), row.balance.formatted())
+                }
+            }
+        }
     }
 }
 
@@ -209,11 +180,12 @@ private fun TableRow(
     header: Boolean = false,
 ) {
     val style = if (header) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium
-    Row(Modifier.padding(vertical = Spacing.xs)) {
-        Text(a, style = style, modifier = Modifier.weight(YEAR_WEIGHT))
-        Text(b, style = style, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
-        Text(c, style = style, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
-        Text(d, style = style, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+    val color = if (header) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+    Row(Modifier.padding(vertical = Spacing.s)) {
+        Text(a, style = style, color = color, modifier = Modifier.weight(YEAR_WEIGHT))
+        Text(b, style = style, color = color, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+        Text(c, style = style, color = color, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+        Text(d, style = style, color = color, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
     }
 }
 

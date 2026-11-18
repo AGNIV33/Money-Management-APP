@@ -5,15 +5,15 @@
     <string name="tool_calculator">कैलकुलेटर</string>
     <string name="tool_calculator_hint">जल्दी हिसाब, % के साथ</string>
     <string name="tool_emi">EMI कैलकुलेटर</string>
-    <string name="tool_emi_hint">EMI, कुल ब्याज, साल दर साल</string>
+    <string name="tool_emi_hint">आपके लोन की EMI और कुल खर्च</string>
     <string name="tool_prepay">पहले भुगतान से बचत</string>
-    <string name="tool_prepay_hint">एकमुश्त रकम से कितनी बचत</string>
+    <string name="tool_prepay_hint">देखें पहले भुगतान से कितनी बचत</string>
     <string name="tool_afford">क्या मैं ले सकता हूँ?</string>
     <string name="tool_afford_hint">नया लोन अपनी कमाई से जाँचें</string>
     <string name="tools_back">वापस</string>
 
-    <string name="field_amount">लोन की रकम (₹)</string>
-    <string name="field_rate" formatted="false">ब्याज दर (% सालाना)</string>
+    <string name="field_amount">लोन की रकम</string>
+    <string name="field_rate" formatted="false">ब्याज दर (सालाना)</string>
     <string name="field_tenure">अवधि</string>
     <string name="unit_years">साल</string>
     <string name="unit_months">महीने</string>
@@ -33,7 +33,7 @@
     <string name="col_balance">बाकी</string>
 
     <string name="prepay_paid">अब तक भरी EMI</string>
-    <string name="prepay_extra">अभी अतिरिक्त भुगतान (₹)</string>
+    <string name="prepay_extra">अभी अतिरिक्त भुगतान</string>
     <string name="prepay_shorter">जल्दी खत्म करें</string>
     <string name="prepay_smaller">छोटी EMI</string>
     <string name="prepay_saved">ब्याज में बचत</string>
@@ -42,8 +42,8 @@
     <string name="prepay_bad_extra">अतिरिक्त भुगतान ₹0 से ज़्यादा और बाकी रकम (%1$s) से कम होना चाहिए।</string>
     <string name="prepay_bad_paid">भरी हुई EMI अवधि से कम होनी चाहिए।</string>
 
-    <string name="afford_income">हर महीने की हाथ में आने वाली कमाई (₹)</string>
-    <string name="afford_existing">अभी हर महीने भरी जाने वाली EMI (₹)</string>
+    <string name="afford_income">हर महीने की हाथ में आने वाली कमाई</string>
+    <string name="afford_existing">अभी हर महीने भरी जाने वाली EMI</string>
     <string name="afford_new_emi">नई EMI</string>
     <string name="afford_burden">आपकी कमाई का %1$s%% EMI में जाएगा</string>
     <string name="afford_ok">ठीक है</string>
@@ -54,4 +54,55 @@
     <string name="afford_note">सिर्फ़ एक अंदाज़ा, वित्तीय सलाह नहीं।</string>
 
     <string name="calc_backspace">मिटाएँ</string>
+
+    <string name="tools_subtitle">पैसों के झटपट कैलकुलेटर</string>
+    <string name="tool_savings">ब्याज / बचत</string>
+    <string name="tool_savings_hint">देखें आपकी FD या मासिक बचत कितनी बढ़ेगी</string>
+    <string name="tools_recent">हाल में इस्तेमाल</string>
+    <string name="tools_see_all">सभी देखें</string>
+    <string name="tools_show_less">कम दिखाएँ</string>
+    <string name="tools_show">दिखाएँ</string>
+    <string name="tools_hide">छिपाएँ</string>
+    <string name="tools_less">एक कम</string>
+    <string name="tools_more">एक ज़्यादा</string>
+    <string name="tenure_years">%1$d साल</string>
+    <string name="tenure_months">%1$d महीने</string>
+    <string name="recent_emi">%1$s / महीना · %2$s · %3$s</string>
+    <string name="recent_prepay">%1$s पहले भुगतान · बचत %2$s</string>
+    <string name="recent_afford">EMI %1$s · कमाई का %2$s%%</string>
+    <string name="recent_savings">%2$s बाद %1$s</string>
+    <string name="tip_title">Kinly सुझाव</string>
+    <string name="tip_prepay">अपने लोन पर %1$s पहले भरने से ब्याज में %2$s बच सकते हैं</string>
+    <string name="tip_prepay_months">और लोन %1$d महीने पहले खत्म होगा।</string>
+    <string name="tip_general">साल में एक अतिरिक्त EMI भी लंबे लोन के कई साल कम कर सकती है। पहले भुगतान वाला कैलकुलेटर आज़माएँ।</string>
+
+    <string name="prepay_need_inputs">बचत देखने के लिए अपना लोन और अतिरिक्त रकम भरें।</string>
+    <string name="prepay_interest_left">अभी बाकी ब्याज</string>
+    <string name="prepay_before">पहले भुगतान के बिना</string>
+    <string name="prepay_after">पहले भुगतान के बाद</string>
+    <string name="prepay_bars_desc">बाकी ब्याज: बिना पहले भुगतान %1$s, पहले भुगतान के बाद %2$s</string>
+    <string name="prepay_months_left">बाकी EMI</string>
+    <string name="prepay_emi_change">मासिक EMI</string>
+
+    <string name="afford_new_loan">नया लोन</string>
+    <string name="afford_need_inputs">जाँचने के लिए अपनी कमाई और नया लोन भरें।</string>
+    <string name="afford_of_income">आपकी कमाई का हिस्सा EMI में</string>
+    <string name="afford_total_emi">इस लोन के बाद कुल EMI</string>
+    <string name="afford_ok_advice">यह आपके बजट में आराम से है।</string>
+    <string name="afford_caution_advice">हो सकता है, पर इमरजेंसी फंड तैयार रखें।</string>
+    <string name="afford_risky_advice">बहुत भारी है। छोटा लोन या लंबी अवधि आज़माएँ।</string>
+
+    <string name="savings_lump">एक बार (FD)</string>
+    <string name="savings_monthly">हर महीने</string>
+    <string name="savings_amount_lump">जमा की गई रकम</string>
+    <string name="savings_amount_monthly">हर महीने की रकम</string>
+    <string name="savings_rate">ब्याज दर (सालाना)</string>
+    <string name="savings_need_inputs">कितना बढ़ेगा यह देखने के लिए रकम, ब्याज और समय भरें।</string>
+    <string name="savings_maturity">आपको मिलेगा</string>
+    <string name="savings_invested">आपने जमा किया</string>
+    <string name="savings_earned">मिला ब्याज</string>
+    <string name="savings_pie_desc">आपने %1$s जमा किए और %2$s ब्याज मिला</string>
+    <string name="savings_note_lump">बैंक FD की तरह हर 3 महीने ब्याज जुड़ता है। टैक्स से पहले; सिर्फ़ अंदाज़ा।</string>
+    <string name="savings_note_monthly">हर महीने ब्याज जुड़ता है (SIP की तरह)। टैक्स से पहले; सिर्फ़ अंदाज़ा।</string>
+    <string name="calc_clear">सब मिटाएँ</string>
 </resources>

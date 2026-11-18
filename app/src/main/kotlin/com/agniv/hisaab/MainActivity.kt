@@ -7,12 +7,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -79,7 +83,11 @@ class MainActivity : FragmentActivity() {
                     else -> isSystemInDarkTheme()
                 }
             HisaabTheme(darkTheme = dark) {
-                if (lock.locked) LockGate() else AppRoot()
+                // One themed backdrop under every screen: the window colour follows the phone, not the in-app theme
+                // choice, so a screen without its own background showed black text on a dark window.
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    if (lock.locked) LockGate() else AppRoot()
+                }
             }
         }
     }
