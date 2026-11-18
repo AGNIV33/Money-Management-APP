@@ -34,6 +34,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Real phones are ARM. Dropping x86 (emulator-only) native code keeps the release APK small.
+            // Debug builds keep every CPU type so the emulator still works.
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
         }
     }
 
