@@ -58,6 +58,7 @@ import com.agniv.hisaab.core.domain.loan.LoanForm
 import com.agniv.hisaab.core.domain.loan.LoanTerms
 import com.agniv.hisaab.core.domain.loan.PrepayMode
 import com.agniv.hisaab.core.domain.loan.PrepaymentResult
+import com.agniv.hisaab.core.domain.tools.RecentResult
 import java.util.Locale
 
 /** PRD F9c, Prepayment Saver board: effect of a lump sum now, finishing sooner or paying a smaller EMI. */

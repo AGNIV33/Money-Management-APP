@@ -55,6 +55,7 @@ import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.EmiMath
 import com.agniv.hisaab.core.domain.loan.LoanForm
 import com.agniv.hisaab.core.domain.loan.LoanTerms
+import com.agniv.hisaab.core.domain.tools.RecentResult
 
 /** PRD F9b, EMI board: sliders, EMI with donut, year-by-year table, Save and Share. */
 @Composable

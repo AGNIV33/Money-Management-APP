@@ -29,6 +29,7 @@ import com.agniv.hisaab.core.designsystem.component.HDonut
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.LoanForm
+import com.agniv.hisaab.core.domain.tools.RecentResult
 
 /** What a fixed deposit or a monthly saving grows to. An estimate: no tax, no penalty, a fixed rate. */
 @Composable

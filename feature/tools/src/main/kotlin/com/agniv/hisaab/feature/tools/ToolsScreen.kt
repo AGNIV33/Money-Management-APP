@@ -56,6 +56,7 @@ import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.component.SectionHeader
 import com.agniv.hisaab.core.designsystem.theme.Spacing
+import com.agniv.hisaab.core.domain.tools.RecentResult
 import java.util.Locale
 
 internal enum class Tool(
