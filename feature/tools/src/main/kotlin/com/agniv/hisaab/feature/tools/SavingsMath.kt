@@ -1,6 +1,7 @@
 package com.agniv.hisaab.feature.tools
 
 import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.domain.loan.Affordability
 import com.agniv.hisaab.core.domain.loan.LoanTerms
 import java.math.BigDecimal
 import java.math.MathContext

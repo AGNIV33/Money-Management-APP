@@ -102,12 +102,12 @@ private class CalcState(
             when (key) {
                 CLEAR -> ""
                 BACK -> text.value.dropLast(1)
-                EQUALS -> equals()
+                EQUALS -> answer()
                 else -> key.fold(text.value) { acc, c -> CalcEngine.press(acc, c) }
             }
     }
 
-    private fun equals(): String {
+    private fun answer(): String {
         val answer = result ?: return text.value
         if (answer != text.value) {
             history.value =

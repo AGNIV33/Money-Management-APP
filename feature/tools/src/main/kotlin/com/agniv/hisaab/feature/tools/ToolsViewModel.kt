@@ -9,6 +9,8 @@ import com.agniv.hisaab.core.domain.loan.EmiMath
 import com.agniv.hisaab.core.domain.loan.LoanTerms
 import com.agniv.hisaab.core.domain.loan.PrepayMode
 import com.agniv.hisaab.core.domain.repository.SessionRepository
+import com.agniv.hisaab.core.domain.repository.ToolsHistory
+import com.agniv.hisaab.core.domain.tools.RecentResult
 import com.agniv.hisaab.core.domain.usecase.LoanItem
 import com.agniv.hisaab.core.domain.usecase.ObserveLoans
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,7 +50,7 @@ class ToolsViewModel
     constructor(
         sessions: SessionRepository,
         observeLoans: ObserveLoans,
-        private val recentStore: RecentResultsStore,
+        private val recentStore: ToolsHistory,
         dispatchers: DispatcherProvider,
     ) : ViewModel() {
         @OptIn(ExperimentalCoroutinesApi::class)

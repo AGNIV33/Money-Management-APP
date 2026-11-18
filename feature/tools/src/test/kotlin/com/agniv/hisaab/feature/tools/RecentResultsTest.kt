@@ -1,5 +1,7 @@
 package com.agniv.hisaab.feature.tools
 
+import com.agniv.hisaab.core.domain.tools.RecentResult
+import com.agniv.hisaab.core.domain.tools.withNewest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -24,6 +26,6 @@ class RecentResultsTest {
         val out = list.withNewest(again)
         assertThat(out.first()).isEqualTo(again)
         assertThat(out.count { it.a == 3L }).isEqualTo(1)
-        assertThat(list.withNewest(r(10L, 99L))).hasSize(MAX_RECENT)
+        assertThat(list.withNewest(r(10L, 99L))).hasSize(RecentResult.MAX_RECENT)
     }
 }

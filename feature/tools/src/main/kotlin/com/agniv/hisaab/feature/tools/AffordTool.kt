@@ -51,6 +51,7 @@ import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.loan.BurdenLevel
 import com.agniv.hisaab.core.domain.loan.LoanForm
+import com.agniv.hisaab.core.domain.tools.RecentResult
 import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.sin
