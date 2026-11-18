@@ -1,25 +1,58 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.hisaab.android.application)
     alias(libs.plugins.hisaab.android.compose)
     alias(libs.plugins.hisaab.hilt)
     alias(libs.plugins.hilt)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.kotlin.serialization)
 }
+
+// Crash-report address (Sentry DSN) comes from local.properties, never committed. Empty = crash reports off.
+// A DSN only lets the app send reports to our project; it cannot read anything back.
+val sentryDsn: String =
+    Properties()
+        .apply {
+            val file = rootProject.file("local.properties")
+            if (file.exists()) file.inputStream().use { load(it) }
+        }.getProperty("SENTRY_DSN", "")
 
 android {
     namespace = "com.agniv.hisaab"
+    buildFeatures.buildConfig = true
 
     defaultConfig {
         applicationId = "com.agniv.hisaab"
         versionCode = 1
         versionName = "0.0.1"
+        buildConfigField("String", "SENTRY_DSN", "\"$sentryDsn\"")
+    }
+
+    // Release signing reads keystore.properties (git-ignored, never committed).
+    // Without that file the release build is left unsigned.
+    val keystoreFile = rootProject.file("keystore.properties")
+    val releaseSigning = if (keystoreFile.exists()) {
+        val props = Properties().apply { keystoreFile.inputStream().use { load(it) } }
+        signingConfigs.create("release") {
+            storeFile = rootProject.file(props.getProperty("storeFile"))
+            storePassword = props.getProperty("storePassword")
+            keyAlias = props.getProperty("keyAlias")
+            keyPassword = props.getProperty("keyPassword")
+        }
+    } else {
+        null
     }
 
     buildTypes {
         release {
+            signingConfig = releaseSigning
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Real phones are ARM. Dropping x86 (emulator-only) native code keeps the release APK small.
+            // Debug builds keep every CPU type so the emulator still works.
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
         }
     }
 
@@ -32,6 +65,8 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.designsystem)
     implementation(projects.core.data)
+    // Smart alerts run the same on-device insight engine as the Insights sheet.
+    implementation(projects.core.ml)
     implementation(projects.feature.expenses)
     implementation(projects.feature.auth)
     implementation(projects.feature.family)
@@ -40,10 +75,13 @@ dependencies {
     implementation(projects.feature.udhaar)
     implementation(projects.feature.goals)
     implementation(projects.feature.assistant)
+    implementation(projects.feature.insights)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.work.runtime.ktx)
@@ -51,6 +89,7 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     // Installs the baseline/startup profile on phones where Play does not, so first launches are fast too.
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.sentry.android.core)
     baselineProfile(projects.baselineprofile)
 }
 

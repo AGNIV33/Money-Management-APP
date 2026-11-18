@@ -20,8 +20,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -35,6 +37,8 @@ data class ProfileUiState(
     val members: List<Member> = emptyList(),
     val myMemberId: String? = null,
     val email: String? = null,
+    /** Member id → sign-in email. Filled from the server when online; empty otherwise. */
+    val memberEmails: Map<String, String> = emptyMap(),
     val busy: Boolean = false,
     val message: ProfileMessage? = null,
     /** Set when signing out would lose entries that are not uploaded yet. */
@@ -66,6 +70,28 @@ class ProfileViewModel
                         l.copy(family = f, members = m, myMemberId = s.memberId, email = (a as? AuthState.SignedIn)?.email)
                     }
                 }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProfileUiState())
+
+        init {
+            watchEmails(sessions, members)
+        }
+
+        // Ask again when someone joins or leaves, so a new member's email shows up too.
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private fun watchEmails(
+            sessions: SessionRepository,
+            members: MemberRepository,
+        ) {
+            viewModelScope.launch {
+                sessions.session
+                    .filterNotNull()
+                    .flatMapLatest { s -> members.observeMembers(s.familyId).map { m -> s.familyId to m.size } }
+                    .distinctUntilChanged()
+                    .collect { (familyId, _) ->
+                        val emails = account.memberEmails(familyId)
+                        local.update { it.copy(memberEmails = emails) }
+                    }
+            }
+        }
 
         fun rename(name: String) {
             val id = state.value.myMemberId ?: return

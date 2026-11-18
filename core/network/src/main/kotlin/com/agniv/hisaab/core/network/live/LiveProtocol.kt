@@ -38,6 +38,9 @@ internal object LiveProtocol {
                 put("model", model)
                 putJsonObject("generationConfig") { putJsonArray("responseModalities") { add(JsonPrimitive("AUDIO")) } }
                 putJsonObject("sessionResumption") { resumeHandle?.let { put("handle", it) } }
+                // Text of what was said both ways, so the chat can show it. Ignored if the server's setup is locked.
+                putJsonObject("inputAudioTranscription") {}
+                putJsonObject("outputAudioTranscription") {}
                 // Keeps a long conversation going instead of ending when the context fills up.
                 putJsonObject("contextWindowCompression") { putJsonObject("slidingWindow") {} }
             }
@@ -55,6 +58,8 @@ internal object LiveProtocol {
                 }
             }
         }.toString()
+
+    fun textMessage(text: String): String = buildJsonObject { putJsonObject("realtimeInput") { put("text", text) } }.toString()
 
     fun toolAnswersMessage(answers: List<ToolAnswer>): String =
         buildJsonObject {
@@ -106,6 +111,12 @@ internal object LiveProtocol {
             if (!data.isNullOrEmpty()) {
                 runCatching { Base64.getDecoder().decode(data) }.getOrNull()?.let { events += LiveEvent.Audio(it) }
             }
+        }
+        content["inputTranscription"].asObjectOrNull()?.get("text").asStringOrNull()?.takeIf { it.isNotBlank() }?.let {
+            events += LiveEvent.UserText(it)
+        }
+        content["outputTranscription"].asObjectOrNull()?.get("text").asStringOrNull()?.takeIf { it.isNotBlank() }?.let {
+            events += LiveEvent.AssistantText(it)
         }
         if (content["interrupted"].asBoolean()) events += LiveEvent.Interrupted
         if (content["turnComplete"].asBoolean()) events += LiveEvent.TurnComplete

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="goals_tab">लक्ष्य</string>
-    <string name="goals_title">बचत के लक्ष्य</string>
+    <string name="goals_title">लक्ष्य</string>
     <string name="goals_add_fab">लक्ष्य जोड़ें</string>
     <string name="goals_empty">अभी कोई लक्ष्य नहीं। जिसके लिए बचा रहे हैं वह जोड़ें, जैसे फ्रिज, यात्रा या स्कूल की फ़ीस।</string>
     <string name="goals_saved_total">अब तक बचाया</string>
     <string name="goals_of_target">सभी लक्ष्यों के %1$s में से</string>
-    <string name="goals_private">🔒 सिर्फ़ मैं</string>
+    <string name="goals_private">सिर्फ़ मैं</string>
     <string name="goals_percent">%1$d%%</string>
     <string name="goals_saved_of">%2$s में से %1$s</string>
     <string name="goals_reached">लक्ष्य पूरा हुआ!</string>
@@ -37,4 +37,16 @@
     <string name="goals_err_target">लक्ष्य की रकम लिखें</string>
     <string name="goals_err_deadline">ऐसी तारीख चुनें जो बीती न हो</string>
     <string name="goals_err_save">सेव नहीं हुआ। फिर से कोशिश करें।</string>
+    <string name="goals_create">लक्ष्य बनाएँ</string>
+    <string name="goals_empty_title">अभी कोई लक्ष्य नहीं</string>
+    <string name="goals_empty_body">किसी चीज़ के लिए बचत का लक्ष्य बनाएँ, जैसे बाइक, घूमना या नया फ़ोन।</string>
+    <string name="goals_due">तारीख: %1$s</string>
+    <string name="goals_completed">पूरा हुआ</string>
+    <string name="goals_save_month">हर महीने %1$s बचाएँ</string>
+    <string name="goals_add_money">पैसे जोड़ें</string>
+    <string name="goals_details">विवरण</string>
+    <string name="goals_saved_slash">%1$s / %2$s</string>
+    <string name="goals_amount_to_add">जोड़ने की रकम</string>
+    <string name="goals_add">जोड़ें</string>
+    <string name="goals_icon">आइकन</string>
 </resources>

@@ -18,6 +18,19 @@ internal object AmountInput {
             is PadKey.Digit -> appendDigit(text, key.value)
         }
 
+    /**
+     * Typed or pasted text, replayed key by key so it follows exactly the keypad rules (one dot, two paise digits,
+     * no leading zero, at most nine rupee digits). Anything else, like "₹" or commas, is dropped.
+     */
+    fun sanitize(text: String): String =
+        text.fold("") { acc, c ->
+            when {
+                c.isDigit() -> apply(acc, PadKey.Digit(c - '0'))
+                c == '.' -> apply(acc, PadKey.Dot)
+                else -> acc
+            }
+        }
+
     private fun appendDigit(
         text: String,
         digit: Int,

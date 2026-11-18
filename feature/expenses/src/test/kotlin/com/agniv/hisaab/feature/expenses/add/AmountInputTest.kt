@@ -10,6 +10,14 @@ class AmountInputTest {
     private fun d(n: Int) = PadKey.Digit(n)
 
     @Test
+    fun `typed text follows the keypad rules`() {
+        assertThat(AmountInput.sanitize("₹1,250.505")).isEqualTo("1250.50")
+        assertThat(AmountInput.sanitize("007")).isEqualTo("7")
+        assertThat(AmountInput.sanitize("1.2.3")).isEqualTo("1.23")
+        assertThat(AmountInput.sanitize("abc")).isEqualTo("")
+    }
+
+    @Test
     fun `digits build an amount`() {
         assertThat(type(d(2), d(5), d(0))).isEqualTo("250")
     }

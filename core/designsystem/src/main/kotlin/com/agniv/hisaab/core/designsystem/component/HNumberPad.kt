@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,7 +42,7 @@ fun HNumberPad(
                         modifier =
                             Modifier
                                 .weight(1f)
-                                .height(56.dp)
+                                .heightIn(min = 56.dp)
                                 .then(
                                     if (key == PadKey.Backspace) {
                                         Modifier.semantics { contentDescription = backspaceDescription }

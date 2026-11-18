@@ -115,6 +115,8 @@ data class AddGoalUiState(
     val target: String = "",
     val deadline: LocalDate? = null,
     val onlyMe: Boolean = false,
+    /** Picked emoji, or null for the default jar. */
+    val icon: String? = null,
     val error: GoalField? = null,
     val saving: Boolean = false,
 )
@@ -145,6 +147,7 @@ class AddGoalViewModel
                         target = amountText(g.target),
                         deadline = g.deadline,
                         onlyMe = g.visibility == Visibility.PRIVATE,
+                        icon = g.icon,
                     )
                 }
             }
@@ -158,6 +161,9 @@ class AddGoalViewModel
 
         fun setOnlyMe(on: Boolean) = _state.update { it.copy(onlyMe = on) }
 
+        /** Tapping the picked one again goes back to the default jar. */
+        fun setIcon(icon: String) = _state.update { it.copy(icon = icon.takeIf { new -> new != it.icon }) }
+
         fun save() {
             val s = _state.value
             if (s.saving) return
@@ -169,7 +175,7 @@ class AddGoalViewModel
             _state.update { it.copy(saving = true) }
             viewModelScope.launch {
                 val session = sessions.session.filterNotNull().first()
-                val draft = GoalDraft(s.name, target, s.deadline, if (s.onlyMe) Visibility.PRIVATE else Visibility.FAMILY)
+                val draft = GoalDraft(s.name, target, s.deadline, if (s.onlyMe) Visibility.PRIVATE else Visibility.FAMILY, s.icon)
                 saveGoal(session, draft, s.editingId)
                     .onSuccess { saved.send(Unit) }
                     .onFailure { e -> _state.update { it.copy(saving = false, error = e.toField()) } }

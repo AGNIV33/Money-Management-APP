@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spoken by TalkBack after an amount, e.g. "250 rupees 50 paise". -->
+    <string name="ds_spoken_rupees">rupees</string>
+    <string name="ds_spoken_paise">paise</string>
+    <string name="ds_spoken_minus">minus</string>
+    <!-- Progress bars: "80 percent". -->
+    <string name="ds_progress_percent">%1$d percent</string>
+    <string name="ds_back">Back</string>
+    <string name="ds_more">More options</string>
+    <string name="ds_close">Close</string>
+</resources>

@@ -42,4 +42,11 @@ interface FamilyRepository {
         familyId: String,
         budget: Money?,
     ): Result<Unit>
+
+    /** Monthly limit for one category (PRD F6). Null removes it. Admins only, like the family budget. */
+    suspend fun setCategoryLimit(
+        familyId: String,
+        categoryId: String,
+        limit: Money?,
+    ): Result<Unit>
 }

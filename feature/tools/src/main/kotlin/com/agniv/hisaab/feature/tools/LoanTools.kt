@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +32,7 @@ import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
 import com.agniv.hisaab.core.common.money.sum
 import com.agniv.hisaab.core.designsystem.component.DonutSlice
+import com.agniv.hisaab.core.designsystem.component.HCard
 import com.agniv.hisaab.core.designsystem.component.HDonut
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
@@ -126,7 +126,7 @@ internal fun Hint(text: String) {
 
 @Composable
 internal fun ResultCard(content: @Composable () -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
+    HCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.l), verticalArrangement = Arrangement.spacedBy(Spacing.s)) { content() }
     }
 }

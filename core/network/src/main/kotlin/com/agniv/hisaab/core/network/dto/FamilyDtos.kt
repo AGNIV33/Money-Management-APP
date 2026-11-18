@@ -26,6 +26,12 @@ data class MemberDto(
 )
 
 @Serializable
+data class MemberEmailDto(
+    @SerialName("member_id") val memberId: String,
+    val email: String,
+)
+
+@Serializable
 internal data class CreateFamilyParams(
     @SerialName("p_family_id") val familyId: String,
     @SerialName("p_member_id") val memberId: String,

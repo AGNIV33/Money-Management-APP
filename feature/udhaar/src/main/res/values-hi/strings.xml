@@ -11,7 +11,7 @@
     <string name="udhaar_filter_give">मुझे देना है</string>
     <string name="udhaar_dir_get">उन पर बकाया है</string>
     <string name="udhaar_dir_give">मुझ पर बकाया है</string>
-    <string name="udhaar_private">🔒 सिर्फ़ मैं</string>
+    <string name="udhaar_private">सिर्फ़ मैं</string>
     <string name="udhaar_settled">चुकता ✓</string>
     <string name="udhaar_of">%1$s में से</string>
     <string name="udhaar_overdue">%1$d दिन से बकाया</string>
@@ -34,11 +34,10 @@
     <string name="udhaar_delete_text">यह परिवार में सबके लिए हट जाएगी।</string>
     <string name="cancel">रद्द करें</string>
     <string name="ok">ठीक है</string>
-
-    <string name="udhaar_add_title">उधार जोड़ें</string>
+    <string name="udhaar_add_title">उधार एंट्री जोड़ें</string>
     <string name="udhaar_edit_title">उधार बदलें</string>
-    <string name="udhaar_person">व्यक्ति या दुकान</string>
-    <string name="udhaar_amount">रकम (₹)</string>
+    <string name="udhaar_person">व्यक्ति</string>
+    <string name="udhaar_amount">रकम</string>
     <string name="udhaar_date_line">तारीख: %1$s</string>
     <string name="udhaar_due_line">आख़िरी तारीख: %1$s</string>
     <string name="udhaar_no_due">कोई आख़िरी तारीख नहीं</string>
@@ -53,4 +52,27 @@
     <string name="udhaar_err_amount">रकम लिखें</string>
     <string name="udhaar_err_note">नोट बहुत लंबा है</string>
     <string name="udhaar_err_save">सेव नहीं हुआ। फिर से कोशिश करें।</string>
+    <string name="udhaar_add_entry">एंट्री जोड़ें</string>
+    <string name="udhaar_tab_gave">मैंने दिए</string>
+    <string name="udhaar_tab_owe">मुझे देने हैं</string>
+    <string name="udhaar_total_receive">कुल मिलने वाले</string>
+    <string name="udhaar_total_pay">कुल देने वाले</string>
+    <string name="udhaar_empty_title">अभी कोई उधार नहीं</string>
+    <string name="udhaar_empty_body">दोस्तों या परिवार को दिए पैसे यहाँ जोड़ें और उन पर नज़र रखें।</string>
+    <string name="udhaar_settled_on">चुकता • %1$s</string>
+    <string name="udhaar_settle_title">उधार चुकता करें</string>
+    <string name="udhaar_partial_title">कुछ भुगतान लिखें</string>
+    <string name="udhaar_paid_so_far">अब तक चुकाया</string>
+    <string name="udhaar_remaining">बाकी</string>
+    <string name="udhaar_settle_hint">पूरी रकम चुकता करें (%1$s)</string>
+    <string name="udhaar_record_partial">कुछ भुगतान लिखें</string>
+    <string name="udhaar_partial_hint">भुगतान की रकम लिखें</string>
+    <string name="udhaar_continue">आगे बढ़ें</string>
+    <string name="udhaar_pay_amount">भुगतान की रकम</string>
+    <string name="udhaar_close">बंद करें</string>
+    <string name="udhaar_marked_settled">चुकता हो गया</string>
+    <string name="udhaar_marked_settled_body">%1$s के साथ %2$s का उधार अब चुकता हो गया है।</string>
+    <string name="udhaar_done">हो गया</string>
+    <string name="udhaar_type">प्रकार</string>
+    <string name="udhaar_saving">सेव हो रहा है...</string>
 </resources>

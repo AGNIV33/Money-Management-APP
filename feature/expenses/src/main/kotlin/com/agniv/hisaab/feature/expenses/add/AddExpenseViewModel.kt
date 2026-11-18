@@ -19,6 +19,7 @@ import com.agniv.hisaab.core.domain.usecase.AddExpenseExtras
 import com.agniv.hisaab.core.domain.usecase.DeleteExpense
 import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.usecase.ExpenseError
+import com.agniv.hisaab.core.domain.usecase.ObserveGoals
 import com.agniv.hisaab.core.domain.usecase.UpdateExpense
 import com.agniv.hisaab.core.domain.usecase.canDelete
 import com.agniv.hisaab.core.domain.util.TimeProvider
@@ -65,13 +66,27 @@ data class AddExpenseUiState(
     /** Bought on credit: also makes an "I owe" entry in Udhaar. Only for a new expense. */
     val onCredit: Boolean = false,
     val creditFrom: String = "",
+    /** Open goals the viewer can see, offered as "count towards a goal". Only for a new expense. */
+    val goals: List<GoalChoice> = emptyList(),
+    val goalId: String? = null,
 ) {
     val amount: Money? get() = Money.parse(amountText)
 }
 
+@Immutable
+data class GoalChoice(
+    val id: String,
+    val name: String,
+)
+
 sealed interface AddExpenseEvent {
     data class Key(
         val key: PadKey,
+    ) : AddExpenseEvent
+
+    /** Text from the amount field (phone keyboard); cleaned to the same rules as the keypad. */
+    data class EditAmount(
+        val text: String,
     ) : AddExpenseEvent
 
     data class PickCategory(
@@ -109,6 +124,11 @@ sealed interface AddExpenseEvent {
     data class PickRepeat(
         val rule: RecurRule?,
     ) : AddExpenseEvent
+
+    /** Null = not for a goal. */
+    data class PickGoal(
+        val id: String?,
+    ) : AddExpenseEvent
 }
 
 /** Values a screen (voice) already worked out; the sheet opens with them filled in, ready to check. */
@@ -136,6 +156,7 @@ class AddExpenseViewModel
         private val extras: AddExpenseExtras,
         private val time: TimeProvider,
         private val categoryModel: CategoryModelSource,
+        private val observeGoals: ObserveGoals,
     ) : ViewModel() {
         /** Past expenses the category guess learns from; loaded once. */
         private var history: List<Expense> = emptyList()
@@ -165,6 +186,20 @@ class AddExpenseViewModel
         init {
             observeCategories(categories)
             loadHistory()
+            loadGoals()
+        }
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private fun loadGoals() {
+            viewModelScope.launch {
+                sessions.session
+                    .filterNotNull()
+                    .flatMapLatest { observeGoals(it) }
+                    .collect { overview ->
+                        val open = overview.items.filter { !it.reached }.map { GoalChoice(it.goal.id, it.goal.name) }
+                        _state.update { s -> s.copy(goals = open, goalId = s.goalId?.takeIf { id -> open.any { it.id == id } }) }
+                    }
+            }
         }
 
         private fun loadHistory() {
@@ -200,7 +235,7 @@ class AddExpenseViewModel
             val today = time.today()
             userPickedCategory = prefill?.categoryId != null
             _state.update {
-                AddExpenseUiState(categories = it.categories, date = today, today = today, mode = it.mode)
+                AddExpenseUiState(categories = it.categories, goals = it.goals, date = today, today = today, mode = it.mode)
             }
             if (prefill != null) {
                 _state.update {
@@ -242,6 +277,8 @@ class AddExpenseViewModel
             when (event) {
                 is AddExpenseEvent.Key ->
                     _state.update { it.copy(amountText = AmountInput.apply(it.amountText, event.key), error = null) }
+                is AddExpenseEvent.EditAmount ->
+                    _state.update { it.copy(amountText = AmountInput.sanitize(event.text), error = null) }
                 is AddExpenseEvent.PickCategory -> {
                     userPickedCategory = true
                     _state.update { it.copy(categoryId = event.id, categoryAuto = false, error = null) }
@@ -258,6 +295,7 @@ class AddExpenseViewModel
                 is AddExpenseEvent.SetOnCredit -> _state.update { it.copy(onCredit = event.on, error = null) }
                 is AddExpenseEvent.EditCreditFrom -> _state.update { it.copy(creditFrom = event.text, error = null) }
                 is AddExpenseEvent.PickRepeat -> _state.update { it.copy(repeat = event.rule) }
+                is AddExpenseEvent.PickGoal -> _state.update { it.copy(goalId = event.id) }
             }
         }
 
@@ -299,7 +337,13 @@ class AddExpenseViewModel
                         result
                             .onSuccess { expense ->
                                 if (current.editingId == null) {
-                                    extras(session, expense, current.repeat, current.creditFrom.takeIf { current.onCredit })
+                                    extras(
+                                        session,
+                                        expense,
+                                        current.repeat,
+                                        current.creditFrom.takeIf { current.onCredit },
+                                        current.goalId,
+                                    )
                                 }
                                 saved.send(Unit)
                             }.onFailure { e ->

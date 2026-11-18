@@ -1,9 +1,12 @@
 package com.agniv.hisaab.core.domain.usecase
 
 import com.agniv.hisaab.core.common.money.Money
+import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.Goal
 import com.agniv.hisaab.core.domain.model.GoalContribution
+import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Session
+import com.agniv.hisaab.core.domain.model.Source
 import com.agniv.hisaab.core.domain.model.Visibility
 import com.agniv.hisaab.core.domain.repository.GoalRepository
 import com.agniv.hisaab.core.domain.repository.GoalWithContributions
@@ -120,6 +123,35 @@ class GoalUseCasesTest {
         }
 
     @Test
+    fun `an expense counted towards a goal adds to the jar on the expense's date`() =
+        runTest {
+            val g = save(me, draft(rupees = 10_000)).getOrThrow()
+            val extras =
+                AddExpenseExtras(
+                    SaveRecurring(FakeRecurringRepo(emptyList()), IdGenerator { "r${++nextId}" }, time),
+                    SaveUdhaar(FakeUdhaarRepo(), IdGenerator { "x${++nextId}" }, time),
+                    repo,
+                    add,
+                )
+            val yesterday = today.minusDays(1)
+            extras(me, expense(Money.ofRupees(3_000), yesterday), repeat = null, creditFrom = null, goalId = g.id)
+            assertThat(item(g.id).saved).isEqualTo(Money.ofRupees(3_000))
+            assertThat(item(g.id).contributions.single().date).isEqualTo(yesterday)
+
+            // No goal picked, an unknown goal, or a goal deleted meanwhile: nothing is added and nothing breaks.
+            extras(me, expense(Money.ofRupees(500), today), repeat = null, creditFrom = null)
+            extras(me, expense(Money.ofRupees(500), today), repeat = null, creditFrom = null, goalId = "nope")
+            DeleteGoal(repo)(g.id).getOrThrow()
+            extras(me, expense(Money.ofRupees(500), today), repeat = null, creditFrom = null, goalId = g.id)
+            assertThat(repo.contributionCount).isEqualTo(1)
+        }
+
+    private fun expense(
+        amount: Money,
+        date: LocalDate,
+    ) = Expense("e${++nextId}", "f1", "m1", "u1", amount, "c1", date, null, PayMode.UPI, Visibility.FAMILY, Source.MANUAL, null, time.now())
+
+    @Test
     fun `delete hides the goal`() =
         runTest {
             val g = save(me, draft()).getOrThrow()
@@ -128,10 +160,11 @@ class GoalUseCasesTest {
         }
 }
 
-private class FakeGoalRepo : GoalRepository {
+internal class FakeGoalRepo : GoalRepository {
     private val goalsFlow = MutableStateFlow<Map<String, Goal>>(emptyMap())
     private val contributions = MutableStateFlow<Map<String, GoalContribution>>(emptyMap())
     val goals: Map<String, Goal> get() = goalsFlow.value
+    val contributionCount: Int get() = contributions.value.size
 
     override fun observe(
         familyId: String,

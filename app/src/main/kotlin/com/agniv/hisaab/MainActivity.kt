@@ -1,53 +1,47 @@
 package com.agniv.hisaab
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
-import com.agniv.hisaab.feature.assistant.AssistantButton
-import com.agniv.hisaab.feature.assistant.AssistantSheet
+import com.agniv.hisaab.feature.assistant.AssistantScreen
 import com.agniv.hisaab.feature.auth.LoginScreen
 import com.agniv.hisaab.feature.auth.OnboardingScreen
-import com.agniv.hisaab.feature.expenses.home.ExpensesHomeScreen
-import com.agniv.hisaab.feature.family.profile.ProfileButton
-import com.agniv.hisaab.feature.family.profile.ProfileSheet
 import com.agniv.hisaab.feature.family.setup.FamilySetupScreen
-import com.agniv.hisaab.feature.goals.GoalsScreen
-import com.agniv.hisaab.feature.loans.LoansScreen
-import com.agniv.hisaab.feature.tools.ToolsScreen
-import com.agniv.hisaab.feature.udhaar.UdhaarScreen
+import com.agniv.hisaab.lock.ForgotPinScreen
+import com.agniv.hisaab.lock.PinLockScreen
+import com.agniv.hisaab.lock.ResetBySignIn
+import com.agniv.hisaab.lock.SystemLockScreen
+import com.agniv.hisaab.navigation.KinlyNavHost
+import com.agniv.hisaab.navigation.Tab
+import com.agniv.hisaab.navigation.TabContent
+import com.agniv.hisaab.settings.SettingsScreen
 import dagger.hilt.android.AndroidEntryPoint
-import com.agniv.hisaab.feature.goals.R as GoalsR
-import com.agniv.hisaab.feature.loans.R as LoansR
-import com.agniv.hisaab.feature.tools.R as ToolsR
-import com.agniv.hisaab.feature.udhaar.R as UdhaarR
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val settings by lazy { AppSettings(applicationContext) }
     private val lock by lazy { AppLock(this, settings) }
+
+    // Set when a smart alert or report notification is tapped; Home opens the Insights sheet, then clears it.
+    private var openInsights by mutableStateOf(false)
+
+    // Settings → Theme; read here so the whole app switches at once.
+    private var themeMode by mutableStateOf<String?>(null)
 
     override fun onStart() {
         super.onStart()
@@ -69,27 +63,59 @@ class MainActivity : FragmentActivity() {
         installSplashScreen().setKeepOnScreenCondition { viewModel.screen.value == RootScreen.SPLASH }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        RefreshRate.requestHighest(this)
+        openInsights = intent?.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false) == true
+        themeMode = settings.theme
         viewModel.start(
             familyName = getString(R.string.local_family_name),
             memberName = getString(R.string.local_member_name),
             alreadySeenOnboarding = settings.onboardingDone,
         )
         setContent {
-            HisaabTheme {
-                if (lock.locked) {
-                    LockScreen(onUnlock = { lock.authenticate() })
-                } else {
-                    AppRoot()
+            val dark =
+                when (themeMode) {
+                    "light" -> false
+                    "dark" -> true
+                    else -> isSystemInDarkTheme()
                 }
+            HisaabTheme(darkTheme = dark) {
+                if (lock.locked) LockGate() else AppRoot()
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_OPEN_INSIGHTS, false)) openInsights = true
+    }
+
+    /** What shows while the app is locked: the PIN keypad (or the old fingerprint-only prompt), and Forgot PIN. */
+    @Composable
+    private fun LockGate() {
+        if (!lock.usesPin) {
+            SystemLockScreen(onUnlock = { lock.authenticate() })
+            return
+        }
+        var forgot by rememberSaveable { mutableStateOf(false) }
+        var resetting by rememberSaveable { mutableStateOf(false) }
+        if (forgot) {
+            ForgotPinScreen(onBack = { forgot = false }, onSignIn = { resetting = true })
+        } else {
+            PinLockScreen(lock, onForgot = { forgot = true })
+        }
+        if (resetting) {
+            ResetBySignIn(
+                lock = lock,
+                localFamilyName = getString(R.string.local_family_name),
+                localMemberName = getString(R.string.local_member_name),
+                onCancel = { resetting = false },
+            )
         }
     }
 
     @Composable
     private fun AppRoot() {
         val screen by viewModel.screen.collectAsStateWithLifecycle()
-        var showProfile by rememberSaveable { mutableStateOf(false) }
-        var showAssistant by rememberSaveable { mutableStateOf(false) }
         var assistantConsent by remember { mutableStateOf(settings.assistantConsent) }
         var avatar by remember { mutableStateOf(settings.avatar) }
         when (screen) {
@@ -105,111 +131,78 @@ class MainActivity : FragmentActivity() {
                         viewModel.finishOnboarding()
                     },
                 )
-            RootScreen.LOGIN -> LoginScreen()
+            RootScreen.LOGIN ->
+                LoginScreen(
+                    language =
+                        settings.language ?: if (java.util.Locale
+                                .getDefault()
+                                .language == "hi"
+                        ) {
+                            "hi"
+                        } else {
+                            "en"
+                        },
+                    onLanguage = {
+                        settings.language = it
+                        recreate()
+                    },
+                )
             RootScreen.FAMILY_SETUP -> FamilySetupScreen()
-            RootScreen.HOME -> {
-                HomeTabs(avatar = avatar, onProfile = { showProfile = true }, onAssistant = { showAssistant = true })
-                if (showAssistant) {
-                    AssistantSheet(
-                        consentGiven = assistantConsent,
-                        onConsent = {
-                            settings.assistantConsent = true
-                            assistantConsent = true
-                        },
-                        onDismiss = { showAssistant = false },
-                    )
-                }
-                if (showProfile) {
-                    ProfileSheet(
-                        avatar = avatar,
-                        onAvatar = {
-                            settings.avatar = it
-                            avatar = it
-                        },
-                        localFamilyName = getString(R.string.local_family_name),
-                        localMemberName = getString(R.string.local_member_name),
-                        onSignedOut = { showProfile = false },
-                        onAccountDeleted = {
-                            // The phone's own settings tied to this person go too; language stays so the app still reads right.
-                            settings.avatar = null
-                            avatar = null
-                            settings.assistantConsent = false
-                            assistantConsent = false
-                            settings.appLock = false
-                            // Exported files and bill photos waiting in the cache are personal data too.
-                            java.io.File(cacheDir, "exports").deleteRecursively()
-                            java.io.File(cacheDir, "scans").deleteRecursively()
-                            showProfile = false
-                        },
-                        onDismiss = { showProfile = false },
-                        settingsContent = {
-                            SettingsSection(
-                                settings = settings,
-                                lock = lock,
-                                onLanguage = {
-                                    settings.language = it
-                                    recreate()
-                                },
-                            )
-                        },
-                    )
-                }
-            }
+            RootScreen.HOME ->
+                KinlyNavHost(
+                    settings = settings,
+                    lock = lock,
+                    avatar = avatar,
+                    onAvatar = {
+                        settings.avatar = it
+                        avatar = it
+                    },
+                    onLanguage = {
+                        settings.language = it
+                        recreate()
+                    },
+                    onTheme = {
+                        settings.theme = it
+                        themeMode = it
+                    },
+                    onAccountDeleted = {
+                        // The phone's own settings tied to this person go too; language stays so the app still reads right.
+                        settings.avatar = null
+                        avatar = null
+                        settings.assistantConsent = false
+                        assistantConsent = false
+                        lock.disable()
+                        // Exported files and bill photos waiting in the cache are personal data too.
+                        java.io.File(cacheDir, "exports").deleteRecursively()
+                        java.io.File(cacheDir, "scans").deleteRecursively()
+                    },
+                    content =
+                        TabContent(
+                            assistant = {
+                                AssistantScreen(
+                                    consentGiven = assistantConsent,
+                                    onConsent = {
+                                        settings.assistantConsent = true
+                                        assistantConsent = true
+                                    },
+                                    onDismiss = {},
+                                )
+                            },
+                            settings = {
+                                SettingsScreen(
+                                    settings = settings,
+                                    avatar = avatar,
+                                    actions = it,
+                                )
+                            },
+                        ),
+                    openTab = if (openInsights) Tab.INSIGHTS else null,
+                    onTabOpened = { openInsights = false },
+                )
         }
     }
-}
 
-/** Home with the bottom tab bar. Inner screens have their own Scaffolds; this one only adds the bar. */
-@Composable
-private fun HomeTabs(
-    avatar: String?,
-    onProfile: () -> Unit,
-    onAssistant: () -> Unit,
-) {
-    var tab by rememberSaveable { mutableStateOf(HomeTab.HOME) }
-    Scaffold(
-        contentWindowInsets = WindowInsets(0),
-        bottomBar = {
-            NavigationBar {
-                HomeTab.entries.forEach { t ->
-                    NavigationBarItem(
-                        selected = tab == t,
-                        onClick = { tab = t },
-                        icon = { Text(t.emoji) },
-                        label = { Text(stringResource(t.label)) },
-                    )
-                }
-            }
-        },
-    ) { padding ->
-        Box(Modifier.padding(bottom = padding.calculateBottomPadding())) {
-            when (tab) {
-                HomeTab.HOME ->
-                    ExpensesHomeScreen(
-                        title = stringResource(R.string.app_name),
-                        headerAction = {
-                            Row {
-                                AssistantButton(onClick = onAssistant)
-                                ProfileButton(avatar = avatar, onClick = onProfile)
-                            }
-                        },
-                    )
-                HomeTab.LOANS -> LoansScreen()
-                HomeTab.UDHAAR -> UdhaarScreen()
-                HomeTab.GOALS -> GoalsScreen()
-                HomeTab.TOOLS -> ToolsScreen()
-            }
-        }
+    companion object {
+        const val EXTRA_OPEN_INSIGHTS = "open_insights"
     }
-}
-
-private enum class HomeTab(
-    val emoji: String,
-    val label: Int,
-) {
-    HOME("🏠", R.string.tab_home),
-    LOANS("🏦", LoansR.string.loans_tab),
-    UDHAAR("🤝", UdhaarR.string.udhaar_tab),
-    GOALS("🎯", GoalsR.string.goals_tab),
-    TOOLS("🧮", ToolsR.string.tools_tab),
 }

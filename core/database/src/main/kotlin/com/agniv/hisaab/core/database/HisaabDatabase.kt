@@ -40,7 +40,7 @@ import com.agniv.hisaab.core.database.entity.UdhaarPaymentEntity
         GoalEntity::class,
         GoalContributionEntity::class,
     ],
-    version = 5,
+    version = 7,
     exportSchema = true,
     // v2 only adds the loan tables, so Room can migrate on its own (no data loss on update).
     autoMigrations = [
@@ -48,6 +48,10 @@ import com.agniv.hisaab.core.database.entity.UdhaarPaymentEntity
             from = 1,
             to = 2,
         ), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
+        // v6 adds families.category_limits with a default, so old rows read as "no limits".
+        AutoMigration(from = 5, to = 6),
+        // v7 adds goals.icon (nullable), so old goals keep the default jar.
+        AutoMigration(from = 6, to = 7),
     ],
 )
 abstract class HisaabDatabase : RoomDatabase() {

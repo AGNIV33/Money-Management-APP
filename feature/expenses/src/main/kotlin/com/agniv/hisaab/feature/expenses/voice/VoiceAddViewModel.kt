@@ -3,6 +3,7 @@ package com.agniv.hisaab.feature.expenses.voice
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.PayMode
 import com.agniv.hisaab.core.domain.model.Source
@@ -13,6 +14,7 @@ import com.agniv.hisaab.core.domain.usecase.ExpenseDraft
 import com.agniv.hisaab.core.domain.util.TimeProvider
 import com.agniv.hisaab.core.ml.voice.VoiceExpense
 import com.agniv.hisaab.core.ml.voice.VoiceParser
+import com.agniv.hisaab.feature.expenses.add.AmountInput
 import com.agniv.hisaab.feature.expenses.add.ExpensePrefill
 import com.agniv.hisaab.feature.expenses.add.toInputText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 enum class VoiceLanguage(
@@ -51,8 +54,13 @@ data class VoiceUiState(
     val saving: Boolean = false,
     /** Where the values came from; stored on the expense. */
     val source: Source = Source.VOICE,
+    /** Editable copies of what was understood (board: amount, note / shop name and date can be fixed before saving). */
+    val amountText: String = "",
+    val noteText: String = "",
+    val date: LocalDate? = null,
 ) {
-    val canSave: Boolean get() = result?.amount != null && categoryId != null
+    val amount: Money? get() = Money.parse(amountText)
+    val canSave: Boolean get() = result != null && amount != null && categoryId != null
 }
 
 // Small one-line state setters for the sheet (voice and bill scan share them).
@@ -116,6 +124,9 @@ class VoiceAddViewModel
                     source = source,
                     result = parsed,
                     categoryId = category?.id,
+                    amountText = parsed.amount?.toInputText().orEmpty(),
+                    noteText = parsed.note.orEmpty(),
+                    date = parsed.date,
                     message = if (parsed.amount == null) VoiceMessage.NO_AMOUNT else null,
                 )
             }
@@ -123,18 +134,24 @@ class VoiceAddViewModel
 
         fun pickCategory(id: String) = _state.update { it.copy(categoryId = id) }
 
+        fun editAmount(text: String) = _state.update { it.copy(amountText = AmountInput.sanitize(text), message = null) }
+
+        fun editNote(text: String) = _state.update { it.copy(noteText = text) }
+
+        fun pickDate(date: LocalDate) = _state.update { it.copy(date = date) }
+
         fun reset() = _state.update { VoiceUiState(language = it.language, categories = it.categories) }
 
         fun prefill(): ExpensePrefill? {
             val s = _state.value
             val r = s.result ?: return null
-            return ExpensePrefill(r.amount?.toInputText().orEmpty(), s.categoryId, r.date, r.note.orEmpty(), r.mode)
+            return ExpensePrefill(s.amountText, s.categoryId, s.date ?: r.date, s.noteText, r.mode)
         }
 
         fun save() {
             val s = _state.value
             val r = s.result
-            val amount = r?.amount
+            val amount = s.amount
             val categoryId = s.categoryId
             if (s.saving) return
             if (r == null || amount == null || categoryId == null) return
@@ -145,8 +162,8 @@ class VoiceAddViewModel
                     ExpenseDraft(
                         amount = amount,
                         categoryId = categoryId,
-                        date = r.date,
-                        note = r.note,
+                        date = s.date ?: r.date,
+                        note = s.noteText.trim().ifEmpty { null },
                         mode = r.mode ?: PayMode.UPI,
                         source = s.source,
                     )

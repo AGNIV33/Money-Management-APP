@@ -12,7 +12,10 @@ import com.agniv.hisaab.core.data.repository.OfflineFirstRecurringRepository
 import com.agniv.hisaab.core.data.repository.OfflineFirstUdhaarRepository
 import com.agniv.hisaab.core.data.session.LocalSessionRepository
 import com.agniv.hisaab.core.data.sync.BudgetChange
+import com.agniv.hisaab.core.data.sync.CategoryLimitsChange
+import com.agniv.hisaab.core.data.sync.CategoryLimitsCodec
 import com.agniv.hisaab.core.data.sync.SyncRequester
+import com.agniv.hisaab.core.data.sync.TABLE_CATEGORY_LIMITS
 import com.agniv.hisaab.core.data.sync.TABLE_FAMILY_BUDGET
 import com.agniv.hisaab.core.database.HisaabDatabase
 import com.agniv.hisaab.core.database.entity.FamilyEntity
@@ -41,6 +44,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.time.YearMonth
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,6 +52,7 @@ import javax.inject.Singleton
  * Turns the phone-only family (made before login) into a real Supabase family.
  * Whatever path is taken, expenses already saved on the phone are kept and re-queued for upload.
  */
+@Suppress("TooManyFunctions") // one function per FamilyRepository operation plus the linking helpers they share
 @Singleton
 class LinkingFamilyRepository
     @Inject
@@ -63,7 +68,15 @@ class LinkingFamilyRepository
 
         override fun observeFamily(familyId: String): Flow<Family?> =
             db.familyDao().observe(familyId).map { e ->
-                e?.let { Family(it.id, it.name, it.inviteCode, it.monthlyBudgetPaise?.let(::Money)) }
+                e?.let {
+                    Family(
+                        it.id,
+                        it.name,
+                        it.inviteCode,
+                        it.monthlyBudgetPaise?.let(::Money),
+                        CategoryLimitsCodec.decode(it.categoryLimits).mapValues { (_, paise) -> Money(paise) },
+                    )
+                }
             }
 
         override suspend fun linkExistingFamily(): Result<Boolean> =
@@ -122,6 +135,40 @@ class LinkingFamilyRepository
                 }.onSuccess { sync.requestSync() }
             }
 
+        override suspend fun setCategoryLimit(
+            familyId: String,
+            categoryId: String,
+            limit: Money?,
+        ): Result<Unit> =
+            withContext(dispatchers.io) {
+                resultOf {
+                    db.withTransaction {
+                        val family = db.familyDao().get(familyId) ?: throw FamilyError.NotSignedIn
+                        val limits = CategoryLimitsCodec.decode(family.categoryLimits).toMutableMap()
+                        if (limit == null || limit.paise <= 0) limits.remove(categoryId) else limits[categoryId] = limit.paise
+                        val now = time.now().toEpochMilli()
+                        db.familyDao().upsert(family.copy(categoryLimits = CategoryLimitsCodec.encode(limits), updatedAt = now))
+                        // The whole set goes up as this month's budgets row; it applies from now until changed again.
+                        val change =
+                            CategoryLimitsChange(
+                                familyId,
+                                YearMonth.from(time.today()).atDay(1).toString(),
+                                family.monthlyBudgetPaise ?: 0,
+                                limits,
+                            )
+                        db.syncQueueDao().insert(
+                            SyncQueueEntity(
+                                tableName = TABLE_CATEGORY_LIMITS,
+                                rowId = familyId,
+                                op = OfflineFirstExpenseRepository.OP_UPSERT,
+                                payloadJson = json.encodeToString(CategoryLimitsChange.serializer(), change),
+                                createdAt = now,
+                            ),
+                        )
+                    }
+                }.onSuccess { sync.requestSync() }
+            }
+
         /** Stores the server family + members locally, moves local expenses into it, and switches the session. */
         private suspend fun adopt(
             family: FamilyDto,
@@ -132,7 +179,16 @@ class LinkingFamilyRepository
             val now = time.now().toEpochMilli()
             db.withTransaction {
                 db.familyDao().upsert(
-                    FamilyEntity(family.id, family.name, family.inviteCode, family.monthlyBudgetPaise, now, family.deleted),
+                    FamilyEntity(
+                        family.id,
+                        family.name,
+                        family.inviteCode,
+                        family.monthlyBudgetPaise,
+                        now,
+                        family.deleted,
+                        // Keep limits already on the phone for this family; the next sync brings the server's.
+                        db.familyDao().get(family.id)?.categoryLimits ?: "{}",
+                    ),
                 )
                 db.memberDao().upsertAll(
                     (members + me).distinctBy { it.id }.map {

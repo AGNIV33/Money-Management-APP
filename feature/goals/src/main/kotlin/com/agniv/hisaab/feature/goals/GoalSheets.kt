@@ -1,18 +1,28 @@
 package com.agniv.hisaab.feature.goals
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,14 +44,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agniv.hisaab.core.common.money.Money
 import com.agniv.hisaab.core.common.money.formatted
+import com.agniv.hisaab.core.designsystem.component.HButton
+import com.agniv.hisaab.core.designsystem.component.HOutlinedButton
+import com.agniv.hisaab.core.designsystem.component.KinlyTextField
+import com.agniv.hisaab.core.designsystem.component.SavingsJar
 import com.agniv.hisaab.core.designsystem.theme.HisaabTheme
 import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.core.domain.usecase.GoalItem
@@ -117,7 +134,7 @@ internal fun GoalDetailSheet(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
             )
-            Button(
+            HButton(
                 onClick = {
                     amount?.let { onEvent(GoalsEvent.Add(g.id, it)) }
                     addText = ""
@@ -126,7 +143,7 @@ internal fun GoalDetailSheet(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .heightIn(min = 52.dp),
             ) { Text(stringResource(R.string.goals_add_savings)) }
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 TextButton(onClick = onEdit) { Text(stringResource(R.string.goals_edit)) }
@@ -162,11 +179,17 @@ internal fun AddGoalSheet(
     onDismiss: () -> Unit,
     editId: String?,
     instanceKey: String,
+    onSaved: () -> Unit = {},
     viewModel: AddGoalViewModel = hiltViewModel(key = "add-goal-$instanceKey"),
 ) {
     LaunchedEffect(editId) { viewModel.start(editId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(viewModel) { viewModel.savedEvents.collect { onDismiss() } }
+    LaunchedEffect(viewModel) {
+        viewModel.savedEvents.collect {
+            onSaved()
+            onDismiss()
+        }
+    }
     var pickDate by remember { mutableStateOf(false) }
     val locale = LocalConfiguration.current.locales[0]
 
@@ -192,6 +215,7 @@ internal fun AddGoalSheet(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
+            GoalIconPicker(selected = state.icon, onPick = viewModel::setIcon)
             OutlinedTextField(
                 value = state.target,
                 onValueChange = viewModel::setTarget,
@@ -230,13 +254,13 @@ internal fun AddGoalSheet(
                 Switch(checked = state.onlyMe, onCheckedChange = viewModel::setOnlyMe)
             }
             ErrorLine(state.error)
-            Button(
+            HButton(
                 onClick = viewModel::save,
                 enabled = !state.saving,
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .heightIn(min = 56.dp),
             ) { Text(stringResource(R.string.goals_save)) }
         }
     }
@@ -278,3 +302,90 @@ private fun GoalDateDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     ) { DatePicker(state = picker) }
 }
+
+/** Board "Add Money": the goal with its jar, the amount to add, Cancel / Add. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AddMoneySheet(
+    item: GoalItem,
+    onAdd: (Money) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    val amount = Money.parse(text)?.takeIf { it.paise > 0 }
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.screen)
+                .navigationBarsPadding()
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(Spacing.l),
+        ) {
+            Text(stringResource(R.string.goals_add_money), style = MaterialTheme.typography.titleLarge)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(HisaabTheme.extendedColors.goldContainer, RoundedCornerShape(14.dp))
+                    .padding(Spacing.m),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+            ) {
+                SavingsJar(item.fraction, size = 44.dp)
+                Column {
+                    Text(item.goal.name, style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        stringResource(R.string.goals_saved_slash, item.saved.formatted(), item.goal.target.formatted()),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            KinlyTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = stringResource(R.string.goals_amount_to_add),
+                leadingIcon = Icons.Filled.CurrencyRupee,
+                keyboardType = KeyboardType.Decimal,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
+                HOutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.cancel)) }
+                HButton(onClick = { amount?.let(onAdd) }, enabled = amount != null, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.goals_add))
+                }
+            }
+        }
+    }
+}
+
+/** One row of emoji to pick from; tapping the picked one again clears it. */
+@Composable
+private fun GoalIconPicker(
+    selected: String?,
+    onPick: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+        Text(stringResource(R.string.goals_icon), style = MaterialTheme.typography.labelLarge)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            items(GOAL_ICONS, key = { it }) { icon ->
+                val picked = icon == selected
+                Box(
+                    Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (picked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                        ).border(
+                            width = if (picked) 2.dp else 0.dp,
+                            color = if (picked) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            shape = CircleShape,
+                        ).selectable(selected = picked, role = Role.RadioButton, onClick = { onPick(icon) }),
+                    contentAlignment = Alignment.Center,
+                ) { Text(icon, style = MaterialTheme.typography.titleLarge) }
+            }
+        }
+    }
+}
+
+/** Common Indian family savings goals. */
+internal val GOAL_ICONS =
+    listOf("🎯", "🏠", "🚗", "🏍️", "✈️", "🏖️", "🎓", "💍", "👶", "📱", "💻", "📺", "🛋️", "🩺", "🪔", "🎁", "🐷", "💰")
