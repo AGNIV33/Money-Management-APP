@@ -32,17 +32,18 @@ android {
     // Release signing reads keystore.properties (git-ignored, never committed).
     // Without that file the release build is left unsigned.
     val keystoreFile = rootProject.file("keystore.properties")
-    val releaseSigning = if (keystoreFile.exists()) {
-        val props = Properties().apply { keystoreFile.inputStream().use { load(it) } }
-        signingConfigs.create("release") {
-            storeFile = rootProject.file(props.getProperty("storeFile"))
-            storePassword = props.getProperty("storePassword")
-            keyAlias = props.getProperty("keyAlias")
-            keyPassword = props.getProperty("keyPassword")
+    val releaseSigning =
+        if (keystoreFile.exists()) {
+            val props = Properties().apply { keystoreFile.inputStream().use { load(it) } }
+            signingConfigs.create("release") {
+                storeFile = rootProject.file(props.getProperty("storeFile"))
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
+        } else {
+            null
         }
-    } else {
-        null
-    }
 
     buildTypes {
         release {
