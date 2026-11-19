@@ -124,4 +124,19 @@
     <string name="settings_about_text">Version %1$s. Made for Indian families to manage money together.</string>
     <string name="settings_privacy">Privacy</string>
     <string name="settings_close">Close</string>
+    <string name="update_title">App updates</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_new_version">New: v%1$s</string>
+    <string name="update_downloading_short">Downloading…</string>
+    <string name="update_latest">You have the latest version (v%1$s).</string>
+    <string name="update_failed">Could not check for updates. Check your internet and try again.</string>
+    <string name="update_try_again">Try again</string>
+    <string name="update_available">Version %1$s is available</string>
+    <string name="update_explain">You have v%1$s. The update installs over it and keeps all your data.</string>
+    <string name="update_now">Update now</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Downloading the update…</string>
+    <string name="update_permission_title">Allow Kinly to install updates</string>
+    <string name="update_permission_text">Android needs your OK once. On the next screen, turn on "Allow from this source", then come back to Kinly.</string>
+    <string name="update_permission_open">Open settings</string>
 </resources>

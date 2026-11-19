@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.agniv.hisaab.AppSettings
 import com.agniv.hisaab.BuildConfig
 import com.agniv.hisaab.CrashReporting
@@ -60,6 +62,9 @@ import com.agniv.hisaab.core.designsystem.theme.Spacing
 import com.agniv.hisaab.feature.family.profile.AvatarCircle
 import com.agniv.hisaab.feature.family.profile.ExportDataDialog
 import com.agniv.hisaab.feature.family.profile.ProfileViewModel
+import com.agniv.hisaab.update.UpdateHost
+import com.agniv.hisaab.update.UpdateViewModel
+import com.agniv.hisaab.update.updateRowValue
 import com.agniv.hisaab.feature.family.R as FamilyR
 
 /** Where Settings rows lead; the nav host fills these in. */
@@ -83,8 +88,11 @@ fun SettingsScreen(
     avatar: String?,
     actions: SettingsActions,
     profile: ProfileViewModel = hiltViewModel(key = "settings"),
+    updates: UpdateViewModel = viewModel(),
 ) {
     val state by profile.state.collectAsStateWithLifecycle()
+    val update by updates.state.collectAsStateWithLifecycle()
+    var showUpdate by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current.applicationContext
     var crashOn by remember { mutableStateOf(settings.crashReports) }
     var picker by rememberSaveable { mutableStateOf<Picker?>(null) }
@@ -184,6 +192,11 @@ fun SettingsScreen(
                 Divider()
                 LinkRow(Icons.Outlined.FileUpload, stringResource(R.string.settings_export)) { showExport = true }
                 Divider()
+                LinkRow(Icons.Outlined.SystemUpdate, stringResource(R.string.update_title), value = updateRowValue(update)) {
+                    updates.onRowTap()
+                    showUpdate = true
+                }
+                Divider()
                 LinkRow(Icons.Outlined.Info, stringResource(R.string.settings_about)) { picker = Picker.ABOUT }
                 Divider()
                 LinkRow(Icons.Outlined.Shield, stringResource(R.string.settings_privacy), onClick = actions.onPrivacy)
@@ -226,6 +239,7 @@ fun SettingsScreen(
         null -> Unit
     }
     if (showExport) ExportDataDialog(onDismiss = { showExport = false })
+    UpdateHost(updates, visible = showUpdate, onClose = { showUpdate = false })
 }
 
 private enum class Picker { LANGUAGE, THEME, ABOUT }

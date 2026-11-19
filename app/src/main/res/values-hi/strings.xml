@@ -123,4 +123,19 @@
     <string name="settings_about_text">वर्शन %1$s। भारतीय परिवारों के लिए, मिलकर पैसा संभालने को।</string>
     <string name="settings_privacy">प्राइवेसी</string>
     <string name="settings_close">बंद करें</string>
+    <string name="update_title">ऐप अपडेट</string>
+    <string name="update_checking">जाँच रहे हैं…</string>
+    <string name="update_new_version">नया: v%1$s</string>
+    <string name="update_downloading_short">डाउनलोड हो रहा है…</string>
+    <string name="update_latest">आपके पास सबसे नया वर्शन है (v%1$s)।</string>
+    <string name="update_failed">अपडेट की जाँच नहीं हो पाई। इंटरनेट देखें और फिर से कोशिश करें।</string>
+    <string name="update_try_again">फिर से कोशिश करें</string>
+    <string name="update_available">वर्शन %1$s उपलब्ध है</string>
+    <string name="update_explain">आपके पास v%1$s है। अपडेट इसी के ऊपर इंस्टॉल होगा और आपका सारा डेटा बना रहेगा।</string>
+    <string name="update_now">अभी अपडेट करें</string>
+    <string name="update_later">बाद में</string>
+    <string name="update_downloading">अपडेट डाउनलोड हो रहा है…</string>
+    <string name="update_permission_title">Kinly को अपडेट इंस्टॉल करने दें</string>
+    <string name="update_permission_text">Android को एक बार आपकी मंज़ूरी चाहिए। अगली स्क्रीन पर "इस सोर्स से अनुमति दें" चालू करें, फिर Kinly पर वापस आएँ।</string>
+    <string name="update_permission_open">सेटिंग्स खोलें</string>
 </resources>
