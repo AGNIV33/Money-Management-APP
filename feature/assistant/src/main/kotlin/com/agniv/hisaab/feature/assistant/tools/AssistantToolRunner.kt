@@ -65,6 +65,7 @@ class AssistantToolRunner
         ): JsonObject {
             val session = sessions.session.filterNotNull().first()
             val today = time.today()
+            val family = families.observeFamily(session.familyId).first()
             val ctx =
                 ToolContext(
                     familyId = session.familyId,
@@ -78,7 +79,8 @@ class AssistantToolRunner
                                 today,
                             ).first(),
                     categories = categories.observeCategories(session.familyId).first(),
-                    budget = families.observeFamily(session.familyId).first()?.monthlyBudget,
+                    budget = family?.monthlyBudget,
+                    categoryLimits = family?.categoryLimits.orEmpty(),
                     loans = observeLoans(session).first(),
                     udhaar = observeUdhaar(session).first(),
                     goals = observeGoals(session).first(),

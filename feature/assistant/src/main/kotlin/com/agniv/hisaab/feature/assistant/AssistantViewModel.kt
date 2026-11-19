@@ -275,7 +275,8 @@ class AssistantViewModel
                 LiveEvent.Ready -> onReady()
                 is LiveEvent.Audio -> {
                     heardAudioThisTurn = true
-                    player.enqueue(event.pcm)
+                    // Typed chat stays silent (the answer shows as text); the voice plays only in live talk.
+                    if (withMic) player.enqueue(event.pcm)
                 }
                 is LiveEvent.UserText -> appendText(fromUser = true, piece = event.text)
                 is LiveEvent.AssistantText -> appendText(fromUser = false, piece = event.text)

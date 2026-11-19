@@ -7,9 +7,11 @@ import com.agniv.hisaab.core.domain.loan.LoanTerms
 import com.agniv.hisaab.core.domain.model.Category
 import com.agniv.hisaab.core.domain.model.Expense
 import com.agniv.hisaab.core.domain.model.UdhaarDirection
+import com.agniv.hisaab.core.domain.usecase.BudgetLevel
 import com.agniv.hisaab.core.domain.usecase.GoalsOverview
 import com.agniv.hisaab.core.domain.usecase.LoansOverview
 import com.agniv.hisaab.core.domain.usecase.UdhaarOverview
+import com.agniv.hisaab.core.domain.usecase.categoryBudgets
 import com.agniv.hisaab.core.ml.insight.Insight
 import com.agniv.hisaab.core.ml.insight.InsightEngine
 import com.agniv.hisaab.core.ml.insight.InsightInput
@@ -40,6 +42,8 @@ data class ToolContext(
     val loans: LoansOverview,
     val udhaar: UdhaarOverview,
     val goals: GoalsOverview,
+    /** Monthly limit per category id (only categories that have one). */
+    val categoryLimits: Map<String, Money> = emptyMap(),
 )
 
 /**
@@ -58,7 +62,9 @@ object AssistantToolbox {
     const val AFFORDABILITY = "affordability"
     const val WEB_PRICE_LOOKUP = "web_price_lookup"
 
-    private const val TOP_CATEGORIES = 5
+    private const val MAX_CATEGORIES = 12
+    private const val RECENT_EXPENSES = 8
+    private const val OTHERS = "Others"
     private const val PAST_MONTHS = 3L
     private const val PERCENT = 100
     private const val DEFAULT_RATE_PERCENT = 12.0
@@ -109,6 +115,7 @@ object AssistantToolbox {
             put("spentThisMonthRupees", rupees(spent))
             put("spentLastMonthRupees", rupees(Money(request.previousTotalPaise)))
             put("daysLeftInMonth", ChronoUnit.DAYS.between(ctx.today, month.atEndOfMonth()))
+            put("familyBudgetSet", ctx.budget != null)
             ctx.budget?.let {
                 put("budgetRupees", rupees(it))
                 put("budgetLeftRupees", rupees(Money(maxOf(0L, (it - spent).paise))))
@@ -120,18 +127,70 @@ object AssistantToolbox {
                 "topCategories",
                 buildJsonArray {
                     request.categories
-                        .filter { it.thisPaise > 0 }
-                        .take(TOP_CATEGORIES)
+                        .filter { it.thisPaise > 0 || it.lastPaise > 0 }
+                        .take(MAX_CATEGORIES)
                         .forEach { c ->
                             add(
                                 buildJsonObject {
                                     put("name", c.name)
                                     put("rupees", rupees(Money(c.thisPaise)))
+                                    put("lastMonthRupees", rupees(Money(c.lastPaise)))
                                 },
                             )
                         }
                 },
             )
+            put("categoryBudgets", categoryLimitsJson(ctx, month))
+            put("recentExpenses", recentExpenses(ctx))
+        }
+    }
+
+    /** Each category limit with what is spent and left this month. A category the family typed shows as Others. */
+    private fun categoryLimitsJson(
+        ctx: ToolContext,
+        month: YearMonth,
+    ): JsonArray {
+        val nameOf = ctx.categories.associate { it.id to if (it.isDefault) it.name else OTHERS }
+        val spentBy =
+            ctx.expenses
+                .filter { !it.deleted && YearMonth.from(it.date) == month }
+                .groupBy { it.categoryId }
+                .mapValues { (_, v) -> v.map { it.amount }.sum() }
+        return buildJsonArray {
+            categoryBudgets(ctx.categoryLimits, spentBy).forEach { b ->
+                add(
+                    buildJsonObject {
+                        put("category", nameOf[b.categoryId] ?: OTHERS)
+                        put("limitRupees", rupees(b.limit))
+                        put("spentRupees", rupees(b.spent))
+                        put("leftRupees", rupees(Money(maxOf(0L, (b.limit - b.spent).paise))))
+                        put("overLimit", b.level == BudgetLevel.OVER)
+                    },
+                )
+            }
+        }
+    }
+
+    /**
+     * The latest entries as date, built-in category and amount only. The note, who paid and how are left out,
+     * and a category the family typed is shown as Others, so nothing personal goes with it.
+     */
+    private fun recentExpenses(ctx: ToolContext): JsonArray {
+        val nameOf = ctx.categories.associate { it.id to if (it.isDefault) it.name else OTHERS }
+        return buildJsonArray {
+            ctx.expenses
+                .filter { !it.deleted && !it.date.isAfter(ctx.today) }
+                .sortedByDescending { it.date }
+                .take(RECENT_EXPENSES)
+                .forEach { e ->
+                    add(
+                        buildJsonObject {
+                            put("date", e.date.toString())
+                            put("category", nameOf[e.categoryId] ?: OTHERS)
+                            put("rupees", rupees(e.amount))
+                        },
+                    )
+                }
         }
     }
 
@@ -311,7 +370,9 @@ object AssistantToolbox {
             is JsonPrimitive -> !answer.isString || isSafeText(answer.content)
         }
 
-    private val plainText = Regex("^[A-Za-z0-9 _:.\\-]{0,$LONGEST_SAFE_TEXT}$")
+    // "/" and "&" are needed by built-in names such as "Gas/LPG" and "Mobile/Internet". Without them the whole
+    // finance answer was refused, and the assistant told people it could not see their money.
+    private val plainText = Regex("^[A-Za-z0-9 _:.&/\\-]{0,$LONGEST_SAFE_TEXT}$")
     private val longDigits = Regex("\\d{9,}")
 
     private fun isSafeText(text: String): Boolean = plainText.matches(text) && !longDigits.containsMatchIn(text)

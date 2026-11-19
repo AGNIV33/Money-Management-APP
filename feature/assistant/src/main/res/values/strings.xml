@@ -14,7 +14,7 @@
 
     <string name="assistant_consent_title">Before you talk to Kinly</string>
     <string name="assistant_consent_voice">When you talk or type, your words are sent live to Google\'s Gemini, which answers back.</string>
-    <string name="assistant_consent_totals">When you ask about your money, only totals are shared, like \"spent this month\". Never names, notes, phone numbers or account numbers.</string>
+    <string name="assistant_consent_totals">When you ask about your money, only a short summary is shared: totals, category amounts and your latest entries as date, category and amount. Never names, notes, phone numbers or account numbers.</string>
     <string name="assistant_consent_nosave">Kinly does not save what you say or hear.</string>
     <string name="assistant_consent_free">This uses Google\'s free service, so Google may use these conversations to improve its products.</string>
     <string name="assistant_consent_never">Never say passwords, OTPs or card numbers.</string>

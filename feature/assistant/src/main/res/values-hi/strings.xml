@@ -14,7 +14,7 @@
 
     <string name="assistant_consent_title">Kinly से बात करने से पहले</string>
     <string name="assistant_consent_voice">जब आप बोलते या लिखते हैं, आपके शब्द सीधे Google के Gemini को जाते हैं, जो जवाब देता है।</string>
-    <string name="assistant_consent_totals">जब आप अपने पैसों के बारे में पूछते हैं, तो सिर्फ़ कुल रकम भेजी जाती है, जैसे \"इस महीने का खर्च\"। नाम, नोट, फ़ोन नंबर या खाता नंबर कभी नहीं।</string>
+    <string name="assistant_consent_totals">जब आप अपने पैसों के बारे में पूछते हैं, तो सिर्फ़ छोटा सारांश भेजा जाता है: कुल रकम, कैटेगरी के हिसाब से खर्च और हाल की एंट्री (तारीख, कैटेगरी, रकम)। नाम, नोट, फ़ोन नंबर या खाता नंबर कभी नहीं।</string>
     <string name="assistant_consent_nosave">आप जो बोलते या सुनते हैं, Kinly उसे सेव नहीं करता।</string>
     <string name="assistant_consent_free">यह Google की मुफ़्त सेवा है, इसलिए Google इन बातचीतों का उपयोग अपने प्रोडक्ट सुधारने में कर सकता है।</string>
     <string name="assistant_consent_never">पासवर्ड, OTP या कार्ड नंबर कभी न बोलें।</string>
