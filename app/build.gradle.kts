@@ -91,6 +91,8 @@ dependencies {
     // Installs the baseline/startup profile on phones where Play does not, so first launches are fast too.
     implementation(libs.androidx.profileinstaller)
     implementation(libs.sentry.android.core)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.serialization.json)
     baselineProfile(projects.baselineprofile)
 }
 

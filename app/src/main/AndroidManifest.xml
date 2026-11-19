@@ -9,6 +9,9 @@
     <!-- Asked only on Bill Scan, for the live camera view. Pictures stay on the phone. If refused, the phone's camera app is used. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- In-app update (Settings > App updates): hands a downloaded Kinly APK to Android's installer.
+         Android still asks the user to allow it, and only installs it if it is signed with Kinly's key. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- Android 11+: lets the app see the phone's speech recognition service. -->
     <queries>

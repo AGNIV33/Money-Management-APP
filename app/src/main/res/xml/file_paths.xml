@@ -4,4 +4,6 @@
     <cache-path name="scans" path="scans/" />
     <!-- Expense exports (CSV/PDF), shared through the share sheet only when the user asks. -->
     <cache-path name="exports" path="exports/" />
+    <!-- A downloaded Kinly update, handed to Android's installer only. -->
+    <cache-path name="updates" path="updates/" />
 </paths>
