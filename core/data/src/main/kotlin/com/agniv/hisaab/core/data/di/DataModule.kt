@@ -20,6 +20,7 @@ import com.agniv.hisaab.core.data.sync.DataStoreSyncState
 import com.agniv.hisaab.core.data.sync.SyncRequester
 import com.agniv.hisaab.core.data.sync.SyncScheduler
 import com.agniv.hisaab.core.data.sync.SyncStateStore
+import com.agniv.hisaab.core.data.tools.DataStoreToolsHistory
 import com.agniv.hisaab.core.domain.assistant.AssistantRepository
 import com.agniv.hisaab.core.domain.loan.LoanExtractRepository
 import com.agniv.hisaab.core.domain.repository.AccountRepository
@@ -35,6 +36,7 @@ import com.agniv.hisaab.core.domain.repository.LoanRepository
 import com.agniv.hisaab.core.domain.repository.MemberRepository
 import com.agniv.hisaab.core.domain.repository.RecurringRepository
 import com.agniv.hisaab.core.domain.repository.SessionRepository
+import com.agniv.hisaab.core.domain.repository.ToolsHistory
 import com.agniv.hisaab.core.domain.repository.UdhaarRepository
 import com.agniv.hisaab.core.domain.util.IdGenerator
 import com.agniv.hisaab.core.domain.util.SystemTimeProvider
@@ -82,6 +84,8 @@ internal abstract class DataModule {
     @Binds abstract fun incomeRepository(impl: DataStoreIncomeRepository): IncomeRepository
 
     @Binds abstract fun loanReminderSettings(impl: DataStoreLoanReminderSettings): LoanReminderSettings
+
+    @Binds abstract fun toolsHistory(impl: DataStoreToolsHistory): ToolsHistory
 
     @Binds abstract fun syncRequester(impl: SyncScheduler): SyncRequester
 

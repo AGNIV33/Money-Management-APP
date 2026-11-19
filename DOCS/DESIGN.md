@@ -132,8 +132,14 @@ Recent           [5 HExpenseRow] → See all
 - Add Loan: [Fill with AI 🎤/📷] or manual form → Review screen with `HAiBadge` on AI-filled fields.
 
 ### 7.9 Tools
-- Grid of 4 cards: Calculator, EMI, Prepayment, Can I afford?
-- EMI result: EMI big, total interest, total payable, pie (principal vs interest), amortisation table (yearly collapse).
+- Hub: "Tools" + subtitle, 2×2 grid (EMI, Prepayment, Can I afford?, Interest / Savings) with outlined icons in soft green circles, a wide Calculator row, "Recently used" (last results, kept on the phone only, DataStore via `ToolsHistory` in core:data), and a Kinly Tip (real numbers from the family's first open loan, else a general tip).
+- Tool pages (boards, Nov 2026): back arrow + big title + subtitle + green glow picture; one input card with rows (icon tile, label + helper, value box on the right: ₹ with Indian commas / % / Years-Months, slider with min/max under it); live result on a `primaryContainer` card with a primary border; icon + text empty state.
+- EMI: EMI / month, donut with total in the middle and principal/interest %, total interest, total payment; year-by-year table (opening, principal, interest, closing) showing 3 years + "View all"; Save (to Recently used) and Share (plain text).
+- Prepayment: EMIs-paid stepper, extra payment, Finish sooner / Smaller EMI cards, "You save" banner, Before vs After bars (total interest, tenure or EMI) with saving pills, tip line.
+- Can I afford it?: income, current EMIs, new loan, rate, tenure; half-circle gauge with bands that match the logic (green under 30%, amber 30–40%, red over 40%), level chip + sentence, new EMI, money left each month, advice.
+- Calculator: display with expression above answer and a history menu; GST +18 / +12 / +5% and Discount chips; equal keys incl. 00; haptic tap.
+- Interest / Savings: FD (quarterly compounding, simple interest for leftover months) or monthly saving (SIP style).
+- Only theme tokens; no hard-coded colours.
 
 ### 7.10 Insights / Monthly Report
 - Header "October Report Card" + grade emoji.
