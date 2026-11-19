@@ -20,6 +20,7 @@
 
 ## Contents
 
+- [App preview](#app-preview)
 - [What Kinly does](#what-kinly-does)
 - [Requirements](#requirements)
 - [How to install](#how-to-install)
@@ -29,6 +30,23 @@
 - [Permissions the app asks for](#permissions-the-app-asks-for)
 - [Common questions](#common-questions)
 - [For developers](#for-developers)
+
+---
+
+## App preview
+
+<p align="center">
+  <img src="DOCS/screens/home.png" alt="Home screen" width="200">
+  <img src="DOCS/screens/add-expense.png" alt="Add expense" width="200">
+  <img src="DOCS/screens/assistant.png" alt="AI Assistant" width="200">
+</p>
+<p align="center">
+  <img src="DOCS/screens/goals.png" alt="Savings goals" width="200">
+  <img src="DOCS/screens/insights.png" alt="Insights" width="200">
+  <img src="DOCS/screens/report.png" alt="Monthly report" width="200">
+</p>
+<p align="center"><sub>Home · Add expense · AI Assistant · Goals · Insights · Monthly report<br>
+<i>Design previews. The real app may look slightly different.</i></sub></p>
 
 ---
 
